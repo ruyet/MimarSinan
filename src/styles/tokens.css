@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Design tokens — palette, type, spacing, motion.
+   Raw palette first, then semantic tokens that each chapter theme remaps.
+   Contrast notes (WCAG): text tokens are ≥ 4.5:1 against their theme background.
+   ========================================================================== */
+
+:root {
+  /* --- Raw palette ------------------------------------------------------ */
+  --stone-50: #f8f4ec;
+  --stone-100: #f3ede2; /* parchment background */
+  --stone-200: #e8dfcf;
+  --stone-300: #d6c9b2;
+
+  --night-950: #0f1116;
+  --night-900: #14161c; /* dark chapters */
+  --night-800: #1c1f27;
+  --night-700: #282c37;
+
+  --ink-900: #1d2838; /* line art + text on stone (≈ 13:1) */
+  --ink-700: #3e4a5c; /* secondary text on stone (≈ 7.7:1) */
+  --ink-400: #8a90a0; /* construction lines only, never text */
+
+  --iznik-blue: #1d4f91; /* accent text on stone (≈ 7:1) */
+  --turquoise: #2b9c98; /* lines/fills only on stone */
+  --turquoise-light: #6ccbc3; /* accent text on night */
+  --coral: #c4473a; /* stress / warnings */
+  --gold: #a87a2e; /* solved lines on stone */
+  --gold-light: #e3c27a; /* light, solved states on night */
+
+  --paper-on-night: #eee7da; /* text on night (≈ 15:1) */
+  --muted-on-night: #a9a497; /* secondary text on night (≈ 7:1) */
+
+  /* --- Typography ------------------------------------------------------- */
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Fluid scale (≈1.25 ratio at 360px → ≈1.5 at 1440px) */
+  --step--1: clamp(0.8rem, 0.77rem + 0.13vw, 0.875rem);
+  --step-0: clamp(1rem, 0.96rem + 0.19vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.5rem);
+  --step-2: clamp(1.44rem, 1.24rem + 0.9vw, 2.05rem);
+  --step-3: clamp(1.75rem, 1.4rem + 1.65vw, 2.9rem);
+  --step-4: clamp(2.1rem, 1.5rem + 2.9vw, 4.1rem);
+  --step-5: clamp(2.5rem, 1.5rem + 4.9vw, 6rem);
+
+  --leading-tight: 1.04;
+  --leading-snug: 1.2;
+  --leading-body: 1.6;
+  --tracking-display: -0.022em;
+  --tracking-caps: 0.18em;
+  --measure: 62ch;
+
+  /* --- Space ------------------------------------------------------------ */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.25rem;
+  --space-xl: 3.5rem;
+  --space-2xl: 5.5rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+
+  /* --- Motion ----------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.37, 0, 0.63, 1);
+  --dur-fast: 200ms;
+  --dur-med: 450ms;
+  --dur-slow: 900ms;
+
+  /* --- Misc ------------------------------------------------------------- */
+  --hairline: 1px;
+  --radius-s: 2px;
+  --focus-ring: var(--gold-light);
+}
+
+/* --- Semantic themes (applied per chapter section and to <body>) -------- */
+[data-theme='night'] {
+  --bg: var(--night-900);
+  --bg-raised: var(--night-800);
+  --fg: var(--paper-on-night);
+  --fg-muted: var(--muted-on-night);
+  --line: var(--paper-on-night);
+  --line-faint: rgb(238 231 218 / 0.22);
+  --accent: var(--gold-light);
+  --accent-2: var(--turquoise-light);
+  --focus-ring: var(--gold-light);
+  color-scheme: dark;
+}
+
+[data-theme='stone'] {
+  --bg: var(--stone-100);
+  --bg-raised: var(--stone-50);
+  --fg: var(--ink-900);
+  --fg-muted: var(--ink-700);
+  --line: var(--ink-900);
+  --line-faint: rgb(29 40 56 / 0.2);
+  --accent: var(--iznik-blue);
+  --accent-2: var(--turquoise);
+  --focus-ring: var(--iznik-blue);
+  color-scheme: light;
+}

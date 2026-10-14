@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hold Up the Sky — Selimiye Mosque</title>
+    <meta
+      name="description"
+      content="An interactive story about how Mimar Sinan covered one vast, light-filled space with a single dome at the Selimiye Mosque in Edirne."
+    />
+    <meta name="theme-color" content="#14161c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..500,0..100,0..1&family=Instrument+Sans:wght@400..600&display=swap"
+    />
+  </head>
+  <body data-theme="night">
+    <a class="skip-link" href="#stage">Skip to the story</a>
+
+    <header class="hud">
+      <nav class="progress" aria-label="Chapters">
+        <p class="progress__label" id="progress-label"></p>
+        <ol class="progress__list" id="progress-list"></ol>
+      </nav>
+      <button type="button" class="sound-toggle" id="sound-toggle" aria-pressed="false"></button>
+    </header>
+
+    <main id="stage" class="stage" tabindex="-1"></main>
+
+    <p class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></p>
+
+    <noscript>
+      <p style="padding: 2rem; max-width: 40rem">
+        This interactive story needs JavaScript. It tells how Mimar Sinan covered the prayer hall of
+        the Selimiye Mosque (Edirne, 1574–75) with a single dome on eight piers, freeing the walls
+        to be filled with windows.
+      </p>
+    </noscript>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

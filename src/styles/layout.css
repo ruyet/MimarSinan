@@ -1,0 +1,180 @@
+/* ==========================================================================
+   Layout — stage, chapters, HUD (progress + sound).
+   ========================================================================== */
+
+.stage {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Chapters are stacked full-viewport layers; only the active one is visible. */
+.chapter {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  color: var(--fg);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.chapter.is-active {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* --- HUD ------------------------------------------------------------- */
+
+.hud {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: max(var(--space-2xs), env(safe-area-inset-top)) var(--gutter) 0;
+  color: var(--fg);
+  pointer-events: none;
+  transition: color var(--dur-slow) var(--ease-in-out);
+}
+
+.hud > * {
+  pointer-events: auto;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 48px;
+}
+
+.progress__label {
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.progress__label strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--fg);
+  letter-spacing: 0.04em;
+}
+
+.progress__list {
+  display: none; /* compact label-only on small screens */
+  list-style: none;
+  padding: 0;
+}
+
+.progress__step {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.progress__step::before {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.28;
+  transform-origin: left;
+  transition:
+    opacity var(--dur-med) var(--ease-out),
+    transform var(--dur-med) var(--ease-out);
+}
+
+.progress__step[aria-current='step']::before {
+  opacity: 1;
+  background: var(--accent);
+  transform: scaleX(1.5);
+}
+
+.progress__step.is-visited::before {
+  opacity: 0.7;
+}
+
+.progress__step:disabled {
+  cursor: default;
+}
+
+.progress__step:disabled::before {
+  opacity: 0.14;
+}
+
+.progress__step:not(:disabled):hover::before {
+  opacity: 1;
+}
+
+@media (min-width: 52rem) {
+  .progress__list {
+    display: flex;
+  }
+}
+
+/* --- Sound toggle ------------------------------------------------------ */
+
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 0.4em;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.sound-toggle__icon {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.sound-toggle__icon span {
+  width: 2px;
+  height: 100%;
+  background: currentColor;
+  transform-origin: bottom;
+  transform: scaleY(0.25);
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.sound-toggle[aria-pressed='true'] .sound-toggle__icon span {
+  animation: eq 1.4s var(--ease-soft) infinite alternate;
+}
+
+.sound-toggle[aria-pressed='true'] .sound-toggle__icon span:nth-child(2) {
+  animation-delay: -0.5s;
+}
+
+.sound-toggle[aria-pressed='true'] .sound-toggle__icon span:nth-child(3) {
+  animation-delay: -0.9s;
+}
+
+@keyframes eq {
+  from {
+    transform: scaleY(0.3);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
