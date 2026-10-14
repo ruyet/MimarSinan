@@ -45,7 +45,7 @@ export interface HallDrawing {
   strokes: SVGPathElement[];
 }
 
-export function buildHall(labelledBy: string): HallDrawing {
+export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
   const { origin, hx, hy, wallH, cutH, R, domeZ, pierSize } = HALL;
   const p = createProjector(origin);
   const svg = s('svg', {
@@ -55,10 +55,14 @@ export function buildHall(labelledBy: string): HallDrawing {
     'aria-labelledby': labelledBy,
   });
   const defs = s('defs', {}, svg);
-  const rayGrad = s('linearGradient', { id: 'hall-ray', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  const rayGrad = s(
+    'linearGradient',
+    { id: `hall-ray${idSuffix}`, x1: 0, y1: 0, x2: 0, y2: 1 },
+    defs,
+  );
   s('stop', { offset: '0%', 'stop-color': '#f2d48c', 'stop-opacity': 0.75 }, rayGrad);
   s('stop', { offset: '100%', 'stop-color': '#f2d48c', 'stop-opacity': 0.05 }, rayGrad);
-  const poolGrad = s('radialGradient', { id: 'hall-pool' }, defs);
+  const poolGrad = s('radialGradient', { id: `hall-pool${idSuffix}` }, defs);
   s('stop', { offset: '0%', 'stop-color': '#f6dc9a', 'stop-opacity': 0.9 }, poolGrad);
   s('stop', { offset: '100%', 'stop-color': '#f6dc9a', 'stop-opacity': 0.15 }, poolGrad);
 
@@ -153,12 +157,12 @@ export function buildHall(labelledBy: string): HallDrawing {
         const rb = wall.at(u + winW / 2, z0);
         rows[rowIndex].rays.push(
           poly([p(...l), p(...r), hit(...r), hit(...l)], 'hall__ray', gRays, {
-            fill: 'url(#hall-ray)',
+            fill: `url(#hall-ray${idSuffix})`,
           }),
         );
         rows[rowIndex].pools.push(
           poly([hit(...lb), hit(...rb), hit(...r), hit(...l)], 'hall__pool', gPools, {
-            fill: 'url(#hall-pool)',
+            fill: `url(#hall-pool${idSuffix})`,
           }),
         );
       }

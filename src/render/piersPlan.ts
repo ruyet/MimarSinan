@@ -239,27 +239,39 @@ export function buildFloorView(idSuffix = ''): FloorView {
  * Unlike the small panorama, piers here read as what they are at Selimiye: pilasters merged
  * into the far walls, at the edge of one deep, open floor under a single sweeping dome.
  */
-export function buildRoomView(): SVGSVGElement {
+export function buildRoomView(idSuffix = ''): SVGSVGElement {
   const W = 1200;
   const H = 520;
   const horizon = 360;
   const wallTop = 200;
   const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, class: 'roomview', 'aria-hidden': 'true' });
   const defs = s('defs', {}, svg);
-  const wall = s('linearGradient', { id: 'rv-wall', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  const wall = s('linearGradient', { id: `rv-wall${idSuffix}`, x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
   s('stop', { offset: '0%', 'stop-color': '#fbf4e3' }, wall);
   s('stop', { offset: '100%', 'stop-color': '#efe4cd' }, wall);
-  const floorGrad = s('linearGradient', { id: 'rv-floor', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  const floorGrad = s(
+    'linearGradient',
+    { id: `rv-floor${idSuffix}`, x1: 0, y1: 0, x2: 0, y2: 1 },
+    defs,
+  );
   s('stop', { offset: '0%', 'stop-color': '#dccdb1' }, floorGrad);
   s('stop', { offset: '100%', 'stop-color': '#cdb994' }, floorGrad);
-  const glow = s('radialGradient', { id: 'rv-glow', cx: '50%', cy: '0%', r: '75%' }, defs);
+  const glow = s(
+    'radialGradient',
+    { id: `rv-glow${idSuffix}`, cx: '50%', cy: '0%', r: '75%' },
+    defs,
+  );
   s('stop', { offset: '0%', 'stop-color': '#f6dc9a', 'stop-opacity': 0.55 }, glow);
   s('stop', { offset: '100%', 'stop-color': '#f6dc9a', 'stop-opacity': 0 }, glow);
 
   // Sky of the dome, walls, floor.
-  s('rect', { x: 0, y: 0, width: W, height: horizon, fill: 'url(#rv-wall)' }, svg);
-  s('rect', { x: 0, y: horizon, width: W, height: H - horizon, fill: 'url(#rv-floor)' }, svg);
-  s('rect', { x: 0, y: 0, width: W, height: H, fill: 'url(#rv-glow)' }, svg);
+  s('rect', { x: 0, y: 0, width: W, height: horizon, fill: `url(#rv-wall${idSuffix})` }, svg);
+  s(
+    'rect',
+    { x: 0, y: horizon, width: W, height: H - horizon, fill: `url(#rv-floor${idSuffix})` },
+    svg,
+  );
+  s('rect', { x: 0, y: 0, width: W, height: H, fill: `url(#rv-glow${idSuffix})` }, svg);
 
   // The dome: one great arc from edge to edge, with its ring of windows.
   const arc = (y0: number, peak: number) => `M-40 ${y0}Q${W / 2} ${peak} ${W + 40} ${y0}`;
