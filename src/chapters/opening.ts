@@ -10,6 +10,7 @@ import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
 import { bindSoundToggle, soundToggleContents } from '../core/soundToggle';
+import { principleRow } from '../core/principles';
 import { splitHeadline } from '../core/splitText';
 import { createMotes } from '../render/motes';
 
@@ -46,7 +47,22 @@ export function createOpening(ctx: ChapterContext): Chapter {
   light.innerHTML = `${WINDOW_SVG}<div class="opening__beam"></div><div class="opening__pool"></div>`;
   light.append(canvas);
 
-  const eyebrow = h('p', { class: 'eyebrow' }, t.eyebrow);
+  // Sinan's name leads, set heavier than the rest of the line.
+  const eyebrow = h(
+    'p',
+    { class: 'eyebrow opening__eyebrow' },
+    h('strong', { class: 'opening__name' }, t.eyebrowName),
+    h('span', { 'aria-hidden': 'true' }, ' · '),
+    t.eyebrow,
+  );
+  // The visitor's goal: three ideas to discover, shown as empty marks.
+  const goalRow = principleRow(false);
+  const goal = h(
+    'div',
+    { class: 'opening__goal' },
+    h('p', { class: 'meta-label' }, t.goal),
+    goalRow,
+  );
   const lede = h('p', { class: 'lede' }, t.lede);
   const actions = h('div', { class: 'opening__actions' }, begin, sound);
   const hint = h('p', { class: 'opening__hint', id: 'opening-sound-hint' }, t.soundHint);
@@ -56,7 +72,7 @@ export function createOpening(ctx: ChapterContext): Chapter {
     'section',
     { class: 'chapter opening', 'data-theme': 'night', 'aria-labelledby': 'opening-title' },
     light,
-    h('div', { class: 'opening__content' }, eyebrow, title, lede, actions, hint),
+    h('div', { class: 'opening__content' }, eyebrow, title, lede, goal, actions, hint),
     footer,
   );
 
@@ -69,7 +85,7 @@ export function createOpening(ctx: ChapterContext): Chapter {
   });
 
   function playIntro(): void {
-    const supporting = [eyebrow, lede, actions, hint, footer];
+    const supporting = [eyebrow, lede, goal, actions, hint, footer];
     if (reducedMotion()) {
       gsap.fromTo([title, ...supporting], { opacity: 0 }, { opacity: 1, duration: 0.6 });
       return;
@@ -89,13 +105,22 @@ export function createOpening(ctx: ChapterContext): Chapter {
         { yPercent: 0, opacity: 1, duration: 1.6, ease: EASE.out, stagger: 0.09 },
         0.9,
       )
+      .fromTo(lede, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 1.2, ease: EASE.out }, 2.1)
+      // The three marks are sketched in one after another, as on a notebook page.
+      .fromTo(goal, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: EASE.soft }, 2.6)
       .fromTo(
-        [lede, actions, hint],
+        goalRow.querySelectorAll('.mark__line'),
+        { strokeDasharray: 1, strokeDashoffset: 1 },
+        { strokeDashoffset: 0, duration: 1, stagger: 0.12, ease: EASE.inOut },
+        2.7,
+      )
+      .fromTo(
+        [actions, hint],
         { opacity: 0, y: 12 },
         { opacity: 1, y: 0, duration: 1.2, ease: EASE.out, stagger: 0.15 },
-        2.1,
+        3.4,
       )
-      .fromTo(footer, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: EASE.soft }, 2.8);
+      .fromTo(footer, { opacity: 0 }, { opacity: 1, duration: 1.5, ease: EASE.soft }, 3.8);
   }
 
   return {

@@ -190,3 +190,28 @@
     padding-inline: 0.25rem;
   }
 }
+
+/* --- 0 · Prologue additions -------------------------------------------- */
+
+.opening__eyebrow {
+  flex-wrap: wrap;
+  gap: 0 0.5em;
+}
+
+.opening__name {
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--fg);
+}
+
+.opening__goal {
+  display: grid;
+  gap: var(--space-xs);
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--line-faint);
+  max-width: 42rem;
+}
+
+.opening__goal .principle-row__item {
+  color: var(--fg);
+}
