@@ -350,3 +350,108 @@
   stroke: rgb(29 40 56 / 0.18);
   stroke-width: 1;
 }
+
+/* --- Photo annotations (core/annotate.ts) ------------------------------- */
+
+.annot-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.annot-svg {
+  position: absolute;
+  overflow: visible;
+}
+
+.annot-dim {
+  fill: #0b0c10;
+}
+
+.annot-outline {
+  fill: none;
+  stroke: var(--gold-light);
+  vector-effect: none;
+  filter: drop-shadow(0 0 6px rgb(0 0 0 / 0.55));
+}
+
+.annot-outline--quiet {
+  stroke-opacity: 0.55;
+}
+
+.annot-label {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  max-width: min(22rem, 80%);
+  padding: 0.4em 0.75em 0.4em 0.55em;
+  background: rgb(15 17 22 / 0.86);
+  color: var(--paper-on-night);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-left: 2px solid var(--gold-light);
+}
+
+/* Leader line from the label to the highlighted area. */
+.annot-label::after {
+  content: '';
+  position: absolute;
+  left: 0.9rem;
+  top: 100%;
+  width: 1px;
+  height: 10px;
+  background: var(--gold-light);
+}
+
+.annot-label.is-below::after {
+  top: auto;
+  bottom: 100%;
+}
+
+.annot-label .mark {
+  width: 1rem;
+  height: 1rem;
+  color: var(--gold-light);
+}
+
+/* Calibration mode (?annotate=1) */
+.annot-layer.is-calibrating {
+  pointer-events: none;
+}
+
+.annot-grid line {
+  stroke: #0ff;
+  stroke-opacity: 0.7;
+}
+
+.annot-grid text {
+  fill: #ff0;
+  font-family: var(--font-ui);
+}
+
+.annot-raw {
+  fill: rgb(255 0 255 / 0.08);
+  stroke: #f0f;
+}
+
+.annot-raw.is-unsure {
+  stroke: #f80;
+  stroke-dasharray: 6 4;
+}
+
+.annot-readout {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  background: #000;
+  color: #ff0;
+  font: 600 12px/1 var(--font-ui);
+}
