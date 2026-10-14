@@ -13,6 +13,7 @@ import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
 import { preloadImage } from '../core/picture';
 import { button, eyebrow, headline, introText, richText, sheet } from '../core/ui';
+import { discover } from '../core/principles';
 import { buildHall } from '../render/hall';
 
 const MAX = 4;
@@ -73,7 +74,7 @@ export function createWalls(ctx: ChapterContext): Chapter {
     warm,
     h(
       'div',
-      { class: 'spread spread--controls' },
+      { class: 'spread spread--controls spread--mirror' },
       h('div', { class: 'spread__text' }, top, title.el, body),
       h('div', { class: 'spread__controls' }, control, light, closing),
       h('div', { class: 'spread__figure' }, figure),
@@ -126,6 +127,7 @@ export function createWalls(ctx: ChapterContext): Chapter {
     announce(`${t.lightLabel}: ${t.levels[level]}`);
 
     const full = level === MAX;
+    if (full) discover('light');
     if (full && closing.hidden) {
       closing.hidden = false;
       cont.hidden = false;
