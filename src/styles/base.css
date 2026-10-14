@@ -237,6 +237,11 @@ svg {
 
 /* --- Utilities -------------------------------------------------------- */
 
+/* Components set display; the hidden attribute must always win. */
+[hidden] {
+  display: none !important;
+}
+
 .sr-only {
   position: absolute !important;
   width: 1px;
@@ -275,4 +280,14 @@ svg {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Same, when forced with ?reduced-motion (see core/motion.ts). */
+.force-reduced-motion *,
+.force-reduced-motion *::before,
+.force-reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }

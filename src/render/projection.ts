@@ -66,3 +66,17 @@ export function runs<T>(items: T[], keep: (item: T) => boolean): T[][] {
 export function range(from: number, to: number, steps: number): number[] {
   return Array.from({ length: steps + 1 }, (_, i) => from + ((to - from) * i) / steps);
 }
+
+/** A circle or arc on a horizontal plane at height z, sampled and projected. */
+export function ringPoints(
+  p: Projector,
+  cx: number,
+  cy: number,
+  r: number,
+  z: number,
+  a0 = 0,
+  a1 = Math.PI * 2,
+  steps = 96,
+): ScreenPoint[] {
+  return range(a0, a1, steps).map((a) => p(cx + r * Math.cos(a), cy + r * Math.sin(a), z));
+}

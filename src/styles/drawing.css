@@ -1,0 +1,120 @@
+/* ==========================================================================
+   Line-art drawings (SVG). Strokes use pathLength="1" so they can be "drawn".
+   ========================================================================== */
+
+.plan {
+  --plan-ink: var(--ink-900);
+}
+
+.plan .stroke {
+  fill: none;
+  stroke: var(--plan-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.plan .s-construction {
+  stroke: var(--ink-400);
+  stroke-width: 0.8;
+  opacity: 0.55;
+}
+
+.plan .s-wall {
+  stroke-width: 2.4;
+}
+
+.plan .s-wall-inner {
+  stroke-width: 1.1;
+}
+
+.plan .s-footprint {
+  stroke: var(--turquoise);
+  stroke-width: 1.4;
+}
+
+.plan .s-dim {
+  stroke: var(--ink-700);
+  stroke-width: 0.9;
+}
+
+.plan .s-dome {
+  stroke-width: 1.8;
+}
+
+.plan .s-dome-fine {
+  stroke-width: 0.8;
+  opacity: 0.55;
+}
+
+.plan .s-dome-hidden {
+  stroke-width: 0.8;
+  opacity: 0.3;
+}
+
+.plan .s-window {
+  stroke: var(--iznik-blue);
+  stroke-width: 1.4;
+}
+
+.plan .s-plumb {
+  stroke: var(--gold);
+  stroke-width: 1.1;
+}
+
+.plan .s-crack {
+  stroke: var(--ink-900);
+  stroke-width: 1.2;
+}
+
+.plan .s-pier {
+  stroke-width: 1.1;
+}
+
+.plan .s-arch {
+  stroke-width: 1.3;
+}
+
+.plan .dome-fill {
+  fill: var(--stone-100);
+  fill-opacity: 0.88;
+}
+
+.plan .nib {
+  fill: var(--iznik-blue);
+}
+
+.plan .guide {
+  fill: none;
+  stroke: var(--ink-700);
+  stroke-width: 0.9;
+  stroke-dasharray: 3 5;
+  opacity: 0.7;
+}
+
+.plan .guide--arrow {
+  stroke-dasharray: none;
+}
+
+.plan .annot {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  fill: var(--ink-700);
+}
+
+.plan .annot--italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+
+/* A paper-coloured halo keeps labels legible over line work. */
+.plan .annot--halo {
+  paint-order: stroke;
+  stroke: var(--stone-100);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}

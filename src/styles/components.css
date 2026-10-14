@@ -1,0 +1,304 @@
+/* ==========================================================================
+   Components shared by several chapters: secondary buttons, link buttons,
+   switch, range slider, stepper, meters, tabs, icon buttons.
+   ========================================================================== */
+
+.btn--secondary {
+  --btn-border: var(--line-faint);
+  --btn-fill: var(--fg);
+}
+
+.link-btn {
+  min-height: 44px;
+  padding: 0 0.25em;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-0);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  text-decoration-thickness: 2px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+/* --- Switch (aria-pressed) -------------------------------------------- */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  min-height: 48px;
+  padding: 0 0.25em;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.switch__track {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border: 1px solid var(--fg-muted);
+  border-radius: 11px;
+}
+
+.switch__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fg-muted);
+  transition: transform var(--dur-med) var(--ease-out);
+}
+
+.switch[aria-pressed='true'] .switch__track {
+  border-color: var(--accent);
+}
+
+.switch[aria-pressed='true'] .switch__track::after {
+  background: var(--accent);
+  transform: translateX(16px);
+}
+
+/* --- Labels for controls ---------------------------------------------- */
+
+.stepper__label {
+  display: block;
+  margin-bottom: var(--space-2xs);
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* --- Stepper: radio group with big targets ----------------------------- */
+
+.stepper__options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(48px, 1fr));
+  border: 1px solid var(--line-faint);
+  border-radius: var(--radius-s);
+  max-width: 24rem;
+}
+
+.stepper__option {
+  position: relative;
+  min-height: 52px;
+  border: 0;
+  border-left: 1px solid var(--line-faint);
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-variation-settings: 'opsz' 36;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out);
+}
+
+.stepper__option:first-child {
+  border-left: 0;
+}
+
+.stepper__option:hover {
+  background: rgb(29 40 56 / 0.06);
+}
+
+.stepper__option[aria-checked='true'] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.stepper__option:focus-visible {
+  z-index: 1;
+  outline-offset: -4px;
+  outline-color: var(--gold);
+}
+
+/* --- Meters ----------------------------------------------------------- */
+
+.meters {
+  display: grid;
+  gap: var(--space-s);
+  max-width: 24rem;
+}
+
+.meter__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-s);
+  margin-bottom: 0.4rem;
+}
+
+.meter__label {
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.meter__value {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  line-height: 1;
+  font-variation-settings: 'opsz' 36;
+}
+
+.meter__track {
+  position: relative;
+  height: 8px;
+  background: rgb(29 40 56 / 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* The sweet spot (≥ 80 %), marked as a hatched band. */
+.meter__sweet {
+  position: absolute;
+  inset: 0 0 0 80%;
+  background: repeating-linear-gradient(-45deg, rgb(168 122 46 / 0.35) 0 2px, transparent 2px 5px);
+}
+
+.meter__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--meter-color, var(--ink-700));
+  transform-origin: left;
+  transform: scaleX(0);
+  border-radius: 4px;
+  transition: background-color var(--dur-med) var(--ease-out);
+}
+
+.meter[data-tone='bad'] {
+  --meter-color: var(--coral);
+}
+
+.meter[data-tone='warn'] {
+  --meter-color: #c28a2c;
+}
+
+.meter[data-tone='good'] {
+  --meter-color: var(--gold);
+}
+
+.meter[data-tone='bad'] .meter__value {
+  color: #a8382c; /* darker coral for text contrast (≈ 5.6:1 on stone) */
+}
+
+/* --- Range slider ------------------------------------------------------- */
+
+.range {
+  width: 100%;
+  max-width: 24rem;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--gold);
+  cursor: pointer;
+  appearance: none;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--line-faint));
+}
+
+.range::-moz-range-track {
+  height: 2px;
+  background: var(--line-faint);
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -13px;
+  border: 1px solid var(--ink-900);
+  border-radius: 50%;
+  background: var(--stone-50);
+  box-shadow: 0 0 0 6px rgb(227 194 122 / 0.35);
+}
+
+.range::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ink-900);
+  border-radius: 50%;
+  background: var(--stone-50);
+}
+
+/* --- Tabs (pressed buttons) -------------------------------------------- */
+
+.tabs {
+  display: inline-flex;
+  border: 1px solid var(--line-faint);
+  border-radius: var(--radius-s);
+  width: max-content;
+}
+
+.tab {
+  min-height: 48px;
+  min-width: 6.5rem;
+  padding: 0 1.2em;
+  border: 0;
+  background: transparent;
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tab[aria-pressed='true'] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* --- Icon buttons ------------------------------------------------------- */
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line-faint);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fg);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-med) var(--ease-out),
+    opacity var(--dur-med) var(--ease-out);
+}
+
+.icon-btn:hover:not(:disabled) {
+  border-color: var(--fg);
+}
+
+.icon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "out": "reveal/selimiye-dome-from-below",
+    "commons": "File:Interior of dome, Selimiye Mosque, Edirne - Tarik Kaan Muslu.jpg",
+    "crop": "square"
+  },
+  {
+    "out": "interior/selimiye-prayer-hall",
+    "commons": "File:Edirne Selimiye Mosque Müezzin mahfili view in the room in 2009 6286.jpg"
+  },
+  {
+    "out": "interior/selimiye-mihrab-apse",
+    "commons": "File:Edirne Selimiye Mosque Mihrab in 2018 0162.jpg"
+  },
+  {
+    "out": "interior/selimiye-muezzin-platform",
+    "commons": "File:Müezzin mahfili in Selimiye mosque in Edirne 0196.jpg"
+  },
+  { "out": "exterior/selimiye-minarets", "commons": "File:Edirne Mosque.jpg" },
+  {
+    "out": "exterior/selimiye-exterior-overcast",
+    "commons": "File:Edirne Selimiye Mosque from distance in 2009 6427.jpg"
+  }
+]

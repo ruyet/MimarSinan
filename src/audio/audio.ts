@@ -8,7 +8,7 @@
  *  - Everything passes through one master gain and a generated room reverb.
  */
 
-export type Mood = 'night' | 'stone' | null;
+export type Mood = 'night' | 'stone' | 'room' | null;
 type Listener = (enabled: boolean) => void;
 
 interface Pad {
@@ -19,6 +19,8 @@ interface Pad {
 const PAD_NOTES: Record<Exclude<Mood, null>, number[]> = {
   night: [73.42, 110.0, 146.83, 220.0],
   stone: [146.83, 220.0, 293.66, 440.0],
+  // Room tone for the photographs: very low, mostly reverb, like air in a stone hall.
+  room: [55.0, 82.41, 110.0],
 };
 
 class AudioEngine {
@@ -92,6 +94,73 @@ class AudioEngine {
       osc.start(t);
       osc.stop(t + 4.6);
     });
+  }
+
+  /** Collapse: a low thud plus a filtered rumble of falling stone. */
+  rumble(): void {
+    const ctx = this.readyContext();
+    if (!ctx || !this.master || !this.reverb) return;
+    const t = ctx.currentTime;
+
+    const thud = ctx.createOscillator();
+    const thudGain = ctx.createGain();
+    thud.type = 'sine';
+    thud.frequency.setValueAtTime(70, t);
+    thud.frequency.exponentialRampToValueAtTime(34, t + 0.8);
+    thudGain.gain.setValueAtTime(0.0001, t);
+    thudGain.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+    thudGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    thud.connect(thudGain).connect(this.master);
+    thud.start(t);
+    thud.stop(t + 1.3);
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = this.noiseBuffer(ctx, 3);
+    const low = ctx.createBiquadFilter();
+    low.type = 'lowpass';
+    low.frequency.setValueAtTime(420, t);
+    low.frequency.exponentialRampToValueAtTime(90, t + 2.6);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+    noise.connect(low).connect(g);
+    g.connect(this.master);
+    g.connect(this.reverb);
+    noise.start(t);
+    noise.stop(t + 3);
+  }
+
+  /** Placing a pier: a soft, short wooden tick. */
+  tick(pitch = 1): void {
+    const ctx = this.readyContext();
+    if (!ctx || !this.master) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(900 * pitch, t);
+    osc.frequency.exponentialRampToValueAtTime(420 * pitch, t + 0.06);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.09, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    osc.connect(g).connect(this.master);
+    osc.start(t);
+    osc.stop(t + 0.15);
+  }
+
+  /** The eight-pier lock-in: a resonant open chord, gently staggered. */
+  lock(): void {
+    [146.83, 220, 293.66, 440].forEach((f, i) => {
+      window.setTimeout(() => this.chime(f, 0.09), i * 110);
+    });
+  }
+
+  /** Windows opening: a light, high shimmer. */
+  shimmer(step = 0): void {
+    const base = [587.33, 659.25, 783.99, 880, 987.77][step % 5];
+    this.chime(base * 2, 0.035);
+    window.setTimeout(() => this.chime(base * 3, 0.02), 90);
   }
 
   /** Quiet paper-and-pen texture while line art is being drawn. Returns a stop function. */

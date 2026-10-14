@@ -1,38 +1,36 @@
 /**
- * Builds the chapter I line drawing: a square hall in axonometric view, its construction
- * geometry, and a single dome hovering above it.
+ * Chapter I drawing: the prayer hall (≈ 45 × 36 m, nearly square) in axonometric view,
+ * its construction geometry, and a single dome (≈ 31 m) hovering above it, with guides
+ * showing where it would drop. Also holds hidden crack lines for the collapse.
  *
- * Every stroke is a <path pathLength="1"> so any of them can be "drawn" by animating
- * stroke-dashoffset from 1 to 0, regardless of its real length.
- * The geometry constants are exported so later chapters (piers, thrust lines) share them.
+ * Drawing units: 9 units = 1 metre, so proportions follow the verified dimensions.
  */
 import { s } from '../core/dom';
-import {
-  FORESHORTEN,
-  createProjector,
-  facesViewer,
-  range,
-  runs,
-  toPath,
-  type ScreenPoint,
-} from './projection';
+import { drawDome } from './dome';
+import { FORESHORTEN, createProjector, ringPoints, toPath } from './projection';
+import { edgeLabel, label, stroke } from './svg';
+
+const M = 9; // units per metre
 
 export const PLAN = {
   width: 640,
   height: 640,
-  origin: { x: 320, y: 452 },
-  /** Half the side of the square hall, in drawing units. */
-  half: 180,
-  wall: 16,
+  /** Visible crop of the drawing (x, y, w, h): 4:3, trimmed to the content. */
+  view: [0, 140, 640, 480] as const,
+  origin: { x: 320, y: 468 },
+  /** Half-sizes of the hall: 45 × 36 m. */
+  hx: 22.5 * M,
+  hy: 18 * M,
+  wall: 1.8 * M,
+  /** Dome radius: ≈ 31 m across. */
+  R: 15.5 * M,
   /** Height the dome hovers above the floor before it is released. */
   lift: 150,
 } as const;
 
-/** The dome sits on the circle inscribed in the square. */
-export const DOME_RADIUS = PLAN.half;
-
 export interface FloorPlanLabels {
   hall: string;
+  hallSize: string;
   dome: string;
   span: string;
 }
@@ -46,35 +44,41 @@ export interface FloorPlan {
   domeFill: SVGPathElement;
   nib: SVGCircleElement;
   outerWall: SVGPathElement;
+  guides: SVGGElement;
   strokes: {
     construction: SVGPathElement[];
     walls: SVGPathElement[];
     footprint: SVGPathElement[];
-    dimension: SVGPathElement[];
     dome: SVGPathElement[];
+    domeDim: SVGPathElement[];
     plumb: SVGPathElement[];
+    cracks: SVGPathElement[];
   };
-  annotations: SVGElement[];
+  /** [hall, hallSize, dome, span] */
+  annotations: SVGTextElement[];
+  /** Points (in SVG units) along the footprint, used to spawn dust. */
+  impactPoints: { x: number; y: number }[];
+  /** How far (in SVG units) the dome falls to reach the floor. */
+  dropDistance: number;
 }
 
-export function buildFloorPlan(labels: FloorPlanLabels, titleId: string): FloorPlan {
-  const { width, height, origin, half: H, wall, lift } = PLAN;
-  const R = DOME_RADIUS;
+export function buildFloorPlan(labels: FloorPlanLabels, labelledBy: string): FloorPlan {
+  const { origin, hx, hy, wall, R, lift } = PLAN;
   const p = createProjector(origin);
 
   const svg = s('svg', {
-    viewBox: `0 0 ${width} ${height}`,
+    viewBox: PLAN.view.join(' '),
     class: 'plan',
     role: 'img',
-    'aria-labelledby': titleId,
+    'aria-labelledby': labelledBy,
   });
-
   const defs = s('defs', {}, svg);
   const grad = s('radialGradient', { id: 'plan-shadow' }, defs);
   s('stop', { offset: '0%', 'stop-color': '#1d2838', 'stop-opacity': 0.16 }, grad);
   s('stop', { offset: '100%', 'stop-color': '#1d2838', 'stop-opacity': 0 }, grad);
 
   const planLayer = s('g', { class: 'plan__floor' }, svg);
+  const guides = s('g', { class: 'plan__guides' }, svg);
   const domeLayer = s('g', { class: 'plan__dome' }, svg);
   const domeFloat = s('g', {}, domeLayer);
 
@@ -82,209 +86,155 @@ export function buildFloorPlan(labels: FloorPlanLabels, titleId: string): FloorP
     construction: [],
     walls: [],
     footprint: [],
-    dimension: [],
     dome: [],
+    domeDim: [],
     plumb: [],
-  };
-  const annotations: SVGElement[] = [];
-
-  const line = (
-    d: string,
-    cls: string,
-    parent: SVGGElement,
-    bucket: SVGPathElement[],
-  ): SVGPathElement => {
-    const path = s('path', { d, class: `stroke ${cls}`, pathLength: 1 }, parent);
-    bucket.push(path);
-    return path;
+    cracks: [],
   };
 
-  /** A circle (or arc) on a horizontal plane, sampled into projected points. */
-  const ring = (
-    cx: number,
-    cy: number,
-    r: number,
-    z: number,
-    a0 = 0,
-    a1 = Math.PI * 2,
-    steps = 96,
-  ): ScreenPoint[] =>
-    range(a0, a1, steps).map((a) => p(cx + r * Math.cos(a), cy + r * Math.sin(a), z));
-
-  /* --- Floor shadow (grows/shrinks as the dome floats) ---------------- */
+  /* --- Floor shadow (answers the hovering dome) ----------------------- */
   const shadow = s(
     'ellipse',
     {
       cx: origin.x,
       cy: origin.y,
-      rx: R * 0.9,
-      ry: R * 0.9 * FORESHORTEN,
+      rx: R * 0.92,
+      ry: R * 0.92 * FORESHORTEN,
       fill: 'url(#plan-shadow)',
     },
     planLayer,
   );
 
   /* --- Construction geometry ----------------------------------------- */
-  const ext = 36; // construction lines run past the walls, as on a drafting sheet
   const C = strokes.construction;
-  line(toPath([p(-H - ext, 0), p(H + ext, 0)]), 's-construction', planLayer, C);
-  line(toPath([p(0, -H - ext), p(0, H + ext)]), 's-construction', planLayer, C);
-  line(toPath([p(-H, -H), p(H, H)]), 's-construction', planLayer, C);
-  line(toPath([p(H, -H), p(-H, H)]), 's-construction', planLayer, C);
-  // Circumscribed circle and the four compass arcs struck from the corners.
-  line(toPath(ring(0, 0, H * Math.SQRT2, 0), true), 's-construction', planLayer, C);
-  const corners: [number, number, number][] = [
-    [-H, -H, 0],
-    [H, -H, Math.PI / 2],
-    [H, H, Math.PI],
-    [-H, H, Math.PI * 1.5],
-  ];
-  corners.forEach(([x, y, a]) => {
-    line(toPath(ring(x, y, H, 0, a, a + Math.PI / 2, 32)), 's-construction', planLayer, C);
+  const ext = 4 * M; // construction lines run past the walls, as on a drafting sheet
+  stroke(planLayer, toPath([p(-hx - ext, 0), p(hx + ext, 0)]), 's-construction', C);
+  stroke(planLayer, toPath([p(0, -hy - ext), p(0, hy + ext)]), 's-construction', C);
+  stroke(planLayer, toPath([p(-hx, -hy), p(hx, hy)]), 's-construction', C);
+  stroke(planLayer, toPath([p(hx, -hy), p(-hx, hy)]), 's-construction', C);
+  stroke(planLayer, toPath(ringPoints(p, 0, 0, Math.hypot(hx, hy), 0), true), 's-construction', C);
+  // Compass arcs struck from the four corners, radius = half the short side.
+  (
+    [
+      [-hx, -hy, 0],
+      [hx, -hy, Math.PI / 2],
+      [hx, hy, Math.PI],
+      [-hx, hy, Math.PI * 1.5],
+    ] as const
+  ).forEach(([x, y, a]) => {
+    stroke(
+      planLayer,
+      toPath(ringPoints(p, x, y, hy, 0, a, a + Math.PI / 2, 32)),
+      's-construction',
+      C,
+    );
   });
 
   /* --- Dome footprint on the floor ------------------------------------ */
-  line(toPath(ring(0, 0, R, 0), true), 's-footprint', planLayer, strokes.footprint);
+  stroke(planLayer, toPath(ringPoints(p, 0, 0, R, 0), true), 's-footprint', strokes.footprint);
 
-  /* --- Walls ---------------------------------------------------------- */
-  // Outer wall, with a small mihrab niche in the far (qibla) wall.
-  const niche = 14;
-  const outerPts = [
-    p(-H, -H),
-    p(-niche, -H),
-    p(-niche, -H - niche),
-    p(niche, -H - niche),
-    p(niche, -H),
-    p(H, -H),
-    p(H, H),
-    p(-H, H),
-  ];
-  const outerWall = line(toPath(outerPts, true), 's-wall', planLayer, strokes.walls);
-  const hi = H - wall;
-  line(
-    toPath([p(-hi, -hi), p(hi, -hi), p(hi, hi), p(-hi, hi)], true),
-    's-wall-inner',
+  /* --- Walls: one clean closed outline, plus the inner face ----------- */
+  const outerWall = stroke(
     planLayer,
+    toPath([p(-hx, -hy), p(hx, -hy), p(hx, hy), p(-hx, hy)], true),
+    's-wall',
+    strokes.walls,
+  );
+  const ix = hx - wall;
+  const iy = hy - wall;
+  stroke(
+    planLayer,
+    toPath([p(-ix, -iy), p(ix, -iy), p(ix, iy), p(-ix, iy)], true),
+    's-wall-inner',
     strokes.walls,
   );
 
-  /* --- Dimension line along the near-left wall ------------------------ */
-  const dy = H + 32;
-  const a = p(-H, dy);
-  const b = p(H, dy);
-  const D = strokes.dimension;
-  line(toPath([p(-H, H + 8), p(-H, dy + 8)]), 's-dim', planLayer, D);
-  line(toPath([p(H, H + 8), p(H, dy + 8)]), 's-dim', planLayer, D);
-  line(toPath([a, b]), 's-dim', planLayer, D);
-  [a, b].forEach((pt) => {
-    line(
+  /* --- Cracks (hidden until the collapse) ----------------------------- */
+  const crack = (angle: number, length: number, seed: number): string => {
+    const pts = [];
+    const steps = 7;
+    for (let i = 0; i <= steps; i++) {
+      const r = R * 0.35 + (length * i) / steps;
+      const jitter = Math.sin(seed * 12.9 + i * 78.2) * 0.07;
+      pts.push(p(r * Math.cos(angle + jitter), r * Math.sin(angle + jitter), 0));
+    }
+    return toPath(pts);
+  };
+  [0.3, 1.4, 2.2, 3.5, 4.4, 5.6].forEach((a, i) => {
+    stroke(planLayer, crack(a, R * (0.55 + (i % 3) * 0.2), i + 1), 's-crack', strokes.cracks);
+  });
+
+  /* --- Plumb line from the dome's centre down to the floor ------------ */
+  const c = p(0, 0, lift);
+  stroke(planLayer, toPath([c, origin]), 's-plumb', strokes.plumb);
+  stroke(
+    planLayer,
+    toPath(ringPoints(p, 0, 0, 6, 0, 0, Math.PI * 2, 24), true),
+    's-plumb',
+    strokes.plumb,
+  );
+
+  /* --- Hall labels along the near-right wall -------------------------- */
+  const annotations: SVGTextElement[] = [
+    edgeLabel(planLayer, p(hx, hy), p(hx, -hy), 26, labels.hall, 'annot'),
+    edgeLabel(planLayer, p(hx, hy), p(hx, -hy), 50, labels.hallSize, 'annot annot--italic'),
+  ];
+
+  /* --- Drop guides: the dome's rim projected straight down ------------ */
+  // Faded in (not drawn), so they can be dashed.
+  [-1, 1].forEach((side) => {
+    const x = origin.x + side * R;
+    s('line', { x1: x, y1: c.y, x2: x, y2: origin.y, class: 'guide' }, guides);
+    const mid = (c.y + origin.y) / 2;
+    s(
+      'path',
+      {
+        d: `M${x - 5} ${mid - 4}L${x} ${mid + 3}L${x + 5} ${mid - 4}`,
+        class: 'guide guide--arrow',
+      },
+      guides,
+    );
+  });
+
+  /* --- The dome -------------------------------------------------------- */
+  const dome = drawDome(domeFloat, p, R, lift, { finial: 40 });
+  strokes.dome.push(...dome.strokes);
+
+  // Diameter dimension across the dome's base, with ticks at the rim.
+  const dimY = c.y;
+  const a = { x: c.x - R, y: dimY };
+  const b = { x: c.x + R, y: dimY };
+  stroke(domeFloat, toPath([a, b]), 's-dim', strokes.domeDim);
+  [a, b].forEach((pt) =>
+    stroke(
+      domeFloat,
       toPath([
         { x: pt.x - 5, y: pt.y + 5 },
         { x: pt.x + 5, y: pt.y - 5 },
       ]),
       's-dim',
-      planLayer,
-      D,
-    );
-  });
-  annotations.push(edgeLabel(a, b, 18, labels.span, 'annot annot--italic', planLayer));
-  // Hall label runs along the near-right wall, outside the drawing.
-  annotations.push(edgeLabel(p(H, H), p(H, -H), 30, labels.hall, 'annot', planLayer));
-
-  /* --- Plumb line from the dome's centre to the floor's centre -------- */
-  const c = p(0, 0, lift);
-  line(toPath([c, origin]), 's-plumb', planLayer, strokes.plumb);
-  line(toPath(ring(0, 0, 6, 0, 0, Math.PI * 2, 24), true), 's-plumb', planLayer, strokes.plumb);
-
-  /* --- The dome (hemisphere) ------------------------------------------ */
-  const DM = strokes.dome;
-  const baseRing = range(0, Math.PI * 2, 128).map((t) => ({
-    pt: p(R * Math.cos(t), R * Math.sin(t), lift),
-    front: facesViewer(Math.cos(t), Math.sin(t), 0),
-  }));
-  // A translucent paper body (silhouette + near half of the base) so the dome reads as
-  // a solid object floating above the plan rather than a wireframe lying on it.
-  const left = `${(c.x - R).toFixed(2)} ${c.y.toFixed(2)}`;
-  const right = `${(c.x + R).toFixed(2)} ${c.y.toFixed(2)}`;
-  const domeFill = s(
-    'path',
-    {
-      d: `M${left}A${R} ${R} 0 0 1 ${right}A${R} ${R * FORESHORTEN} 0 0 1 ${left}Z`,
-      class: 'dome-fill',
-    },
+      strokes.domeDim,
+    ),
+  );
+  annotations.push(
+    // Dome name, set beside the dome with a short leader.
+    label(domeFloat, labels.dome, c.x + R * 0.8 + 34, c.y - R * 0.62 - 14, 'annot'),
+    label(domeFloat, labels.span, c.x, dimY - 12, 'annot annot--italic annot--halo', {
+      'text-anchor': 'middle',
+    }),
+  );
+  const leaderFrom = { x: c.x + R * Math.cos(-0.66), y: c.y + R * Math.sin(-0.66) };
+  stroke(
     domeFloat,
+    toPath([leaderFrom, { x: leaderFrom.x + 28, y: leaderFrom.y - 16 }]),
+    's-dim',
+    strokes.domeDim,
   );
-
-  // Hidden (far) half of the base ring, drawn faint like a draughtsman's hidden line.
-  runs(baseRing, (r) => !r.front).forEach((run) =>
-    line(toPath(run.map((r) => r.pt)), 's-dome-hidden', domeFloat, DM),
-  );
-  // Outline: upper half of the sphere's silhouette circle + the near half of the base.
-  line(`M${left}A${R} ${R} 0 0 1 ${right}`, 's-dome', domeFloat, DM);
-  runs(baseRing, (r) => r.front).forEach((run) =>
-    line(toPath(run.map((r) => r.pt)), 's-dome', domeFloat, DM),
-  );
-
-  // Ribs (meridians) and two rings (parallels), visible parts only.
-  [0, 45, 90, 135].forEach((deg) => {
-    const ang = (deg * Math.PI) / 180;
-    const pts = range(0, Math.PI, 64).map((phi) => {
-      const x = Math.cos(ang) * Math.cos(phi);
-      const y = Math.sin(ang) * Math.cos(phi);
-      const z = Math.sin(phi);
-      return { pt: p(R * x, R * y, lift + R * z), vis: facesViewer(x, y, z) };
-    });
-    runs(pts, (q) => q.vis).forEach((run) =>
-      line(toPath(run.map((q) => q.pt)), 's-dome-fine', domeFloat, DM),
-    );
-  });
-  [0.6, 1.1].forEach((phi) => {
-    const r = Math.cos(phi);
-    const z = Math.sin(phi);
-    const pts = range(0, Math.PI * 2, 96).map((t) => ({
-      pt: p(R * r * Math.cos(t), R * r * Math.sin(t), lift + R * z),
-      vis: facesViewer(r * Math.cos(t), r * Math.sin(t), z),
-    }));
-    runs(pts, (q) => q.vis).forEach((run) =>
-      line(toPath(run.map((q) => q.pt)), 's-dome-fine', domeFloat, DM),
-    );
-  });
-
-  // A ring of small windows at the base of the dome — a quiet foreshadowing of chapter IV.
-  range(0, Math.PI * 2, 24)
-    .slice(0, -1)
-    .forEach((t) => {
-      const x = Math.cos(t);
-      const y = Math.sin(t);
-      if (!facesViewer(x, y, 0.05)) return;
-      const lo = p(R * x, R * y, lift + 5);
-      const hiPt = p(R * 0.985 * x, R * 0.985 * y, lift + 18);
-      line(toPath([lo, hiPt]), 's-window', domeFloat, DM);
-    });
-
-  // Finial.
-  const pole = p(0, 0, lift + R);
-  line(toPath([pole, { x: pole.x, y: pole.y - 44 }]), 's-dome', domeFloat, DM);
-
-  // Dome label with a short leader line.
-  const leaderFrom = { x: c.x + R * Math.cos(-0.7), y: c.y + R * Math.sin(-0.7) };
-  const leaderTo = { x: leaderFrom.x + 30, y: leaderFrom.y - 18 };
-  line(toPath([leaderFrom, leaderTo]), 's-dim', domeFloat, DM);
-  const domeLabel = s(
-    'text',
-    {
-      x: leaderTo.x + 8,
-      y: leaderTo.y + 5,
-      class: 'annot',
-      'aria-hidden': 'true',
-    },
-    domeFloat,
-  );
-  domeLabel.textContent = labels.dome;
-  annotations.push(domeLabel);
 
   /* --- The pen nib that leads the wall stroke -------------------------- */
   const nib = s('circle', { r: 3.5, class: 'nib', cx: -20, cy: -20, opacity: 0 }, svg);
+
+  const impactPoints = ringPoints(p, 0, 0, R, 0, 0, Math.PI * 2, 48);
 
   return {
     svg,
@@ -292,39 +242,13 @@ export function buildFloorPlan(labels: FloorPlanLabels, titleId: string): FloorP
     domeLayer,
     domeFloat,
     shadow,
-    domeFill,
+    domeFill: dome.fill,
     nib,
     outerWall,
+    guides,
     strokes,
     annotations,
+    impactPoints,
+    dropDistance: origin.y - c.y,
   };
-}
-
-/** Text set parallel to an edge, offset along the edge's outward (downward) normal. */
-function edgeLabel(
-  from: ScreenPoint,
-  to: ScreenPoint,
-  offset: number,
-  text: string,
-  cls: string,
-  parent: SVGGElement,
-): SVGTextElement {
-  const rad = Math.atan2(to.y - from.y, to.x - from.x);
-  const x = (from.x + to.x) / 2 - Math.sin(rad) * offset;
-  const y = (from.y + to.y) / 2 + Math.cos(rad) * offset;
-  const label = s(
-    'text',
-    {
-      x: x.toFixed(2),
-      y: y.toFixed(2),
-      class: cls,
-      'text-anchor': 'middle',
-      'dominant-baseline': 'middle',
-      transform: `rotate(${((rad * 180) / Math.PI).toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)})`,
-      'aria-hidden': 'true',
-    },
-    parent,
-  );
-  label.textContent = text;
-  return label;
 }

@@ -18,7 +18,17 @@ export interface Motes {
   stop(): void;
 }
 
-export function createMotes(canvas: HTMLCanvasElement, count = 70): Motes {
+/** The beam the motes float in, as fractions of the canvas: start point and travel. */
+export interface BeamPath {
+  x0: number;
+  y0: number;
+  dx: number;
+  dy: number;
+}
+
+const OPENING_BEAM: BeamPath = { x0: 0.47, y0: 0.06, dx: 0.42, dy: 0.9 };
+
+export function createMotes(canvas: HTMLCanvasElement, count = 70, beam = OPENING_BEAM): Motes {
   const ctx = canvas.getContext('2d');
   let motes: Mote[] = [];
   let raf = 0;
@@ -40,8 +50,8 @@ export function createMotes(canvas: HTMLCanvasElement, count = 70): Motes {
     const t = Math.random();
     const spread = (Math.random() - 0.5) * 0.28 * w * (0.3 + t);
     return {
-      x: w * 0.47 + t * w * 0.42 + spread,
-      y: h * 0.06 + t * h * 0.9,
+      x: w * beam.x0 + t * w * beam.dx + spread,
+      y: h * beam.y0 + t * h * beam.dy,
       r: 0.4 + Math.random() * 1.3,
       vx: (Math.random() - 0.5) * 4,
       vy: -2 - Math.random() * 5,

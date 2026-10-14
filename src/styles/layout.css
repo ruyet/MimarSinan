@@ -42,6 +42,16 @@
   transition: color var(--dur-slow) var(--ease-in-out);
 }
 
+/* A soft fade behind the HUD so scrolled content never collides with it. */
+.hud::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -1.25rem;
+  z-index: -1;
+  background: linear-gradient(var(--bg) 55%, transparent);
+  transition: background var(--dur-slow) var(--ease-in-out);
+}
+
 .hud > * {
   pointer-events: auto;
 }

@@ -6,6 +6,7 @@
  * solving a real problem; each chapter is a small module with enter/leave hooks.
  */
 import './styles/main.css';
+import { gsap } from 'gsap';
 import { createOpening } from './chapters/opening';
 import { createProblem } from './chapters/problem';
 import { chapters, type ChapterId } from './content';
@@ -31,10 +32,36 @@ const controller = createChapterController(
   $('#progress-label'),
 );
 
+// The first two chapters ship with the page; the rest are split into their own chunks and
+// fetched while the previous chapter is on screen.
 controller.register(createOpening(controller));
 controller.register(createProblem(controller));
+controller.registerLazy('dilemma', () =>
+  import('./chapters/dilemma').then((m) => m.createDilemma(controller)),
+);
+controller.registerLazy('walls', () =>
+  import('./chapters/walls').then((m) => m.createWalls(controller)),
+);
+controller.registerLazy('reveal', () =>
+  import('./chapters/reveal').then((m) => m.createReveal(controller)),
+);
+controller.registerLazy('inside', () =>
+  import('./chapters/inside').then((m) => m.createInside(controller)),
+);
+controller.registerLazy('discover', () =>
+  import('./chapters/discover').then((m) => m.createDiscover(controller)),
+);
+controller.registerLazy('masterwork', () =>
+  import('./chapters/masterwork').then((m) => m.createMasterwork(controller)),
+);
+controller.registerLazy('epilogue', () =>
+  import('./chapters/epilogue').then((m) => m.createEpilogue(controller)),
+);
+controller.registerLazy('credits', () =>
+  import('./chapters/credits').then((m) => m.createCredits(controller)),
+);
 
-// Deep links for user testing, e.g. /#problem jumps straight to chapter I.
+// Deep links for user testing, e.g. /#dilemma jumps straight to chapter II.
 const fromHash = (): ChapterId | null => {
   const id = location.hash.slice(1);
   return chapters.find((c) => c.id === id)?.id ?? null;
@@ -44,3 +71,6 @@ window.addEventListener('hashchange', () => {
   const id = fromHash();
   if (id) controller.goTo(id);
 });
+
+// Dev-only hook for QA: lets tests fast-forward timelines (e.g. __gsap.globalTimeline.timeScale(8)).
+if (import.meta.env.DEV) Object.assign(window, { __gsap: gsap });

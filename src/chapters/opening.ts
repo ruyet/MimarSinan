@@ -113,6 +113,9 @@ export function createOpening(ctx: ChapterContext): Chapter {
     leave() {
       motes.stop();
     },
+    reset() {
+      introPlayed = false;
+    },
     focusTarget: () => title,
   };
 }
