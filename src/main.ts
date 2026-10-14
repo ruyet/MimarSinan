@@ -56,6 +56,9 @@ controller.registerLazy('discover', () =>
 controller.registerLazy('masterwork', () =>
   import('./chapters/masterwork').then((m) => m.createMasterwork(controller)),
 );
+controller.registerLazy('legacy', () =>
+  import('./chapters/legacy').then((m) => m.createLegacy(controller)),
+);
 controller.registerLazy('epilogue', () =>
   import('./chapters/epilogue').then((m) => m.createEpilogue(controller)),
 );
