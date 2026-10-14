@@ -1,16 +1,30 @@
 /**
  * Chapter VI — Look closer. Six hotspots across two photographs (inside / outside).
- * Each opens a small card (a modal <dialog>) with verified facts and their sources.
- * The dialog traps focus, closes on Esc or a click outside, and returns focus to its hotspot.
+ * Selecting one darkens the photo except that area and outlines it (the same annotation system
+ * as chapter V); the explanation appears beside the photo in a margin panel, with its principle,
+ * verified facts and sources. The panel is not modal — nothing covers the photo. Focus moves
+ * to the panel heading; Esc or Close returns focus to the hotspot.
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, facts, hotspotViews, hotspots, sources, type Hotspot, numeralOf } from '../content';
+import {
+  copy,
+  facts,
+  hotspotViews,
+  hotspots,
+  images,
+  numeralOf,
+  principles,
+  sources,
+  type Hotspot,
+} from '../content';
+import { createAnnotator, type Annotator } from '../core/annotate';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
 import { picture } from '../core/picture';
+import { principleMark } from '../core/principles';
 import { button, eyebrow, headline, introText } from '../core/ui';
 
 type View = Hotspot['view'];
@@ -32,10 +46,12 @@ export function createDiscover(ctx: ChapterContext): Chapter {
   const tabs = h('div', { class: 'tabs', role: 'group', 'aria-label': t.eyebrow }, ...viewButtons);
   const progress = h('p', { class: 'note discover__progress' });
   const cont = button(copy.meta.continue, 'primary', '→');
-  const actions = h('div', { class: 'spread__actions' }, cont);
 
   /* --- Photo frames with hotspots ------------------------------------- */
-  const frames = {} as Record<View, { el: HTMLElement; media: HTMLElement }>;
+  const frames = {} as Record<
+    View,
+    { el: HTMLElement; media: HTMLElement; annot: Annotator | null }
+  >;
   const seen = new Set<string>();
   const spotButtons = new Map<string, HTMLButtonElement>();
 
@@ -55,7 +71,8 @@ export function createDiscover(ctx: ChapterContext): Chapter {
             type: 'button',
             class: 'hotspot',
             style: `left:${spot.x}%;top:${spot.y}%;--delay:${i * 0.4}s`,
-            'aria-haspopup': 'dialog',
+            'aria-controls': 'discover-panel',
+            'aria-expanded': 'false',
           },
           h('span', { class: 'hotspot__ring', 'aria-hidden': 'true' }),
           h('span', { class: 'hotspot__dot', 'aria-hidden': 'true' }),
@@ -65,37 +82,74 @@ export function createDiscover(ctx: ChapterContext): Chapter {
         spotButtons.set(spot.id, btn);
         el.append(btn);
       });
-    frames[view] = { el, media };
+    frames[view] = { el, media, annot: null };
   });
 
-  const figure = h('figure', { class: 'hotspots' }, frames.interior.el, frames.exterior.el);
-
-  /* --- The card ----------------------------------------------------------- */
-  const cardTitle = h('h3', { class: 'card__title', id: 'card-title' });
-  const cardTag = h('p', { class: 'card__tag' }, t.legend);
-  const cardBody = h('div', { class: 'card__body' });
-  const cardSources = h('ul', { class: 'card__sources' });
-  const close = h('button', { type: 'button', class: 'card__close', 'aria-label': t.close }, '×');
-  const dialog = h(
-    'dialog',
-    { class: 'card', 'aria-labelledby': 'card-title', 'data-theme': 'stone' },
-    close,
-    cardTag,
-    cardTitle,
-    cardBody,
-    h('p', { class: 'card__sources-label' }, t.sourcesLabel),
-    cardSources,
+  const figure = h(
+    'figure',
+    { class: 'hotspots plate' },
+    frames.interior.el,
+    frames.exterior.el,
+    h('figcaption', { class: 'plate__caption' }, t.figcaption),
   );
-  let returnTo: HTMLElement | null = null;
 
-  function open(spot: Hotspot, from: HTMLButtonElement): void {
-    returnTo = from;
+  /* --- The margin panel ------------------------------------------------- */
+  const panelTitle = h('h3', { class: 'panel__title', id: 'panel-title', tabindex: '-1' });
+  const panelTags = h('div', { class: 'panel__tags' });
+  const panelBody = h('div', { class: 'panel__body' });
+  const panelSources = h('ul', { class: 'card__sources' });
+  const sourcesLabel = h('p', { class: 'card__sources-label' }, t.sourcesLabel);
+  const close = h('button', { type: 'button', class: 'panel__close', 'aria-label': t.close }, '×');
+  const empty = h('p', { class: 'panel__empty' }, t.panelEmpty);
+  const panelContent = h(
+    'div',
+    { class: 'panel__content', hidden: true },
+    close,
+    panelTags,
+    panelTitle,
+    panelBody,
+    sourcesLabel,
+    panelSources,
+  );
+  const panel = h(
+    'aside',
+    {
+      class: 'panel',
+      id: 'discover-panel',
+      'aria-labelledby': 'panel-title',
+      'aria-live': 'polite',
+    },
+    empty,
+    panelContent,
+  );
+
+  let active: { spot: Hotspot; btn: HTMLButtonElement } | null = null;
+
+  function open(spot: Hotspot, btn: HTMLButtonElement): void {
+    active?.btn.setAttribute('aria-expanded', 'false');
+    active?.btn.classList.remove('is-active');
+    active = { spot, btn };
+    btn.setAttribute('aria-expanded', 'true');
+    btn.classList.add('is-active');
+
+    // The photo shows where…
+    frames[spot.view].annot?.show(spot.annotation);
+
+    // …the margin explains why.
     const list = spot.facts.map((k) => facts[k]);
-    cardTitle.textContent = spot.title;
-    cardTag.hidden = !list.some((f) => 'legend' in f && f.legend);
-    cardBody.replaceChildren(...list.map((f) => h('p', {}, f.text)));
+    const p = spot.annotation.principle;
+    panelTags.replaceChildren(
+      ...(p
+        ? [h('span', { class: 'panel__principle' }, principleMark(p, true), principles[p].name)]
+        : []),
+      ...(list.some((f) => 'legend' in f && f.legend)
+        ? [h('span', { class: 'card__tag' }, t.legend)]
+        : []),
+    );
+    panelTitle.textContent = spot.title;
+    panelBody.replaceChildren(...list.map((f) => h('p', {}, f.text)));
     const keys = [...new Set(list.flatMap((f) => f.sources))];
-    cardSources.replaceChildren(
+    panelSources.replaceChildren(
       ...keys.map((k) =>
         h(
           'li',
@@ -104,58 +158,58 @@ export function createDiscover(ctx: ChapterContext): Chapter {
         ),
       ),
     );
-    dialog.showModal();
-    close.focus();
-    if (!reducedMotion())
+    empty.hidden = true;
+    panelContent.hidden = false;
+    panelTitle.focus({ preventScroll: true });
+    if (window.matchMedia('(max-width: 74.99rem)').matches) {
+      panel.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
+    }
+    if (!reducedMotion()) {
       gsap.fromTo(
-        dialog,
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.5, ease: EASE.out },
+        panelContent,
+        { opacity: 0, x: 12 },
+        { opacity: 1, x: 0, duration: 0.6, ease: EASE.out },
       );
+    }
     audio.tick(1.2);
 
     seen.add(spot.id);
-    from.classList.add('is-seen');
+    btn.classList.add('is-seen');
     renderProgress();
+  }
+
+  function closePanel(returnFocus = true): void {
+    if (!active) return;
+    const { spot, btn } = active;
+    frames[spot.view].annot?.show(null);
+    btn.setAttribute('aria-expanded', 'false');
+    btn.classList.remove('is-active');
+    active = null;
+    panelContent.hidden = true;
+    empty.hidden = false;
+    if (returnFocus) {
+      btn.focus();
+      announce(progress.textContent ?? '');
+    }
   }
 
   function renderProgress(): void {
     progress.textContent = t.seen(seen.size, hotspots.length);
   }
 
-  close.addEventListener('click', () => dialog.close());
-  // Click on the backdrop (outside the card's box) closes it.
-  dialog.addEventListener('click', (e) => {
-    const r = dialog.getBoundingClientRect();
-    const inside =
-      e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    if (!inside) dialog.close();
-  });
-  // Keep Tab inside the card (showModal already makes the page inert; this keeps focus off the browser chrome).
-  dialog.addEventListener('keydown', (e) => {
-    if (e.key !== 'Tab') return;
-    const focusables = [...dialog.querySelectorAll<HTMLElement>('button, a[href]')];
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  });
-  dialog.addEventListener('close', () => {
-    returnTo?.focus();
-    announce(progress.textContent ?? '');
+  close.addEventListener('click', () => closePanel());
+  panel.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePanel();
   });
 
   /* --- View switching ------------------------------------------------------- */
   function setView(view: View): void {
+    if (active && active.spot.view !== view) closePanel(false);
     viewButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
     (Object.keys(frames) as View[]).forEach((v) => {
       frames[v].el.hidden = v !== view;
     });
+    frames[view].annot?.update();
     if (!reducedMotion())
       gsap.fromTo(frames[view].el, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: EASE.soft });
   }
@@ -169,12 +223,20 @@ export function createDiscover(ctx: ChapterContext): Chapter {
     { class: 'chapter paper discover', 'data-theme': 'stone', 'aria-labelledby': 'discover-title' },
     h(
       'div',
-      { class: 'spread discover__spread' },
-      h('div', { class: 'spread__text' }, top, title.el, body, tabs, progress),
-      h('div', { class: 'spread__figure' }, figure),
-      actions,
+      { class: 'discover__layout' },
+      h(
+        'div',
+        { class: 'discover__text' },
+        top,
+        title.el,
+        body,
+        tabs,
+        progress,
+        h('div', { class: 'discover__actions' }, cont),
+      ),
+      h('div', { class: 'discover__figure' }, figure),
+      panel,
     ),
-    dialog,
   );
 
   let prepared = false;
@@ -186,27 +248,37 @@ export function createDiscover(ctx: ChapterContext): Chapter {
     prepare() {
       if (prepared) return;
       prepared = true;
-      (Object.keys(frames) as View[]).forEach((v) =>
+      (Object.keys(frames) as View[]).forEach((v) => {
         frames[v].media.append(
           picture(hotspotViews[v], { sizes: '(min-width: 60rem) 60vw, 100vw' }),
-        ),
-      );
+        );
+        frames[v].annot = createAnnotator(frames[v].media, images[hotspotViews[v]], {
+          labels: false,
+          calibrate: hotspots.filter((s) => s.view === v).map((s) => s.annotation),
+        });
+      });
     },
     enter() {
       audio.setMood('stone');
-      introText(top, title.words, [body, tabs, progress, actions]);
+      introText(top, title.words, [body, tabs, progress]);
       if (!reducedMotion()) {
         gsap.fromTo(
           figure,
           { opacity: 0, y: 16 },
           { opacity: 1, y: 0, duration: 1.2, ease: EASE.out, delay: 0.3 },
         );
+        gsap.fromTo(
+          panel,
+          { opacity: 0 },
+          { opacity: 1, duration: 1, ease: EASE.soft, delay: 0.8 },
+        );
       }
     },
     leave() {
-      if (dialog.open) dialog.close();
+      closePanel(false);
     },
     reset() {
+      closePanel(false);
       seen.clear();
       spotButtons.forEach((b) => b.classList.remove('is-seen'));
       renderProgress();
