@@ -571,7 +571,7 @@ export const copy = {
     stepLabel: 'Step through the plans',
     claim:
       'The two domes are about the same width. Sinan claimed his was higher and wider; modern measurements put the diameters at about the same.',
-    figcaption: `${fig('tradition')} — Four plans, drawn to the same idea of scale.`,
+    figcaption: `${fig('tradition')} — Four plans, drawn schematically.`,
     plans: [
       {
         id: 'hagia',
@@ -620,29 +620,6 @@ export const copy = {
     ],
     stagesNote:
       'Apprentice, journeyman, master: how Sinan himself described these three buildings.',
-    // Legacy keys used by the previous chapter VII layout; removed when VII is rebuilt.
-    hagia: {
-      name: 'Hagia Sophia',
-      sub: 'Four piers + two great half-domes',
-      caption: 'A long space, pulled in one direction.',
-      dome: 'dome ⌀ ≈ 31–32 m',
-      label:
-        'Plan of Hagia Sophia: a central dome on four piers, with a large half-dome to the east and to the west, forming a long nave.',
-    },
-    selimiye: {
-      name: 'Selimiye',
-      sub: 'Eight piers + four small corner half-domes',
-      caption: 'One centred space, gathered under one dome.',
-      dome: 'dome ⌀ ≈ 31 m',
-      label:
-        'Plan of the Selimiye: a single dome on eight piers in an octagon, with four small half-domes in the corners and the mihrab in its own apse.',
-    },
-    stagesTitle: 'Three stages of a career',
-    stages: [
-      { year: '1548', name: 'Şehzade Mosque', role: 'apprentice work' },
-      { year: '1557', name: 'Süleymaniye', role: 'journeyman work' },
-      { year: '1575', name: 'Selimiye', role: 'masterwork' },
-    ],
   },
 
   legacy: {
