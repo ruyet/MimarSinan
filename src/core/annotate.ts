@@ -65,7 +65,12 @@ function bounds(shapes: Shape[]): Box {
               [sh.cx - sh.rx, sh.cy - sh.ry],
               [sh.cx + sh.rx, sh.cy + sh.ry],
             ]
-          : sh.points;
+          : sh.kind === 'ring'
+            ? [
+                [sh.cx - sh.r2, sh.cy - sh.r2],
+                [sh.cx + sh.r2, sh.cy + sh.r2],
+              ]
+            : sh.points;
     for (const [x, y] of pts) {
       x0 = Math.min(x0, x);
       y0 = Math.min(y0, y);
@@ -93,7 +98,9 @@ export function createAnnotator(
   const id = `annot-${++uid}`;
   const dimLevel = opts.dim ?? 0.6;
   const showLabels = opts.labels ?? true;
-  const stroke = Math.max(W, H) / 650;
+  // Stroke width in viewBox units, recomputed so outlines stay ~1.8 px on screen at any size.
+  let stroke = Math.max(W, H) / 650;
+  const STROKE_PX = 1.8;
 
   const layer = h('div', { class: 'annot-layer', 'aria-hidden': 'true' });
   const svg = s('svg', {
@@ -119,6 +126,8 @@ export function createAnnotator(
     { cx: W / 2, cy: H / 2, rx: 0, ry: 0, fill: '#000', filter: `url(#${id}-soft)` },
     mask,
   );
+  // Large or ring-shaped areas use their own shapes as the hole (an ellipse would swallow the photo).
+  const holeShapes = s('g', { filter: `url(#${id}-soft)` }, mask);
   const dimRect = s(
     'rect',
     { x: 0, y: 0, width: W, height: H, class: 'annot-dim', mask: `url(#${id}-mask)`, opacity: 0 },
@@ -152,6 +161,16 @@ export function createAnnotator(
         parent,
       );
     }
+    if (sh.kind === 'ring') {
+      const ring = (r: number) => {
+        const rx = px(r);
+        const ry = py(r);
+        const cx = px(sh.cx);
+        const cy = py(sh.cy);
+        return `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${rx * 2} 0a${rx} ${ry} 0 1 0 ${-rx * 2} 0`;
+      };
+      return s('path', { ...common, d: ring(sh.r2) + ring(sh.r1), 'fill-rule': 'evenodd' }, parent);
+    }
     return s(
       'polygon',
       { ...common, points: sh.points.map(([x, y]) => `${px(x)},${py(y)}`).join(' ') },
@@ -179,6 +198,12 @@ export function createAnnotator(
     const left = ox + (fw - dw) * posFraction(posX, fw - dw);
     const top = oy + (fh - dh) * posFraction(posY, fh - dh);
     visible = { x: left, y: top, w: dw, h: dh };
+    if (dw > 0) {
+      stroke = (STROKE_PX * W) / dw;
+      svg
+        .querySelectorAll('.annot-outline')
+        .forEach((el) => el.setAttribute('stroke-width', String(stroke)));
+    }
     Object.assign(svg.style, {
       left: `${left}px`,
       top: `${top}px`,
@@ -231,10 +256,31 @@ export function createAnnotator(
       return;
     }
 
-    const target = holeFor(a);
-    if (!holeShown || reduced) gsap.set(hole, { attr: target });
-    else gsap.to(hole, { attr: target, duration: 1.1, ease: EASE.inOut });
-    holeShown = true;
+    // Spotlight: an ellipse that eases between compact areas, or the area's own shapes.
+    const b = bounds(a.shapes);
+    const spot = a.spot ?? (b.w > 55 || b.h > 55 ? a.shapes : null);
+    const oldHoles = [...holeShapes.children];
+    gsap.to(oldHoles, {
+      opacity: 0,
+      duration: reduced ? 0 : 0.6,
+      onComplete: () => oldHoles.forEach((n) => n.remove()),
+    });
+    if (spot) {
+      gsap.to(hole, { attr: { rx: 0, ry: 0 }, duration: reduced ? 0 : 0.6, ease: EASE.soft });
+      const els = spot.map((sh) => {
+        const el = shapeEl(sh, 'annot-hole', holeShapes);
+        el.setAttribute('fill', '#000');
+        return el;
+      });
+      if (!reduced)
+        gsap.fromTo(els, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: EASE.soft });
+      holeShown = false;
+    } else {
+      const target = holeFor(a);
+      if (!holeShown || reduced) gsap.set(hole, { attr: target });
+      else gsap.to(hole, { attr: target, duration: 1.1, ease: EASE.inOut });
+      holeShown = true;
+    }
     gsap.to(dimRect, { opacity: dimLevel, duration: reduced ? 0 : 0.9, ease: EASE.soft });
 
     if (a.outline !== false) {

@@ -378,7 +378,7 @@
 }
 
 .annot-outline--quiet {
-  stroke-opacity: 0.55;
+  stroke-opacity: 0.7;
 }
 
 .annot-label {
@@ -454,4 +454,49 @@
   background: #000;
   color: #ff0;
   font: 600 12px/1 var(--font-ui);
+}
+
+/* --- IV · annotation note beside the reveal ------------------------------ */
+
+.anno-note {
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: 30rem;
+  padding-top: var(--space-s);
+  border-top: 1px solid var(--line-faint);
+  min-height: 6.5rem;
+}
+
+.anno-note__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.anno-note__label .mark {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.anno-note__text {
+  color: var(--fg);
+  max-width: 40ch;
+}
+
+.reveal__figure {
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: center;
+}
+
+.reveal__caption {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
 }

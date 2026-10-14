@@ -881,7 +881,9 @@ export const revealAlignment = {
 export type Shape =
   | { kind: 'rect'; x: number; y: number; w: number; h: number }
   | { kind: 'ellipse'; cx: number; cy: number; rx: number; ry: number }
-  | { kind: 'poly'; points: [number, number][] };
+  | { kind: 'poly'; points: [number, number][] }
+  /** An annulus (e.g. a ring of windows): inner and outer radius. */
+  | { kind: 'ring'; cx: number; cy: number; r1: number; r2: number };
 
 export interface Annotation {
   id: string;
@@ -890,6 +892,8 @@ export interface Annotation {
   /** One line of explanation, shown next to or below the photo. */
   text: string;
   shapes: Shape[];
+  /** Optional spotlight shapes (default: an ellipse around `shapes`, eased between steps). */
+  spot?: Shape[];
   principle?: Principle;
   /** Draw outlines (default true). False = spotlight only. */
   outline?: boolean;
@@ -907,13 +911,14 @@ const hallPlatformColumns: Shape = { kind: 'rect', x: 58.5, y: 49, w: 26, h: 13 
 const domeCx = 50 + revealAlignment.offsetX;
 const domeCy = 50 + revealAlignment.offsetY;
 const circle = (r: number): Shape => ({ kind: 'ellipse', cx: domeCx, cy: domeCy, rx: r, ry: r });
-const octagon = (r: number): Shape => ({
-  kind: 'poly',
-  points: Array.from({ length: 8 }, (_, i) => {
+const pierPoints = (r: number): [number, number][] =>
+  Array.from({ length: 8 }, (_, i) => {
     const a = Math.PI / 8 + (i * Math.PI) / 4;
-    return [domeCx + r * Math.cos(a), domeCy + r * Math.sin(a)] as [number, number];
-  }),
-});
+    return [domeCx + r * Math.cos(a), domeCy + r * Math.sin(a)];
+  });
+const octagon = (r: number): Shape => ({ kind: 'poly', points: pierPoints(r) });
+const pierSpots = (r: number): Shape[] =>
+  pierPoints(r).map(([cx, cy]) => ({ kind: 'ellipse', cx, cy, rx: 6.5, ry: 6.5 }));
 
 export const revealAnnotations: Annotation[] = [
   {
@@ -921,13 +926,14 @@ export const revealAnnotations: Annotation[] = [
     label: 'Eight piers',
     text: 'Where the great arches meet stand the eight piers that carry the dome.',
     shapes: [octagon(revealAlignment.pierRadius * 100)],
+    spot: pierSpots(revealAlignment.pierRadius * 100),
     principle: 'structure',
   },
   {
     id: 'reveal-windows',
     label: 'Window ring',
     text: 'A ring of windows circles the base of the dome.',
-    shapes: [circle(38.5), circle(32.5)],
+    shapes: [{ kind: 'ring', cx: domeCx, cy: domeCy, r1: 32.5, r2: 38.5 }],
     principle: 'light',
   },
   {

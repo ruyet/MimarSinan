@@ -8,11 +8,19 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, revealAlignment as align, numeralOf } from '../content';
+import {
+  copy,
+  principles,
+  revealAlignment as align,
+  revealAnnotations,
+  numeralOf,
+} from '../content';
+import { createAnnotator, type Annotator } from '../core/annotate';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h, s } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
 import { picture } from '../core/picture';
+import { principleMark } from '../core/principles';
 import { button, eyebrow, headline, revealWords } from '../core/ui';
 import { stroke } from '../render/svg';
 
@@ -33,7 +41,15 @@ export function createReveal(ctx: ChapterContext): Chapter {
     t.toggleDrawing,
   );
   const cont = button(copy.meta.continue, 'primary', '→');
-  const actions = h('div', { class: 'spread__actions' }, cont, toggle);
+  // After the reveal: an optional, sequenced annotation pass linking the photo to the principles.
+  const annoToggle = h(
+    'button',
+    { type: 'button', class: 'switch', 'aria-pressed': 'true' },
+    h('span', { class: 'switch__track', 'aria-hidden': 'true' }),
+    t.toggleAnnotations,
+  );
+  const note = h('div', { class: 'anno-note', 'aria-live': 'polite', hidden: true });
+  const actions = h('div', { class: 'spread__actions' }, cont, annoToggle, toggle);
 
   const disc = h('div', { class: 'reveal__disc' });
   const drawing = buildDrawing();
@@ -52,8 +68,13 @@ export function createReveal(ctx: ChapterContext): Chapter {
     h(
       'div',
       { class: 'spread reveal__spread' },
-      h('div', { class: 'spread__text' }, top, prompt, title.el),
-      h('div', { class: 'spread__figure' }, stage),
+      h('div', { class: 'spread__text' }, top, prompt, title.el, note),
+      h(
+        'figure',
+        { class: 'spread__figure reveal__figure' },
+        stage,
+        h('figcaption', { class: 'reveal__caption' }, t.figcaption),
+      ),
       actions,
     ),
   );
@@ -63,6 +84,71 @@ export function createReveal(ctx: ChapterContext): Chapter {
   let kenBurns: gsap.core.Tween | null = null;
   let played = false;
   let showDrawing = false;
+  let annotationsOn = true;
+  let annot: Annotator | null = null;
+  let sequence: gsap.core.Tween[] = [];
+
+  const ensureAnnot = (): Annotator =>
+    (annot ??= createAnnotator(
+      disc,
+      { width: 2550, height: 2550 },
+      { labels: false, dim: 0.55, calibrate: revealAnnotations },
+    ));
+
+  /** Writes the text equivalent of the current annotation step. */
+  function setNote(i: number | null): void {
+    note.replaceChildren();
+    if (i === null) {
+      note.append(h('p', { class: 'anno-note__text' }, t.annotationsIntro));
+      return;
+    }
+    const a = revealAnnotations[i];
+    const name = a.principle ? ` · ${principles[a.principle].name}` : '';
+    note.append(
+      h(
+        'p',
+        { class: 'anno-note__label' },
+        a.principle ? principleMark(a.principle, true) : null,
+        h('span', {}, `${a.label}${name}`),
+      ),
+      h('p', { class: 'anno-note__text' }, a.text),
+    );
+  }
+
+  function stopSequence(): void {
+    sequence.forEach((c) => c.kill());
+    sequence = [];
+  }
+
+  /** Steps through Structure → Light → Space, then leaves quiet outlines of all three. */
+  function runAnnotations(): void {
+    stopSequence();
+    if (!annotationsOn) return;
+    const a = ensureAnnot();
+    note.hidden = false;
+    revealAnnotations.forEach((step, i) => {
+      sequence.push(
+        gsap.delayedCall(i * 4.5, () => {
+          a.show(step);
+          setNote(i);
+        }),
+      );
+    });
+    sequence.push(
+      gsap.delayedCall(revealAnnotations.length * 4.5 + 0.5, () => {
+        a.outlineAll(revealAnnotations);
+        setNote(null);
+      }),
+    );
+  }
+
+  function settleAnnotations(): void {
+    stopSequence();
+    if (!annotationsOn) return;
+    note.hidden = false;
+    ensureAnnot().outlineAll(revealAnnotations);
+    setNote(null);
+  }
 
   function finalState(): void {
     gsap.set(drawing.svg, { clearProps: 'transform', opacity: showDrawing ? 0.9 : 0 });
@@ -70,6 +156,7 @@ export function createReveal(ctx: ChapterContext): Chapter {
     gsap.set(disc, { clipPath: 'circle(75% at 50% 50%)', opacity: 1 });
     gsap.set([title.el, actions], { opacity: 1 });
     gsap.set(title.words, { opacity: 1, yPercent: 0 });
+    settleAnnotations();
   }
 
   function play(): void {
@@ -87,6 +174,7 @@ export function createReveal(ctx: ChapterContext): Chapter {
         .to(drawing.svg, { opacity: () => (showDrawing ? 0.9 : 0), duration: 1.2 }, 1.6)
         .to(title.el, { opacity: 1, duration: 0.6 }, 2.4)
         .to(actions, { opacity: 1, duration: 0.6 }, 2.6);
+      tl.eventCallback('onComplete', runAnnotations);
       return;
     }
 
@@ -127,6 +215,8 @@ export function createReveal(ctx: ChapterContext): Chapter {
         8,
       )
       .to(actions, { opacity: 1, duration: 1, ease: EASE.out }, 9.6);
+    // The reveal itself stays untouched; the annotation pass begins only once it has finished.
+    tl.eventCallback('onComplete', runAnnotations);
 
     kenBurns?.kill();
     kenBurns = gsap.fromTo(
@@ -140,6 +230,16 @@ export function createReveal(ctx: ChapterContext): Chapter {
     showDrawing = !showDrawing;
     toggle.setAttribute('aria-pressed', String(showDrawing));
     gsap.to(drawing.svg, { opacity: showDrawing ? 0.9 : 0, duration: reducedMotion() ? 0 : 0.6 });
+  });
+  annoToggle.addEventListener('click', () => {
+    annotationsOn = !annotationsOn;
+    annoToggle.setAttribute('aria-pressed', String(annotationsOn));
+    if (annotationsOn) runAnnotations();
+    else {
+      stopSequence();
+      annot?.show(null);
+      note.hidden = true;
+    }
   });
   cont.addEventListener('click', () => ctx.next());
 
@@ -169,11 +269,15 @@ export function createReveal(ctx: ChapterContext): Chapter {
     },
     leave() {
       if (tl && tl.progress() < 1) tl.progress(1);
+      stopSequence();
     },
     reset() {
       played = false;
       tl?.kill();
       kenBurns?.kill();
+      stopSequence();
+      annot?.show(null);
+      note.hidden = true;
     },
     focusTarget: () => title.el,
   };
