@@ -7,7 +7,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy } from '../content';
+import { copy, numeralOf } from '../content';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
@@ -22,7 +22,7 @@ export function createDilemma(ctx: ChapterContext): Chapter {
   const t = copy.dilemma;
 
   /* --- Text column ---------------------------------------------------- */
-  const top = eyebrow('II', t.eyebrow);
+  const top = eyebrow(numeralOf('dilemma'), t.eyebrow);
   const title = headline('h2', 'dilemma-title', t.states.none.headline);
   const body = h('p', { class: 'body' }, t.states.none.body);
 

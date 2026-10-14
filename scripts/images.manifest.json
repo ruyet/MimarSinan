@@ -16,9 +16,21 @@
     "out": "interior/selimiye-muezzin-platform",
     "commons": "File:Müezzin mahfili in Selimiye mosque in Edirne 0196.jpg"
   },
-  { "out": "exterior/selimiye-minarets", "commons": "File:Edirne Mosque.jpg" },
+  {
+    "out": "exterior/selimiye-minarets",
+    "commons": "File:Edirne Mosque.jpg"
+  },
   {
     "out": "exterior/selimiye-exterior-overcast",
     "commons": "File:Edirne Selimiye Mosque from distance in 2009 6427.jpg"
+  },
+  {
+    "out": "people/mimar-sinan-monument-edirne",
+    "commons": "File:Mimar Sinan monument in 2024 6024.jpg",
+    "cutout": "sky"
+  },
+  {
+    "out": "legacy/sultan-ahmed-mosque",
+    "commons": "File:Exterior of Sultan Ahmed I Mosque, (old name P1020390.jpg).jpg"
   }
 ]

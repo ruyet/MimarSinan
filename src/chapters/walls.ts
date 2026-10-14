@@ -6,7 +6,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy } from '../content';
+import { copy, numeralOf } from '../content';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
@@ -20,7 +20,7 @@ const MAX = 4;
 export function createWalls(ctx: ChapterContext): Chapter {
   const t = copy.walls;
 
-  const top = eyebrow('III', t.eyebrow);
+  const top = eyebrow(numeralOf('walls'), t.eyebrow);
   const title = headline('h2', 'walls-title', t.headline);
   const body = h('p', { class: 'body' }, t.body);
 

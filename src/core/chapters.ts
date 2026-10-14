@@ -11,6 +11,7 @@ import { chapters as chapterMeta, copy, type ChapterId } from '../content';
 import { announce } from './announcer';
 import { h } from './dom';
 import { EASE, reducedMotion } from './motion';
+import { resetPrinciples } from './principles';
 
 export type Theme = 'night' | 'stone';
 
@@ -35,6 +36,8 @@ export interface Chapter {
   prepare?(): void;
   /** Optional: return to the initial state (used by "Start again"). */
   reset?(): void;
+  /** Optional: a closing gesture played before the crossfade to the next chapter. */
+  exit?(): Promise<void>;
 }
 
 export interface ChapterController extends ChapterContext {
@@ -57,6 +60,9 @@ export function createChapterController(
   let unlocked = 0;
   let transitioning = false;
   let queued: number | null = null;
+  // The pair being crossfaded (set just before an exit gesture runs).
+  let previous: Chapter | undefined;
+  let finishing: (() => void) | undefined;
 
   /* --- Progress indicator: one dash per numbered chapter ------------- */
   const steps = chapterMeta
@@ -176,8 +182,19 @@ export function createChapterController(
     }
 
     // Incoming layer fades in above the outgoing one, like turning to a new page.
+    // A chapter may play its own closing gesture first (e.g. X hands its light to the Epilogue).
     const reduced = reducedMotion();
-    const tl = gsap.timeline({ onComplete: finish });
+    previous = prevChapter;
+    finishing = finish;
+    const leaving = current > order.indexOf(prevChapter.id) && prevChapter.exit;
+    void (leaving ? prevChapter.exit!() : Promise.resolve()).then(() => crossfade(reduced));
+  }
+
+  function crossfade(reduced: boolean): void {
+    const prevChapter = previous!;
+    const nextChapter = registered.get(order[current])!;
+    const incoming = nextChapter.el;
+    const tl = gsap.timeline({ onComplete: finishing! });
     gsap.set(incoming, { visibility: 'visible', zIndex: 2, opacity: 0 });
     tl.to(prevChapter.el, {
       opacity: reduced ? 1 : 0.6,
@@ -210,6 +227,7 @@ export function createChapterController(
     next: () => goToIndex(current + 1),
     goTo,
     restart() {
+      resetPrinciples();
       registered.forEach((c) => c.reset?.());
       goTo('opening');
     },

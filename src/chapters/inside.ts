@@ -5,7 +5,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, insideSlides } from '../content';
+import { copy, insideSlides, numeralOf } from '../content';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
@@ -20,7 +20,7 @@ export function createInside(ctx: ChapterContext): Chapter {
   const title = h(
     'h2',
     { id: 'inside-title', class: 'eyebrow slides__title', tabindex: '-1' },
-    h('span', { class: 'eyebrow__num', 'aria-hidden': 'true' }, 'V'),
+    h('span', { class: 'eyebrow__num', 'aria-hidden': 'true' }, numeralOf('inside')),
     t.eyebrow,
   );
 

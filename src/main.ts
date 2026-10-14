@@ -12,6 +12,7 @@ import { createProblem } from './chapters/problem';
 import { chapters, type ChapterId } from './content';
 import { initAnnouncer } from './core/announcer';
 import { createChapterController } from './core/chapters';
+import { mountDiscoveryIndex } from './core/principles';
 import { bindSoundToggle, soundToggleContents } from './core/soundToggle';
 
 const $ = <T extends HTMLElement>(sel: string): T => {
@@ -25,6 +26,7 @@ initAnnouncer($('#announcer'));
 const hudSound = $<HTMLButtonElement>('#sound-toggle');
 hudSound.innerHTML = soundToggleContents();
 bindSoundToggle(hudSound);
+mountDiscoveryIndex($('#discovery'));
 
 const controller = createChapterController(
   $('#stage'),

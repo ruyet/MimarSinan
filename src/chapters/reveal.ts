@@ -8,7 +8,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, revealAlignment as align } from '../content';
+import { copy, revealAlignment as align, numeralOf } from '../content';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h, s } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
@@ -21,7 +21,7 @@ const SIZES = 'min(92vw, 78dvh)';
 export function createReveal(ctx: ChapterContext): Chapter {
   const t = copy.reveal;
 
-  const top = eyebrow('IV', t.eyebrow);
+  const top = eyebrow(numeralOf('reveal'), t.eyebrow);
   const prompt = h('p', { class: 'lede reveal__prompt' }, t.prompt);
   const title = headline('h2', 'reveal-title', t.headline);
   title.el.classList.add('reveal__title');

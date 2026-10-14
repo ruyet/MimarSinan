@@ -4,7 +4,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy } from '../content';
+import { copy, numeralOf } from '../content';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
@@ -42,7 +42,7 @@ const DOME_SVG = `
 export function createEpilogue(ctx: ChapterContext): Chapter {
   const t = copy.epilogue;
 
-  const top = eyebrow('VIII', t.eyebrow);
+  const top = eyebrow(numeralOf('epilogue'), t.eyebrow);
   const title = headline('h2', 'epilogue-title', t.headline, 'display epilogue__title');
   const lede = h('p', { class: 'lede' }, t.lede);
   const restart = button(t.restart, 'primary', '↺');

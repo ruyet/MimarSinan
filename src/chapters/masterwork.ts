@@ -6,7 +6,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy } from '../content';
+import { copy, numeralOf } from '../content';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h, s } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
@@ -21,7 +21,7 @@ const CY = H / 2;
 export function createMasterwork(ctx: ChapterContext): Chapter {
   const t = copy.masterwork;
 
-  const top = eyebrow('VII', t.eyebrow);
+  const top = eyebrow(numeralOf('masterwork'), t.eyebrow);
   const title = headline('h2', 'masterwork-title', t.headline);
   const body = h('p', { class: 'body' }, t.body);
 

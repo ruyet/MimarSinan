@@ -7,7 +7,7 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy } from '../content';
+import { copy, numeralOf } from '../content';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
@@ -21,7 +21,7 @@ type State = 'intact' | 'collapsed';
 export function createProblem(ctx: ChapterContext): Chapter {
   const t = copy.problem;
 
-  const top = eyebrow('I', t.eyebrow);
+  const top = eyebrow(numeralOf('problem'), t.eyebrow);
   const title = headline('h2', 'problem-title', t.headline);
   const body = h('p', { class: 'body swap' }, t.body);
   const goal = h('p', { class: 'body callout swap' }, t.goal);

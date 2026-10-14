@@ -59,6 +59,26 @@ export const sources = {
     label: 'hagiasophia.com, “Hagia Sophia floor plan”',
     url: 'https://www.hagiasophia.com/hagia-sophia-floor-plan',
   },
+  aaLegacy: {
+    label: 'Anadolu Agency, “Architect Sinan leaves enduring legacy in Ottoman cities”',
+    url: 'https://aa.com.tr/en/turkiye/architect-sinan-leaves-enduring-legacy-in-ottoman-cities/3279361',
+  },
+  tdvSedefkar: {
+    label: 'TDV İslâm Ansiklopedisi, “Mehmed Ağa, Sedefkâr”',
+    url: 'https://islamansiklopedisi.org.tr/mehmed-aga-sedefkar',
+  },
+  tdvSultanAhmed: {
+    label: 'TDV İslâm Ansiklopedisi, “Sultan Ahmed Camii ve Külliyesi”',
+    url: 'https://islamansiklopedisi.org.tr/sultan-ahmed-camii-ve-kulliyesi',
+  },
+  archnet: {
+    label: 'Archnet, “Sedefkâr Mehmed Ağa”',
+    url: 'https://archnet.org/authorities/1269',
+  },
+  wikipediaBlueMosque: {
+    label: 'Wikipedia, “Blue Mosque, Istanbul” (citing Blair & Bloom)',
+    url: 'https://en.wikipedia.org/wiki/Blue_Mosque,_Istanbul',
+  },
 } satisfies Record<string, Source>;
 
 export type SourceKey = keyof typeof sources;
@@ -197,6 +217,67 @@ export const facts = {
     text: 'Matching Hagia Sophia’s dome was one of Sinan’s main goals. His biography claims the Selimiye dome is higher and wider; modern measurements put the two diameters at about the same.',
     sources: ['wikipedia'],
   },
+
+  /* --- Mimar Sinan ------------------------------------------------- */
+  sinanLife: {
+    title: 'c. 1490–1588',
+    text: 'Mimar Sinan was born around 1490 in Ağırnas, near Kayseri, and died in Istanbul in 1588. His exact birth year is disputed.',
+    sources: ['aaLegacy', 'wikipediaSinan'],
+  },
+  sinanRole: {
+    title: 'Chief architect for about fifty years',
+    text: 'He was chief architect of the Ottoman Empire for about fifty years, under Süleyman I, Selim II and Murad III.',
+    sources: ['aaLegacy'],
+  },
+  sinanEngineer: {
+    title: 'From military engineer to architect',
+    text: 'Before he became chief architect, Sinan served as a military engineer.',
+    sources: ['wikipediaSinan'],
+  },
+  sinanBuildings: {
+    title: 'Hundreds of buildings',
+    text: 'Hundreds of buildings are attributed to him; the exact count differs between sources.',
+    sources: ['wikipediaSinan'],
+  },
+  hagiaReinforced: {
+    title: 'Strengthening Hagia Sophia',
+    text: 'In 1573 Sinan strengthened Hagia Sophia with buttresses: reinforcement work on an existing building, not its design.',
+    sources: ['aaLegacy'],
+  },
+
+  /* --- The tradition ------------------------------------------------- */
+  hsBuilt: {
+    title: 'Hagia Sophia, 532–537',
+    text: 'Hagia Sophia was built in 532–537 under Justinian, by the architects Anthemius of Tralles and Isidore of Miletus.',
+    sources: ['hagiaSophia'],
+  },
+  sehzadePlan: {
+    title: 'Şehzade: four half-domes',
+    text: 'At the Şehzade Mosque (1548), Sinan surrounded the central dome with four half-domes.',
+    sources: ['wikipediaBlueMosque', 'wikipediaSinan'],
+  },
+  suleymaniyePlan: {
+    title: 'Süleymaniye: two half-domes',
+    text: 'At the Süleymaniye (1557), the central dome is extended by two half-domes, as at Hagia Sophia.',
+    sources: ['wikipediaSinan'],
+  },
+
+  /* --- Legacy ----------------------------------------------------------- */
+  sedefkar: {
+    title: 'Sedefkâr Mehmed Ağa',
+    text: 'Sedefkâr Mehmed Ağa trained under Sinan, then under his successors Davud Ağa and Dalgıç Ahmed Ağa, and became chief imperial architect in 1606. “Sedefkâr” refers to his training in mother-of-pearl inlay.',
+    sources: ['tdvSedefkar', 'archnet'],
+  },
+  sultanAhmed: {
+    title: 'The Sultan Ahmed Mosque',
+    text: 'He designed the Sultan Ahmed Mosque, the “Blue Mosque” in Istanbul, built for Ahmed I in 1609–1616/17.',
+    sources: ['tdvSultanAhmed', 'wikipediaBlueMosque'],
+  },
+  blueMosquePlan: {
+    title: 'A plan from Şehzade, not Selimiye',
+    text: 'Its plan builds on Sinan’s Şehzade Mosque: a central dome with four half-domes, expanded with additional exedrae. It does not follow Selimiye’s eight-pier scheme.',
+    sources: ['tdvSultanAhmed', 'wikipediaBlueMosque'],
+  },
 } satisfies Record<string, Fact>;
 
 export type FactKey = keyof typeof facts;
@@ -214,6 +295,9 @@ export type ChapterId =
   | 'inside'
   | 'discover'
   | 'masterwork'
+  | 'legacy'
+  | 'synthesis'
+  | 'name'
   | 'epilogue'
   | 'credits';
 
@@ -234,10 +318,74 @@ export const chapters: ChapterMeta[] = [
   { id: 'reveal', numeral: 'IV', title: 'Look up', inProgress: true },
   { id: 'inside', numeral: 'V', title: 'Inside the light', inProgress: true },
   { id: 'discover', numeral: 'VI', title: 'Look closer', inProgress: true },
-  { id: 'masterwork', numeral: 'VII', title: 'The masterwork', inProgress: true },
-  { id: 'epilogue', numeral: 'VIII', title: 'Epilogue', inProgress: true },
+  { id: 'masterwork', numeral: 'VII', title: 'A tradition, refined', inProgress: true },
+  { id: 'legacy', numeral: 'VIII', title: 'The legacy', inProgress: true },
+  { id: 'synthesis', numeral: 'IX', title: 'Why Mimar Sinan matters', inProgress: true },
+  { id: 'name', numeral: 'X', title: 'Mimar Sinan', inProgress: true },
+  { id: 'epilogue', numeral: 'XI', title: 'Epilogue', inProgress: true },
   { id: 'credits', numeral: '', title: 'Sources & credits', inProgress: false },
 ];
+
+/** The chapter's Roman numeral, so modules never hard-code it. */
+export const numeralOf = (id: ChapterId): string =>
+  chapters.find((c) => c.id === id)?.numeral ?? '';
+
+/* ------------------------------------------------------------------ */
+/* The three principles (the visitor's goal)                           */
+/* ------------------------------------------------------------------ */
+
+export type Principle = 'structure' | 'space' | 'light';
+export const principleOrder: Principle[] = ['structure', 'space', 'light'];
+
+export const principles: Record<Principle, { name: string; line: string }> = {
+  structure: { name: 'Structure', line: 'Carrying one great dome.' },
+  space: { name: 'Space', line: 'One unified room beneath it.' },
+  light: { name: 'Light', line: 'Walls freed by the structure, opened to light.' },
+};
+
+/* ------------------------------------------------------------------ */
+/* Figures — numbered once, continuously, through the whole site       */
+/* ------------------------------------------------------------------ */
+
+const figureOrder = [
+  'problem',
+  'dilemma',
+  'room',
+  'walls',
+  'reveal',
+  'inside-hall',
+  'inside-mihrab',
+  'inside-platform',
+  'inside-exterior',
+  'discover',
+  'tradition',
+  'legacy-plans',
+  'legacy-photo',
+  'name',
+] as const;
+
+export type FigureId = (typeof figureOrder)[number];
+
+const ROMAN: [number, string][] = [
+  [10, 'X'],
+  [9, 'IX'],
+  [5, 'V'],
+  [4, 'IV'],
+  [1, 'I'],
+];
+export function toRoman(n: number): string {
+  let out = '';
+  for (const [v, s] of ROMAN) {
+    while (n >= v) {
+      out += s;
+      n -= v;
+    }
+  }
+  return out;
+}
+
+/** "Fig. IV" for a figure id; the order above is the only place numbers are decided. */
+export const fig = (id: FigureId): string => `Fig. ${toRoman(figureOrder.indexOf(id) + 1)}`;
 
 /* ------------------------------------------------------------------ */
 /* Copy                                                                */
@@ -250,30 +398,38 @@ export const copy = {
     soundOff: 'Sound off',
     soundAnnounceOn: 'Sound turned on.',
     soundAnnounceOff: 'Sound turned off.',
-    progressTotal: 'VIII',
+    progressTotal: 'XI',
     continue: 'Continue',
-    model: 'A simplified model, for illustration.',
+    model: 'This is a simplified illustration, not an engineering simulation.',
+    discoveryLabel: 'Principles discovered',
+    discovered: (name: string) => `Principle discovered: ${name}.`,
+    notYet: 'not yet discovered',
+    found: 'discovered',
   },
 
   opening: {
+    eyebrowName: 'Mimar Sinan',
     eyebrow: 'Selimiye Mosque · Edirne · 1575',
     headline: 'How do you hold up *the sky?*',
-    lede: 'A short, interactive study of the building Mimar Sinan called his masterwork. No architecture knowledge needed.',
+    lede: 'Mimar Sinan was chief architect of the Ottoman Empire for about fifty years. In his eighties he built the mosque he himself called his masterwork.',
+    goal: 'Discover the three ideas that made it a masterpiece:',
     begin: 'Begin',
     soundHint: 'Sound is optional. Headphones recommended.',
-    footer: 'Mimar Sinan · Chief architect of the Ottoman court',
+    footer: 'An interactive study · No architecture knowledge needed',
   },
 
   problem: {
     eyebrow: 'The problem',
     headline: 'One room. *One dome.*',
-    body: 'You have a nearly square hall and a single dome to cover it. A dome is heavy, and it has to rest on something.',
+    body: 'Sinan’s problem: a nearly square hall, and a single dome to cover it. A dome is heavy, and it has to rest on something.',
     goal: 'Your goal: carry the dome and keep the space beneath as open as possible, so it feels like one room.',
     cta: 'Release the dome',
     redraw: 'Redraw',
     figureLabel:
       'Line drawing: a nearly square prayer hall seen at an angle, with a circle on the floor marking where the dome would sit. Above it, a single dome hovers in the air, with guide lines showing where it would drop.',
-    figcaption: 'Fig. I — A prayer hall, and the dome meant to cover it.',
+    figcaption: `${fig('problem')} — A prayer hall, and the dome meant to cover it.`,
+    margin:
+      'Selimiye’s prayer hall measures roughly 45 × 36 metres; its dome is about 31 metres across.',
     annotations: {
       hall: 'PRAYER HALL',
       hallSize: 'hall ≈ 45 × 36 m',
@@ -284,7 +440,7 @@ export const copy = {
       headline: 'It *falls.*',
       body: 'A dome pushes down, and outward. It needs something to push against.',
       cta: 'Add supports',
-      figcaption: 'Fig. I — Without support, the dome collapses.',
+      figcaption: `${fig('problem')} — Without support, the dome collapses.`,
       announce:
         'The dome collapsed. A dome pushes down and outward; it needs something to push against.',
     },
@@ -292,7 +448,9 @@ export const copy = {
 
   dilemma: {
     eyebrow: 'The dilemma',
-    figcaption: 'Fig. II — The dome seen from above, with the ring where piers can stand.',
+    instruction:
+      'Try different numbers of supports. Watch two things: does the dome hold, and how open does the room stay?',
+    figcaption: `${fig('dilemma')} — The dome seen from above, with the ring where piers can stand.`,
     figureLabel:
       'Plan view from above: the dome as a circle, surrounded by a ring of possible pier positions.',
     floorView: 'View from the floor',
@@ -307,51 +465,66 @@ export const copy = {
     showAnswer: 'Show me Sinan’s answer',
     states: {
       none: {
-        headline: 'Where do the *supports* go?',
-        body: 'Choose how many piers carry the dome. Each pier carries weight, but each one also stands in the room.',
+        headline: 'How many *supports?*',
+        body: 'Each pier carries part of the dome’s weight. But each pier also stands in the room.',
       },
       4: {
-        headline: 'Four is *not enough.*',
-        body: 'The gaps between the piers are too wide. Between them, the dome pushes outward with nothing to stop it.',
+        headline: 'Four, *with wide gaps.*',
+        body: 'In this model, four piers on their own leave wide gaps. Between them, the dome pushes outward with nothing to push against.',
       },
       6: {
-        headline: 'Six is *nearly there.*',
-        body: 'The dome holds, but it strains. Watch the red lines where the gaps are still too wide.',
+        headline: 'Six, *still straining.*',
+        body: 'In this model the dome holds, but strains where the gaps are still wide. Watch the red lines.',
       },
       8: {
         headline: '*Eight.*',
-        body: 'This is Sinan’s answer at Selimiye: eight piers, pulled back into the walls, carrying one dome about 31 metres across.',
+        body: 'At Selimiye, Sinan chose eight piers, pulled back towards the walls, to carry one dome about 31 metres across.',
       },
       12: {
-        headline: 'Stable, but *crowded.*',
-        body: 'The dome is safe, but the floor fills with columns. The room no longer feels like one space.',
+        headline: 'Twelve: *safe, but crowded.*',
+        body: 'A trade-off: more support, less open room. The floor starts to fill with columns.',
       },
       16: {
-        headline: 'A forest *of columns.*',
-        body: 'Every extra pier takes away open space. The dome holds, but the room is lost.',
+        headline: 'Sixteen: *a forest of columns.*',
+        body: 'The dome is well supported, but the room no longer reads as one open space.',
       },
+    },
+    realSystem: {
+      title: 'The real system',
+      body: 'At Selimiye the eight piers are partly built into the outer walls, and extra buttresses hide inside the walls themselves. Four small half-domes fill the corners, and galleries are tucked between the piers.',
+      otherWays:
+        'Domes have been carried in many ways. Hagia Sophia used two great half-domes. Sinan himself tried other systems in earlier mosques. At Selimiye, he chose eight.',
+    },
+    room: {
+      cta: 'Stand in the room',
+      headline: 'One *room.*',
+      body: 'Because the supports are pulled back into the walls, almost nothing stands between you and the dome.',
+      back: 'Back to the plan',
+      figcaption: `${fig('room')} — The view from the floor with eight piers.`,
+      label:
+        'View from the centre of the floor with eight piers: the few columns stand back at the edges, and one open room stretches out under the dome.',
     },
     hagia: {
       title: 'Another answer',
-      body: 'Hagia Sophia solved this with four piers and two huge half-domes, which stretched its space into a long hall.',
+      body: 'Hagia Sophia answered with four piers and two huge half-domes, which stretch its space into a long hall.',
       label:
         'Sketch of Hagia Sophia’s plan: a central dome on four piers, with a half-dome at each end.',
     },
     announce: (n: number, stability: string, openness: string) =>
       `${n} piers. Stability: ${stability}. Openness: ${openness}.`,
-    lockIn: 'Balanced. Both meters are in the sweet spot.',
+    lockIn: 'Balanced in this model: both meters are in the sweet spot.',
   },
 
   walls: {
     eyebrow: 'Opening the walls',
     headline: 'Now, *let the light in.*',
-    body: 'The piers carry the dome. Buttresses hide inside the walls. So the walls themselves can open up.',
+    body: 'The piers carry the dome, and buttresses hide inside the walls. Walls that don’t carry the dome can be opened: Selimiye’s walls are pierced by a great many windows.',
     control: 'Open the walls',
     dragHint: 'Drag across the drawing, or use the slider.',
     lightLabel: 'Light',
     levels: ['Dim', 'A little light', 'Brighter', 'Bright', 'Filled with light'],
     closing: 'Structure made *the light* possible.',
-    figcaption: 'Fig. III — Eight piers carry the dome; the walls between them are free to open.',
+    figcaption: `${fig('walls')} — Eight piers carry the dome; the walls between them are free to open.`,
     figureLabel:
       'Cut-away drawing of the prayer hall: eight piers carry the dome, and the walls between them fill with windows as you open them. Light falls across the floor.',
   },
@@ -361,33 +534,92 @@ export const copy = {
     prompt: 'Stand in the centre of the hall, and look up.',
     headline: 'This is what *Sinan built.*',
     toggleDrawing: 'Show the drawing',
+    toggleAnnotations: 'Show annotations',
+    annotationsIntro: 'The three ideas, found in the real dome.',
+    figcaption: `${fig('reveal')} — The dome of the Selimiye, seen from the centre of the floor.`,
     figureLabel:
       'The eight-pier plan, seen from directly below, turning into a photograph of the real dome.',
   },
 
   inside: {
     eyebrow: 'Inside the light',
-    prev: 'Previous photo',
-    next: 'Next photo',
-    hint: 'Scroll, swipe or use the arrow keys.',
+    prev: 'Previous',
+    next: 'Next',
+    hint: 'Scroll, swipe or use the arrow keys to step through.',
     slide: (i: number, total: number) => `Photo ${i} of ${total}`,
+    step: (i: number, total: number) => `Note ${i} of ${total}`,
   },
 
   discover: {
     eyebrow: 'Look closer',
     headline: 'Six *details.*',
-    body: 'Select a point on the photo to learn more.',
+    body: 'Select a point on the photo. The photo shows you where; the note tells you why.',
     views: { interior: 'Inside', exterior: 'Outside' },
     close: 'Close',
     legend: 'Legend',
     sourcesLabel: 'Source',
+    panelEmpty: 'Choose a point on the photo.',
     seen: (n: number, total: number) => `${n} of ${total} explored`,
+    figcaption: `${fig('discover')} — Six details of the Selimiye.`,
   },
 
   masterwork: {
-    eyebrow: 'The masterwork',
-    headline: 'Equal in width, *one in spirit.*',
-    body: 'Selimiye’s dome matches Hagia Sophia’s in width, something no Ottoman builder had managed before. Sinan claimed his was higher and wider; modern measurements put the two at about the same.',
+    eyebrow: 'A tradition, refined',
+    headline: 'Sinan didn’t start *from nothing.*',
+    body: 'Hagia Sophia had faced the problem of one great dome a thousand years before Selimiye. Sinan studied the answers before him, tried his own, and refined them.',
+    stepLabel: 'Step through the plans',
+    claim:
+      'The two domes are about the same width. Sinan claimed his was higher and wider; modern measurements put the diameters at about the same.',
+    figcaption: `${fig('tradition')} — Four plans, drawn to the same idea of scale.`,
+    plans: [
+      {
+        id: 'hagia',
+        year: '537',
+        name: 'Hagia Sophia',
+        role: 'Anthemius of Tralles & Isidore of Miletus',
+        sub: 'A central dome with two great half-domes',
+        text: 'Built 532–537. Two great half-domes help carry the dome, and stretch the space into a long, directional hall. In 1573, Sinan strengthened this building itself with buttresses.',
+        caption: 'A long space, pulled in one direction.',
+        label:
+          'Plan of Hagia Sophia: a central dome on four piers, with a large half-dome to the east and to the west, forming a long nave.',
+      },
+      {
+        id: 'sehzade',
+        year: '1548',
+        name: 'Şehzade Mosque',
+        role: 'Sinan’s “apprentice work”',
+        sub: 'A central dome with four half-domes',
+        text: 'Here the central dome is surrounded by four half-domes, one on each side.',
+        caption: 'A centred space, held by four half-domes.',
+        label:
+          'Plan of the Şehzade Mosque: a square hall with a central dome and four half-domes, one on each side.',
+      },
+      {
+        id: 'suleymaniye',
+        year: '1557',
+        name: 'Süleymaniye',
+        role: 'Sinan’s “journeyman work”',
+        sub: 'A central dome with two half-domes',
+        text: 'Here the central dome is extended by two half-domes, as at Hagia Sophia.',
+        caption: 'Two half-domes, like Hagia Sophia.',
+        label:
+          'Plan of the Süleymaniye: a rectangular hall with a central dome extended by two half-domes along one axis.',
+      },
+      {
+        id: 'selimiye',
+        year: '1575',
+        name: 'Selimiye',
+        role: 'Sinan’s “masterwork”',
+        sub: 'One dome on eight piers',
+        text: 'Eight piers, four small corner half-domes, and one centred, unified space under a single dome.',
+        caption: 'One centred space, gathered under one dome.',
+        label:
+          'Plan of the Selimiye: a single dome on eight piers in an octagon, with four small half-domes in the corners and the mihrab in its own apse.',
+      },
+    ],
+    stagesNote:
+      'Apprentice, journeyman, master: how Sinan himself described these three buildings.',
+    // Legacy keys used by the previous chapter VII layout; removed when VII is rebuilt.
     hagia: {
       name: 'Hagia Sophia',
       sub: 'Four piers + two great half-domes',
@@ -410,7 +642,64 @@ export const copy = {
       { year: '1557', name: 'Süleymaniye', role: 'journeyman work' },
       { year: '1575', name: 'Selimiye', role: 'masterwork' },
     ],
-    stagesNote: 'How Sinan himself described three stages of his career.',
+  },
+
+  legacy: {
+    eyebrow: 'The legacy',
+    headline: 'Through the architects *he trained.*',
+    body: 'Sinan’s ideas outlived him through the people he taught. Sedefkâr Mehmed Ağa trained under Sinan and his successors, became chief imperial architect in 1606, and designed the Sultan Ahmed Mosque, the “Blue Mosque”, built 1609–1616/17.',
+    plan: 'Its plan grows from Sinan’s Şehzade Mosque, a central dome with four half-domes, not from Selimiye’s eight piers. Sinan’s influence passed through a whole school of ideas and people, not one copied building.',
+    plansCaption: `${fig('legacy-plans')} — Şehzade (1548) and the Sultan Ahmed Mosque (1609–1616/17): the same central idea, expanded.`,
+    photoCaption: `${fig('legacy-photo')} — The Sultan Ahmed Mosque, Istanbul: domes and half-domes cascade around the centre.`,
+    sehzade: 'Şehzade, 1548',
+    blue: 'Sultan Ahmed, 1609–1616/17',
+    plansLabel:
+      'Two plans side by side: the Şehzade Mosque, a central dome with four half-domes, and the Sultan Ahmed Mosque, the same arrangement with additional small exedrae.',
+  },
+
+  synthesis: {
+    eyebrow: 'Why Mimar Sinan matters',
+    headline: 'Why *Mimar Sinan* matters',
+    lede: 'Three ideas, working as one, and a way of building that outlived him.',
+    plates: [
+      {
+        numeral: '1',
+        principle: 'structure' as const,
+        title: 'He refined monumental structure.',
+        text: 'Eight piers carry one great dome, pulled back into the walls.',
+        ref: fig('dilemma'),
+      },
+      {
+        numeral: '2',
+        principle: 'space' as const,
+        title: 'He created unified space.',
+        text: 'Almost nothing stands between you and the dome: one room.',
+        ref: fig('room'),
+      },
+      {
+        numeral: '3',
+        principle: 'light' as const,
+        title: 'He made structure and light work together.',
+        text: 'Walls freed from the load could be opened to a great many windows.',
+        ref: fig('walls'),
+      },
+      {
+        numeral: '4',
+        principle: null,
+        title: 'His ideas outlived him.',
+        text: 'The architects he trained carried them on, from Şehzade to the Blue Mosque.',
+        ref: fig('legacy-plans'),
+      },
+    ],
+  },
+
+  name: {
+    eyebrow: 'Remember the name',
+    first: 'Mimar',
+    last: 'Sinan',
+    dates: 'c. 1490–1588 · Chief architect of the Ottoman Empire for about fifty years',
+    line: 'Hundreds of buildings. *One masterwork.*',
+    figcaption: `${fig('name')} — Monument to Mimar Sinan in Edirne, near the Selimiye.`,
   },
 
   epilogue: {
@@ -535,6 +824,34 @@ export const images = {
         'https://commons.wikimedia.org/wiki/File:Edirne_Selimiye_Mosque_from_distance_in_2009_6427.jpg',
     },
   },
+  sinanMonument: {
+    src: '/images/people/mimar-sinan-monument-edirne',
+    width: 3840,
+    height: 5760,
+    alt: 'Bronze monument of Mimar Sinan in Edirne: the architect sits in a long robe and a large turban, one hand resting on his knee, looking down.',
+    credit: {
+      title: 'Mimar Sinan monument in 2024',
+      author: 'Dosseman',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: CC_BY_SA_4,
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:Mimar_Sinan_monument_in_2024_6024.jpg',
+    },
+  },
+  sultanAhmed: {
+    src: '/images/legacy/sultan-ahmed-mosque',
+    width: 2560,
+    height: 1920,
+    alt: 'The Sultan Ahmed Mosque in Istanbul: a great central dome with half-domes and smaller domes cascading around it, framed by slender minarets.',
+    credit: {
+      title: 'Exterior of Sultan Ahmed I Mosque',
+      author: 'Bigdaddy1204 (English Wikipedia)',
+      license: 'Public domain',
+      licenseUrl:
+        'https://commons.wikimedia.org/wiki/File:Exterior_of_Sultan_Ahmed_I_Mosque,_(old_name_P1020390.jpg).jpg',
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Exterior_of_Sultan_Ahmed_I_Mosque,_(old_name_P1020390.jpg).jpg',
+    },
+  },
 } satisfies Record<string, ImageAsset>;
 
 export type ImageKey = keyof typeof images;
@@ -556,31 +873,176 @@ export const revealAlignment = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Chapter V — photo sequence (captions use verified facts only)       */
+/* Photo annotations — coordinates in % of the image                   */
+/* (x as % of width, y as % of height; open ?annotate=1 to calibrate)  */
 /* ------------------------------------------------------------------ */
 
-export const insideSlides: { image: ImageKey; caption: string; position?: string }[] = [
+export type Shape =
+  | { kind: 'rect'; x: number; y: number; w: number; h: number }
+  | { kind: 'ellipse'; cx: number; cy: number; rx: number; ry: number }
+  | { kind: 'poly'; points: [number, number][] };
+
+export interface Annotation {
+  id: string;
+  /** Short label set on the photo (tracked uppercase). */
+  label: string;
+  /** One line of explanation, shown next to or below the photo. */
+  text: string;
+  shapes: Shape[];
+  principle?: Principle;
+  /** Draw outlines (default true). False = spotlight only. */
+  outline?: boolean;
+  /** True when the position could not be verified on the photo; listed in CHANGELOG.md. */
+  needsCalibration?: boolean;
+}
+
+/* Shared shapes, measured on each photo with a 5 % grid. */
+const hallPier: Shape = { kind: 'rect', x: 13.5, y: 8, w: 11, h: 47 };
+const hallWindows: Shape = { kind: 'rect', x: 45, y: 3, w: 33, h: 18 };
+const hallPlatform: Shape = { kind: 'rect', x: 58, y: 40, w: 27, h: 22 };
+const hallPlatformColumns: Shape = { kind: 'rect', x: 58.5, y: 49, w: 26, h: 13 };
+
+/* The reveal photo: geometry follows `revealAlignment` (square photo, so % of width = % of height). */
+const domeCx = 50 + revealAlignment.offsetX;
+const domeCy = 50 + revealAlignment.offsetY;
+const circle = (r: number): Shape => ({ kind: 'ellipse', cx: domeCx, cy: domeCy, rx: r, ry: r });
+const octagon = (r: number): Shape => ({
+  kind: 'poly',
+  points: Array.from({ length: 8 }, (_, i) => {
+    const a = Math.PI / 8 + (i * Math.PI) / 4;
+    return [domeCx + r * Math.cos(a), domeCy + r * Math.sin(a)] as [number, number];
+  }),
+});
+
+export const revealAnnotations: Annotation[] = [
   {
-    image: 'prayerHall',
-    caption: 'One dome, about *31 metres* across, over a single open hall.',
+    id: 'reveal-piers',
+    label: 'Eight piers',
+    text: 'Where the great arches meet stand the eight piers that carry the dome.',
+    shapes: [octagon(revealAlignment.pierRadius * 100)],
+    principle: 'structure',
   },
   {
-    image: 'mihrabApse',
-    caption: 'The mihrab sits in its own apse, *lit from three sides.*',
+    id: 'reveal-windows',
+    label: 'Window ring',
+    text: 'A ring of windows circles the base of the dome.',
+    shapes: [circle(38.5), circle(32.5)],
+    principle: 'light',
   },
   {
-    image: 'muezzinPlatform',
-    caption: 'The müezzin’s platform, *directly under the dome,* with a fountain beneath.',
-  },
-  {
-    image: 'exteriorMinarets',
-    caption: 'Four minarets, each *70.89 metres* tall, frame the dome.',
-    position: '35% 50%',
+    id: 'reveal-dome',
+    label: 'One dome',
+    text: 'A single dome, about 31 metres across, fills the whole view.',
+    shapes: [circle(revealAlignment.domeRadius * 100)],
+    principle: 'space',
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/* Chapter VI — hotspots (x / y in % of the photo)                     */
+/* Chapter V — annotated photographs (captions use verified facts only) */
+/* ------------------------------------------------------------------ */
+
+export interface InsideSlide {
+  image: ImageKey;
+  caption: string;
+  figure: FigureId;
+  position?: string;
+  steps: Annotation[];
+}
+
+export const insideSlides: InsideSlide[] = [
+  {
+    image: 'prayerHall',
+    figure: 'inside-hall',
+    caption: 'One dome, about *31 metres* across, over a single open hall.',
+    steps: [
+      {
+        id: 'hall-pier',
+        label: 'A pier',
+        text: 'One of the eight great piers, partly built into the outer walls. Together they carry the dome.',
+        shapes: [hallPier],
+        principle: 'structure',
+      },
+      {
+        id: 'hall-floor',
+        label: 'One open floor',
+        text: 'Between the piers the floor opens wide: one room, under one dome.',
+        shapes: [{ kind: 'ellipse', cx: 50, cy: 78, rx: 46, ry: 18 }],
+        principle: 'space',
+      },
+      {
+        id: 'hall-windows',
+        label: 'Windows',
+        text: 'High in the walls, row upon row of windows light the hall.',
+        shapes: [hallWindows],
+        principle: 'light',
+      },
+    ],
+  },
+  {
+    image: 'mihrabApse',
+    figure: 'inside-mihrab',
+    caption: 'The mihrab sits in its own apse, *lit from three sides.*',
+    steps: [
+      {
+        id: 'mihrab-windows',
+        label: 'Windows on three sides',
+        text: 'The mihrab’s own apse is lit from three sides.',
+        shapes: [{ kind: 'rect', x: 20, y: 14, w: 60, h: 52 }],
+        principle: 'light',
+      },
+    ],
+  },
+  {
+    image: 'muezzinPlatform',
+    figure: 'inside-platform',
+    caption: 'The müezzin’s platform, *directly under the dome,* with a fountain beneath.',
+    steps: [
+      {
+        id: 'platform-arches',
+        label: 'Under the dome',
+        text: 'The platform stands at the centre, directly under the dome, a placement Sinan never repeated. It rests on twelve small arches.',
+        shapes: [{ kind: 'rect', x: 6, y: 47, w: 85, h: 23 }],
+        principle: 'space',
+      },
+      {
+        id: 'platform-fountain',
+        label: 'Fountain',
+        text: 'A marble fountain stands underneath the platform.',
+        shapes: [{ kind: 'rect', x: 37, y: 72, w: 23, h: 16 }],
+      },
+    ],
+  },
+  {
+    image: 'exteriorMinarets',
+    figure: 'inside-exterior',
+    caption: 'Four minarets, each *70.89 metres* tall, frame the dome.',
+    position: '30% 50%',
+    steps: [
+      {
+        id: 'ext-minarets',
+        label: 'Four minarets',
+        text: 'Four identical minarets, each 70.89 metres tall with three balconies, frame the dome.',
+        shapes: [
+          { kind: 'rect', x: 4.4, y: 21, w: 3.4, h: 50 },
+          { kind: 'rect', x: 14.2, y: 4, w: 4, h: 67 },
+          { kind: 'rect', x: 24.4, y: 17, w: 3.3, h: 50 },
+          { kind: 'rect', x: 36.8, y: 8, w: 4, h: 64 },
+        ],
+      },
+      {
+        id: 'ext-dome',
+        label: 'The dome',
+        text: 'From outside, the single dome rises at the centre of it all.',
+        shapes: [{ kind: 'ellipse', cx: 23, cy: 50.5, rx: 7, ry: 5.5 }],
+        principle: 'space',
+      },
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/* Chapter VI — hotspots (dot position + highlighted area, % of photo) */
 /* ------------------------------------------------------------------ */
 
 export interface Hotspot {
@@ -590,6 +1052,7 @@ export interface Hotspot {
   y: number;
   title: string;
   facts: FactKey[];
+  annotation: Annotation;
 }
 
 export const hotspotViews = {
@@ -605,6 +1068,13 @@ export const hotspots: Hotspot[] = [
     y: 32,
     title: 'The eight piers',
     facts: ['piers', 'galleries'],
+    annotation: {
+      id: 'hs-pier',
+      label: 'A pier',
+      text: '',
+      shapes: [hallPier],
+      principle: 'structure',
+    },
   },
   {
     id: 'platform',
@@ -613,6 +1083,13 @@ export const hotspots: Hotspot[] = [
     y: 45,
     title: 'The müezzin’s platform',
     facts: ['muezzinPlatform'],
+    annotation: {
+      id: 'hs-platform',
+      label: 'Müezzin’s platform',
+      text: '',
+      shapes: [hallPlatform],
+      principle: 'space',
+    },
   },
   {
     id: 'windows',
@@ -621,8 +1098,28 @@ export const hotspots: Hotspot[] = [
     y: 12,
     title: 'Windows and light',
     facts: ['windows', 'cornerSemidomes'],
+    annotation: {
+      id: 'hs-windows',
+      label: 'Windows',
+      text: '',
+      shapes: [hallWindows],
+      principle: 'light',
+    },
   },
-  { id: 'tulip', view: 'interior', x: 60, y: 60, title: 'The upside-down tulip', facts: ['tulip'] },
+  {
+    id: 'tulip',
+    view: 'interior',
+    x: 63,
+    y: 58,
+    title: 'The upside-down tulip',
+    facts: ['tulip'],
+    annotation: {
+      id: 'hs-tulip',
+      label: 'Platform columns',
+      text: '',
+      shapes: [hallPlatformColumns],
+    },
+  },
   {
     id: 'minarets',
     view: 'exterior',
@@ -630,6 +1127,26 @@ export const hotspots: Hotspot[] = [
     y: 34,
     title: 'The minarets',
     facts: ['minarets', 'staircases'],
+    annotation: {
+      id: 'hs-minaret',
+      label: 'Three balconies',
+      text: '',
+      shapes: [{ kind: 'rect', x: 67.8, y: 9, w: 4.6, h: 75 }],
+    },
   },
-  { id: 'scar', view: 'exterior', x: 46, y: 58, title: 'The scar of 1913', facts: ['damage1913'] },
+  {
+    id: 'scar',
+    view: 'exterior',
+    x: 46,
+    y: 58,
+    title: 'The scar of 1913',
+    facts: ['damage1913'],
+    // The dome is clearly identifiable; the exact place of the damage is not, so no "scar" label.
+    annotation: {
+      id: 'hs-dome',
+      label: 'The dome',
+      text: '',
+      shapes: [{ kind: 'ellipse', cx: 46.5, cy: 61, rx: 12.5, ry: 6.5 }],
+    },
+  },
 ];
