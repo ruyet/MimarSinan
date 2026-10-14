@@ -215,3 +215,138 @@
 .opening__goal .principle-row__item {
   color: var(--fg);
 }
+
+/* --- I–II · clarifications -------------------------------------------- */
+
+.instruction {
+  max-width: 36ch;
+  padding-left: var(--space-s);
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step-1);
+  line-height: 1.35;
+  font-variation-settings: 'opsz' 36;
+}
+
+.real-system {
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: 34rem;
+  padding: var(--space-s) 0 0;
+  border-top: 1px solid var(--line-faint);
+}
+
+.real-system .body {
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+/* --- II·b · the unified room (a full-page beat inside chapter II) ------- */
+
+.room {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-areas:
+    'figure'
+    'text';
+  align-content: center;
+  gap: var(--space-l);
+  padding: calc(var(--space-2xl) - var(--space-s)) var(--gutter) var(--space-xl);
+  overflow-y: auto;
+}
+
+.room__bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--stone-100);
+}
+
+.room__figure {
+  grid-area: figure;
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: center;
+}
+
+.room__art {
+  width: min(100%, 78rem, calc((100dvh - 16rem) * 2));
+  border: 1px solid var(--line-faint);
+  background: var(--stone-50);
+  box-shadow: 0 30px 70px -40px rgb(29 40 56 / 0.5);
+  will-change: transform;
+}
+
+.room__art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.room__figure figcaption {
+  width: min(100%, 78rem, calc((100dvh - 16rem) * 2));
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.room__text {
+  grid-area: text;
+  display: grid;
+  gap: var(--space-s);
+  justify-items: start;
+  width: min(100%, 78rem);
+  margin-inline: auto;
+}
+
+.room__body {
+  max-width: 44ch;
+  font-size: var(--step-1);
+  line-height: 1.45;
+}
+
+.room__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-s);
+}
+
+@media (min-width: 60rem) {
+  .room__text {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto;
+    align-items: end;
+    column-gap: var(--space-l);
+  }
+}
+
+.roomview__line {
+  fill: none;
+  stroke: var(--ink-700);
+  stroke-width: 1.2;
+}
+
+.roomview__line--strong {
+  stroke: var(--ink-900);
+  stroke-width: 2;
+}
+
+.roomview__window {
+  fill: #f4dda0;
+  stroke: var(--ink-700);
+  stroke-width: 0.8;
+}
+
+.roomview__pilaster {
+  fill: #eadfc6;
+  stroke: var(--ink-700);
+  stroke-width: 1;
+}
+
+.roomview__floorline {
+  stroke: rgb(29 40 56 / 0.18);
+  stroke-width: 1;
+}

@@ -173,7 +173,7 @@ export interface FloorView {
  * What a person standing under the dome sees, looking ahead (a 180° panorama).
  * Column widths follow the model's openness: the fuller the room, the more it is blocked.
  */
-export function buildFloorView(): FloorView {
+export function buildFloorView(idSuffix = ''): FloorView {
   const W = 360;
   const H = 180;
   const horizon = 138;
@@ -183,11 +183,11 @@ export function buildFloorView(): FloorView {
     'aria-hidden': 'true',
   });
   const defs = s('defs', {}, svg);
-  const g = s('linearGradient', { id: 'fv-wall', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  const g = s('linearGradient', { id: `fv-wall${idSuffix}`, x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
   s('stop', { offset: '0%', 'stop-color': '#f8f1e2' }, g);
   s('stop', { offset: '100%', 'stop-color': '#e7dcc8' }, g);
 
-  s('rect', { x: 0, y: 0, width: W, height: horizon, fill: 'url(#fv-wall)' }, svg);
+  s('rect', { x: 0, y: 0, width: W, height: horizon, fill: `url(#fv-wall${idSuffix})` }, svg);
   s('rect', { x: 0, y: horizon, width: W, height: H - horizon, class: 'floorview__floor' }, svg);
   // The dome overhead, as a great arc, with its ring of windows.
   s(
@@ -232,4 +232,92 @@ export function buildFloorView(): FloorView {
       });
     },
   };
+}
+
+/**
+ * II·b — the unified room, seen from the centre of the floor.
+ * Unlike the small panorama, piers here read as what they are at Selimiye: pilasters merged
+ * into the far walls, at the edge of one deep, open floor under a single sweeping dome.
+ */
+export function buildRoomView(): SVGSVGElement {
+  const W = 1200;
+  const H = 520;
+  const horizon = 360;
+  const wallTop = 200;
+  const svg = s('svg', { viewBox: `0 0 ${W} ${H}`, class: 'roomview', 'aria-hidden': 'true' });
+  const defs = s('defs', {}, svg);
+  const wall = s('linearGradient', { id: 'rv-wall', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  s('stop', { offset: '0%', 'stop-color': '#fbf4e3' }, wall);
+  s('stop', { offset: '100%', 'stop-color': '#efe4cd' }, wall);
+  const floorGrad = s('linearGradient', { id: 'rv-floor', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  s('stop', { offset: '0%', 'stop-color': '#dccdb1' }, floorGrad);
+  s('stop', { offset: '100%', 'stop-color': '#cdb994' }, floorGrad);
+  const glow = s('radialGradient', { id: 'rv-glow', cx: '50%', cy: '0%', r: '75%' }, defs);
+  s('stop', { offset: '0%', 'stop-color': '#f6dc9a', 'stop-opacity': 0.55 }, glow);
+  s('stop', { offset: '100%', 'stop-color': '#f6dc9a', 'stop-opacity': 0 }, glow);
+
+  // Sky of the dome, walls, floor.
+  s('rect', { x: 0, y: 0, width: W, height: horizon, fill: 'url(#rv-wall)' }, svg);
+  s('rect', { x: 0, y: horizon, width: W, height: H - horizon, fill: 'url(#rv-floor)' }, svg);
+  s('rect', { x: 0, y: 0, width: W, height: H, fill: 'url(#rv-glow)' }, svg);
+
+  // The dome: one great arc from edge to edge, with its ring of windows.
+  const arc = (y0: number, peak: number) => `M-40 ${y0}Q${W / 2} ${peak} ${W + 40} ${y0}`;
+  s('path', { d: arc(wallTop + 20, -150), class: 'roomview__line roomview__line--strong' }, svg);
+  s('path', { d: arc(wallTop + 40, -110), class: 'roomview__line' }, svg);
+  for (let i = 1; i < 20; i++) {
+    const t = i / 20;
+    const x = -40 + (W + 80) * t;
+    const y = (1 - t) * (1 - t) * (wallTop + 40) + 2 * (1 - t) * t * -110 + t * t * (wallTop + 40);
+    s(
+      'rect',
+      { x: x - 6, y: y + 10, width: 12, height: 22, rx: 6, class: 'roomview__window' },
+      svg,
+    );
+  }
+
+  // Far walls with rows of windows; piers as pilasters merged into the wall line.
+  s('line', { x1: 0, y1: wallTop + 60, x2: W, y2: wallTop + 60, class: 'roomview__line' }, svg);
+  [0.1, 0.36, 0.64, 0.9].forEach((fx) => {
+    const x = fx * W;
+    s(
+      'rect',
+      {
+        x: x - 22,
+        y: wallTop + 60,
+        width: 44,
+        height: horizon - wallTop - 60,
+        class: 'roomview__pilaster',
+      },
+      svg,
+    );
+  });
+  for (let row = 0; row < 2; row++) {
+    for (let i = 0; i < 24; i++) {
+      const x = 30 + i * 48;
+      if ([0.1, 0.36, 0.64, 0.9].some((fx) => Math.abs(x - fx * W) < 34)) continue;
+      s(
+        'rect',
+        { x, y: wallTop + 80 + row * 46, width: 12, height: 26, rx: 6, class: 'roomview__window' },
+        svg,
+      );
+    }
+  }
+  s(
+    'line',
+    { x1: 0, y1: horizon, x2: W, y2: horizon, class: 'roomview__line roomview__line--strong' },
+    svg,
+  );
+
+  // The open floor: carpet rows receding towards the far wall.
+  for (let i = 0; i <= 12; i++) {
+    const xFar = (W / 12) * i;
+    const xNear = W / 2 + (xFar - W / 2) * 3.2;
+    s('line', { x1: xFar, y1: horizon, x2: xNear, y2: H, class: 'roomview__floorline' }, svg);
+  }
+  [0.18, 0.4, 0.68].forEach((f) => {
+    const y = horizon + (H - horizon) * f;
+    s('line', { x1: 0, y1: y, x2: W, y2: y, class: 'roomview__floorline' }, svg);
+  });
+  return svg;
 }

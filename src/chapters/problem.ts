@@ -7,12 +7,20 @@
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, numeralOf } from '../content';
+import { copy, fig, numeralOf } from '../content';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
-import { button, eyebrow, headline, introText, setButtonLabel, sheet } from '../core/ui';
+import {
+  button,
+  eyebrow,
+  headline,
+  introText,
+  marginNote,
+  setButtonLabel,
+  sheet,
+} from '../core/ui';
 import { createDust } from '../render/dust';
 import { PLAN, buildFloorPlan, type FloorPlan } from '../render/floorPlan';
 
@@ -41,7 +49,8 @@ export function createProblem(ctx: ChapterContext): Chapter {
     { class: 'chapter paper', 'data-theme': 'stone', 'aria-labelledby': 'problem-title' },
     h(
       'div',
-      { class: 'spread' },
+      { class: 'spread spread--margin' },
+      marginNote(fig('problem'), t.margin),
       h('div', { class: 'spread__text' }, top, title.el, body, goal),
       h('div', { class: 'spread__figure' }, figure),
       actions,

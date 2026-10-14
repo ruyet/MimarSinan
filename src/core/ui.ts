@@ -24,7 +24,7 @@ export interface Headline {
 }
 
 export function headline(
-  tag: 'h1' | 'h2',
+  tag: 'h1' | 'h2' | 'h3',
   id: string,
   text: string,
   className = 'headline',
@@ -120,4 +120,15 @@ export function richText(el: HTMLElement, text: string): HTMLElement {
     else el.append(part);
   });
   return el;
+}
+
+/** A margin note: the figure number set large, a rule, and one short line (wide screens only). */
+export function marginNote(figLabel: string, text: string): HTMLElement {
+  return h(
+    'aside',
+    { class: 'spread__margin margin-note', 'aria-hidden': 'true' },
+    h('span', { class: 'margin-note__fig' }, figLabel),
+    h('span', { class: 'margin-note__rule' }),
+    h('span', {}, text),
+  );
 }

@@ -448,6 +448,7 @@ export const copy = {
 
   dilemma: {
     eyebrow: 'The dilemma',
+    margin: 'The dome seen from above. Piers can stand anywhere on the dashed ring.',
     instruction:
       'Try different numbers of supports. Watch two things: does the dome hold, and how open does the room stay?',
     figcaption: `${fig('dilemma')} — The dome seen from above, with the ring where piers can stand.`,

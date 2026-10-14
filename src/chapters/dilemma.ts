@@ -3,18 +3,20 @@
  * Choose 4, 6, 8, 12 or 16 piers (stepped control, or tap the ring / a pier).
  * Two meters — Stability and Openness — respond, thrust lines flow into the piers,
  * and a small "view from the floor" shows what a person inside would see.
- * Eight piers is the lock-in moment: Sinan's answer.
+ * Eight piers is the lock-in moment (Structure), followed by a short beat in which the
+ * floor view grows to fill the page: one unified room (Space).
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, numeralOf } from '../content';
+import { copy, fig, numeralOf } from '../content';
 import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
-import { button, eyebrow, headline, introText, sheet } from '../core/ui';
+import { discover } from '../core/principles';
+import { button, eyebrow, headline, introText, marginNote, richText, sheet } from '../core/ui';
 import { PIER_OPTIONS, evaluate, stepPiers, type PierCount } from '../model/stability';
-import { TOP, buildFloorView, buildPiersPlan } from '../render/piersPlan';
+import { TOP, buildFloorView, buildPiersPlan, buildRoomView } from '../render/piersPlan';
 
 const HINT_AFTER = 3;
 
@@ -25,6 +27,7 @@ export function createDilemma(ctx: ChapterContext): Chapter {
   const top = eyebrow(numeralOf('dilemma'), t.eyebrow);
   const title = headline('h2', 'dilemma-title', t.states.none.headline);
   const body = h('p', { class: 'body' }, t.states.none.body);
+  const instruction = h('p', { class: 'instruction' }, t.instruction);
 
   const stabilityMeter = meter('stability', t.stability);
   const opennessMeter = meter('openness', t.openness);
@@ -85,10 +88,21 @@ export function createDilemma(ctx: ChapterContext): Chapter {
   aside.querySelector('.aside__title')!.textContent = t.hagia.title;
   aside.querySelector('.aside__body')!.textContent = t.hagia.body;
 
+  // After the lock-in: how the real building does it, and that eight is a choice, not a law.
+  const realSystem = h(
+    'div',
+    { class: 'real-system', hidden: true },
+    h('p', { class: 'meta-label' }, t.realSystem.title),
+    h('p', { class: 'body' }, t.realSystem.body),
+    h('p', { class: 'body body--muted' }, t.realSystem.otherWays),
+  );
+
   const showAnswer = h('button', { type: 'button', class: 'link-btn', hidden: true }, t.showAnswer);
+  const roomBtn = button(t.room.cta, 'primary', '→');
+  roomBtn.hidden = true;
   const cont = button(copy.meta.continue, 'primary', '→');
   cont.hidden = true;
-  const actions = h('div', { class: 'spread__actions' }, cont, showAnswer);
+  const actions = h('div', { class: 'spread__actions' }, roomBtn, cont, showAnswer);
 
   /* --- Figure ---------------------------------------------------------- */
   const plan = buildPiersPlan('dilemma-figure-desc');
@@ -110,18 +124,98 @@ export function createDilemma(ctx: ChapterContext): Chapter {
     { class: 'chapter paper dilemma', 'data-theme': 'stone', 'aria-labelledby': 'dilemma-title' },
     h(
       'div',
-      { class: 'spread spread--controls' },
-      h('div', { class: 'spread__text' }, top, title.el, body),
-      h('div', { class: 'spread__controls' }, meters, stepper, ringHint, aside),
+      { class: 'spread spread--controls spread--margin dilemma__spread' },
+      marginNote(fig('dilemma'), t.margin),
+      h('div', { class: 'spread__text' }, top, title.el, body, instruction),
+      h('div', { class: 'spread__controls' }, meters, stepper, ringHint, aside, realSystem),
       h('div', { class: 'spread__figure' }, figure),
       actions,
     ),
   );
 
+  /* --- II·b: the unified room (Space) ---------------------------------- */
+  // After the lock-in, the small floor view grows to fill the page for a moment.
+  const roomTitle = headline('h3', 'room-title', t.room.headline);
+  const roomCont = button(copy.meta.continue, 'primary', '→');
+  const roomBack = button(t.room.back, 'ghost', '←');
+  const roomArt = h('div', { class: 'room__art' }, buildRoomView());
+  const roomText = h(
+    'div',
+    { class: 'room__text' },
+    roomTitle.el,
+    richText(h('p', { class: 'body room__body' }), t.room.body),
+    h('div', { class: 'room__actions' }, roomCont, roomBack),
+  );
+  const roomBg = h('div', { class: 'room__bg', 'aria-hidden': 'true' });
+  const room = h(
+    'div',
+    { class: 'room', hidden: true, role: 'region', 'aria-labelledby': 'room-title' },
+    roomBg,
+    h(
+      'figure',
+      { class: 'room__figure' },
+      roomArt,
+      h('p', { class: 'sr-only' }, t.room.label),
+      h('figcaption', {}, t.room.figcaption),
+    ),
+    roomText,
+  );
+  el.append(room);
+  const spreadEl = el.querySelector<HTMLElement>('.spread')!;
+
   /* --- State ------------------------------------------------------------ */
   let current: PierCount = 0;
   let tries = 0;
   let solved = false;
+  let roomSeen = false;
+
+  function openRoom(): void {
+    room.hidden = false;
+    spreadEl.inert = true;
+    discover('space');
+    roomTitle.set(t.room.headline, false);
+    if (!reducedMotion()) {
+      // FLIP: start where the small inset is, grow into place (transforms only).
+      const from = floorFig.getBoundingClientRect();
+      const to = roomArt.getBoundingClientRect();
+      gsap
+        .timeline()
+        .fromTo(roomBg, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: EASE.soft }, 0)
+        .fromTo(
+          roomArt,
+          {
+            x: from.left - to.left,
+            y: from.top - to.top,
+            scaleX: from.width / to.width,
+            scaleY: from.height / to.height,
+            transformOrigin: '0 0',
+          },
+          { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.5, ease: EASE.inOut },
+          0,
+        )
+        .fromTo(
+          [
+            roomTitle.el,
+            roomText.querySelector('.room__body'),
+            roomText.querySelector('.room__actions'),
+          ],
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 1.1, ease: EASE.out, stagger: 0.18 },
+          1.1,
+        );
+    }
+    roomTitle.el.focus({ preventScroll: true });
+  }
+
+  function closeRoom(): void {
+    room.hidden = true;
+    spreadEl.inert = false;
+    roomSeen = true;
+    cont.hidden = false;
+    cont.classList.replace('btn--secondary', 'btn--primary');
+    roomBtn.classList.replace('btn--primary', 'btn--secondary');
+    roomBtn.focus();
+  }
 
   function setPiers(n: PierCount, source: 'user' | 'answer' | 'reset' = 'user'): void {
     if (n === current && source !== 'reset') return;
@@ -171,6 +265,10 @@ export function createDilemma(ctx: ChapterContext): Chapter {
     else title.set(s.headline, false);
     body.textContent = s.body;
     aside.hidden = n !== 4;
+    realSystem.hidden = !(n === 8 && solved);
+    // Once eight has been found, the real-system note takes the instruction's place.
+    instruction.hidden = ringHint.hidden = n === 8 && solved;
+    roomBtn.hidden = n !== 8 || !solved;
 
     if (source === 'reset') return;
     audio.tick(n > prev ? 1 : 0.8);
@@ -179,6 +277,8 @@ export function createDilemma(ctx: ChapterContext): Chapter {
     if (e.state === 'balanced') lockIn();
     else {
       cont.classList.replace('btn--primary', 'btn--secondary');
+      realSystem.hidden = true;
+      roomBtn.hidden = true;
       if (source === 'user' && !solved) {
         tries++;
         if (tries >= HINT_AFTER) showAnswer.hidden = false;
@@ -190,8 +290,11 @@ export function createDilemma(ctx: ChapterContext): Chapter {
     const first = !solved;
     solved = true;
     showAnswer.hidden = true;
-    cont.hidden = false;
-    cont.classList.replace('btn--secondary', 'btn--primary');
+    realSystem.hidden = false;
+    roomBtn.hidden = false;
+    instruction.hidden = ringHint.hidden = true;
+    cont.hidden = !roomSeen;
+    discover('structure');
     audio.lock();
     window.setTimeout(() => announce(copy.dilemma.lockIn), 600);
     if (reducedMotion()) return;
@@ -209,7 +312,16 @@ export function createDilemma(ctx: ChapterContext): Chapter {
         { scale: 1.35, opacity: 0, svgOrigin: origin, duration: 2, ease: EASE.out },
         0,
       );
-    if (first) gsap.from(cont, { opacity: 0, y: 10, duration: 0.8, ease: EASE.out, delay: 0.4 });
+    if (first) {
+      gsap.from([realSystem, roomBtn], {
+        opacity: 0,
+        y: 10,
+        duration: 0.9,
+        ease: EASE.out,
+        delay: 0.4,
+        stagger: 0.2,
+      });
+    }
   }
 
   /* --- Input ------------------------------------------------------------- */
@@ -239,6 +351,15 @@ export function createDilemma(ctx: ChapterContext): Chapter {
 
   showAnswer.addEventListener('click', () => setPiers(8, 'answer'));
   cont.addEventListener('click', () => ctx.next());
+  roomBtn.addEventListener('click', openRoom);
+  roomBack.addEventListener('click', closeRoom);
+  roomCont.addEventListener('click', () => {
+    roomSeen = true;
+    ctx.next();
+  });
+  room.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') closeRoom();
+  });
 
   setPiers(0, 'reset');
 
@@ -260,10 +381,19 @@ export function createDilemma(ctx: ChapterContext): Chapter {
         gsap.from(floorFig, { opacity: 0, y: 16, duration: 1, ease: EASE.out, delay: 0.6 });
       }
     },
-    leave() {},
+    leave() {
+      if (!room.hidden) {
+        room.hidden = true;
+        spreadEl.inert = false;
+      }
+    },
     reset() {
       tries = 0;
       solved = false;
+      roomSeen = false;
+      room.hidden = true;
+      spreadEl.inert = false;
+      roomBtn.classList.replace('btn--secondary', 'btn--primary');
       cont.hidden = true;
       showAnswer.hidden = true;
       setPiers(0, 'reset');
