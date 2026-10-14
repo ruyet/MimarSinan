@@ -7,7 +7,7 @@ Decisions made during the full build, so they can be reviewed. Most important fi
 1. **Reveal photo: a different file from the brief.** The brief suggested
    `Selimiye_Mosque,_Dome.jpg` (Stylommatophora, CC BY 4.0). It shows only the dome itself
    (1800 × 1200), so the eight piers aren't visible and the drawn octagon would have nothing to
-   align with. I used *Interior of dome, Selimiye Mosque, Edirne* by **Tarik Kaan Muslu
+   align with. I used _Interior of dome, Selimiye Mosque, Edirne_ by **Tarik Kaan Muslu
    (CC BY-SA 4.0)**: a true straight-up view with all eight pier arches visible. Swap back via
    `scripts/images.manifest.json` if you prefer the CC BY image.
 2. **Hotspots: 4 inside + 2 outside.** The 1913 artillery damage is marked on the dome in the
@@ -29,7 +29,7 @@ Decisions made during the full build, so they can be reviewed. Most important fi
 
 ## Interaction
 
-7. **Pier placement.** Tapping the ring *adds* piers and tapping a pier *removes* some,
+7. **Pier placement.** Tapping the ring _adds_ piers and tapping a pier _removes_ some,
    always snapping to the next symmetric layout (0 → 4 → 6 → 8 → 12 → 16). The stepped
    radio group is the primary, keyboard-accessible control (arrow keys, Home/End).
 8. **Stability model** (`src/model/stability.ts`) is a hand-tuned lookup table, labelled "A
@@ -85,3 +85,49 @@ Decisions made during the full build, so they can be reviewed. Most important fi
 25. **`?reduced-motion` URL flag** forces the reduced-motion experience for user tests.
 26. **Deploy:** both `netlify.toml` and `vercel.json` are included, with long-lived cache
     headers for hashed assets and photos.
+
+---
+
+## Round 2 — expert feedback (Stan van Oers)
+
+Defaults chosen after the plan was approved ("just do the changes"):
+
+27. **Hotspot cards became a margin panel**, not a modal (IMPROVEMENT_PLAN note B). Nothing
+    covers the highlighted photo; focus moves to the panel heading; Esc/Close returns it.
+28. **Hagia Sophia comparison + career strip merged** into one four-plan lineage (note C).
+    Real plans of Şehzade and Süleymaniye replace the abstract marks, because the new fact
+    sheet verifies their half-dome counts.
+29. **Epilogue numeral VIII → XI** (note D, option a): the only change to `epilogue.ts`
+    (one import, one string). Its copy, line, animation and CSS are byte-identical.
+30. **Statue photo:** Dosseman's seated monument in Edirne (CC BY-SA 4.0). The watermarked
+    reference photo mentioned in the brief never reached the project and is not used.
+31. **Title kept** as "Hold Up the Sky" (the brief's "Beyond the Dome" came from another tool).
+32. **II·b is a beat inside chapter II**, not its own chapter: "Stand in the room" grows the
+    small floor view into a full drawing of one open room. A dedicated room drawing replaced
+    the scaled-up panorama, whose thick columns contradicted "almost nothing stands between
+    you and the dome".
+33. **Principles are discovered by doing**: Structure at the eight-pier lock-in, Space in the
+    room beat, Light at full light. Reaching chapter IX fills any that were skipped (e.g. via
+    a deep link). "Start again" empties them.
+34. **The four 4/6/12/16 outcomes are worded as trade-offs "in this model"**, and the model note
+    reads "This is a simplified illustration, not an engineering simulation."
+35. **Annotation positions were measured on each photo** with a 5 % grid and checked by
+    rendering every outline onto its photo (all matched; none needed `needsCalibration`).
+    Elements that could not be identified were not labelled: the raised-arm statue in the
+    minarets photo, and the exact location of the 1913 damage (the hotspot outlines "the dome").
+36. **Spotlight shapes:** compact areas use an ellipse that eases between steps; large or
+    ring-shaped areas (the eight piers, the window ring, the open floor) use their own shapes as
+    the hole, because a bounding ellipse would swallow the whole photo.
+37. **Caption avoidance in chapter V:** the caption block moves to a free corner for each note
+    so it never covers the highlight; if no corner is free, the in-photo label hides (the note
+    carries the same words).
+38. **Portrait phones show whole photos** in chapter V (`object-fit: contain`) so annotated
+    areas are never cropped away.
+39. **Name reveal legibility:** on wide screens the statue stands in the right third and only its
+    shoulder passes in front of the type; on phones the cutout is hidden so no letter is lost.
+40. **Sky cutout** generated in `optimize-images.mjs` (threshold on sampled sky vs bronze
+    colours) — only reliable for photos with a plain sky.
+41. **Exceptions to transform/opacity-only animation:** the synthesis title tracks in
+    (`letter-spacing`, one element, once), plates unveil with `clip-path`, and the spotlight
+    tweens SVG mask attributes. All have reduced-motion alternatives.
+42. **New chapters are lazy chunks** like the others; the initial bundle stays ~51 KB gzipped.

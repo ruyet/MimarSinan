@@ -713,7 +713,15 @@ export interface ImageAsset {
   width: number;
   height: number;
   alt: string;
-  credit: { title: string; author: string; license: string; licenseUrl: string; sourceUrl: string };
+  credit: {
+    title: string;
+    author: string;
+    license: string;
+    licenseUrl: string;
+    sourceUrl: string;
+    /** How the photo was changed, if at all (required for CC BY-SA adaptations). */
+    modified?: string;
+  };
 }
 
 const CC_BY_SA_4 = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -813,6 +821,8 @@ export const images = {
       license: 'CC BY-SA 4.0',
       licenseUrl: CC_BY_SA_4,
       sourceUrl: 'https://commons.wikimedia.org/wiki/File:Mimar_Sinan_monument_in_2024_6024.jpg',
+      modified:
+        'Cropped, darkened, and a copy with the sky removed (for layering type), shared under the same license.',
     },
   },
   sultanAhmed: {

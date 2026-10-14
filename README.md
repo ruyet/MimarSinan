@@ -1,7 +1,7 @@
 # Hold Up the Sky
 
 An interactive tribute to the **Selimiye Mosque** (Edirne, 1574–75) by **Mimar Sinan**,
-built as a student case study for *Typography & Design*.
+built as a student case study for _Typography & Design_.
 
 > How can an interactive digital experience help people without architectural knowledge
 > discover and appreciate the architectural brilliance of the Selimiye Mosque?
@@ -19,8 +19,11 @@ npm run lint
 **For user tests:**
 
 - Deep links jump to a chapter: `/#problem`, `/#dilemma`, `/#walls`, `/#reveal`,
-  `/#inside`, `/#discover`, `/#masterwork`, `/#epilogue`, `/#credits`.
+  `/#inside`, `/#discover`, `/#masterwork`, `/#legacy`, `/#synthesis`, `/#name`,
+  `/#epilogue`, `/#credits`.
 - `?reduced-motion` forces the reduced-motion experience, e.g. `/?reduced-motion#reveal`.
+- `?annotate=1` shows a grid, every annotation shape and live coordinates on the photos,
+  for calibrating highlights, e.g. `/?annotate=1#inside`.
 
 ## Deploy
 
@@ -29,18 +32,27 @@ Netlify (`netlify.toml`) and Vercel (`vercel.json`) are both configured. They bu
 
 ## The story
 
-| # | Chapter | What happens |
-|---|---|---|
-| — | Prologue | A dark room, one beam of light: "How do you hold up *the sky?*" |
-| I | The problem | A hall is sketched by hand; release the dome and it collapses |
-| II | The dilemma | Choose 4–16 piers; Stability vs Openness; eight is the lock-in |
-| III | Opening the walls | Open the walls row by row; light floods in |
-| IV | Look up | The plan tilts to a view from below, then opens onto the real dome |
-| V | Inside the light | Full-bleed photographs with one caption each |
-| VI | Look closer | Six hotspots with sourced facts (one is a legend, labelled as such) |
-| VII | The masterwork | Hagia Sophia vs Selimiye; Sinan's three career stages |
-| VIII | Epilogue | The beam returns and fills a small dome |
-| — | Sources & credits | Every photo and text source, generated from `content.ts` |
+The visitor's goal, set in the Prologue: discover the three ideas behind Sinan's masterpiece:
+**Structure, Space, Light**. Three line-art marks in the header fill in as each is discovered.
+
+| #    | Chapter                 | What happens                                                                 | Principle        |
+| ---- | ----------------------- | ---------------------------------------------------------------------------- | ---------------- |
+| —    | Prologue                | One beam of light: "How do you hold up _the sky?_" Mimar Sinan, and the goal | all three, empty |
+| I    | The problem             | Sinan's problem: a hall is sketched; release the dome and it collapses       | —                |
+| II   | The dilemma             | Choose 4–16 piers; Stability vs Openness; eight is Sinan's choice            | Structure        |
+| II·b | The unified room        | The floor view grows into one open room under one dome                       | Space            |
+| III  | Opening the walls       | Walls that don't carry the dome open up; light floods in                     | Light            |
+| IV   | Look up                 | The reveal of the real dome, then annotations: piers, window ring, one dome  | all three        |
+| V    | Inside the light        | Photographs that teach: stepped, annotated notes on each photo               | all three        |
+| VI   | Look closer             | Six hotspots that highlight the photo, explained in a margin panel           | tagged           |
+| VII  | A tradition, refined    | Hagia Sophia → Şehzade → Süleymaniye → Selimiye                              | —                |
+| VIII | The legacy              | Sedefkâr Mehmed Ağa and the Sultan Ahmed Mosque, built on Şehzade            | —                |
+| IX   | Why Mimar Sinan matters | Four numbered plates: the synthesis                                          | recap            |
+| X    | MIMAR SINAN             | The name, revealed by light, with his monument                               | —                |
+| XI   | Epilogue                | The beam returns and fills a small dome                                      | —                |
+| —    | Sources & credits       | Every photo and text source, generated from `content.ts`                     | —                |
+
+See `CHANGELOG.md` for what changed in the expert-feedback round and `DECISIONS.md` for why.
 
 ## Stack
 
@@ -57,10 +69,11 @@ src/
   content.ts               ALL copy, verified facts (+ sources), images, credits, alignment
   main.ts                  wires the HUD and the chapters
   model/stability.ts       the simplified, rules-based pier model
-  core/                    chapter controller, motion prefs, a11y announcer, UI helpers,
+  core/                    chapter controller, principles (discovery index), annotate.ts
+                           (photo annotations), motion prefs, a11y announcer, UI helpers,
                            responsive <picture> helper, sound toggle
   audio/audio.ts           Web Audio engine
-  render/                  projection (shared axonometric camera), dome, floor plan,
+  render/                  projection (shared axonometric camera), dome, floor plan, plans,
                            hall cut-away, pier plan + floor view, dust, motes
   chapters/                one module per chapter: enter / leave / prepare / reset
   styles/                  tokens · base · layout · components · spread · drawing ·

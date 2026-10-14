@@ -93,10 +93,13 @@ export function createName(ctx: ChapterContext): Chapter {
     gsap.set(band, { xPercent: -150, opacity: 0 });
     tl = gsap
       .timeline()
+      // Opacity on the layers; the slow settle (scale) on the pictures inside them, so GSAP never
+      // takes over the layers' CSS transform (the responsive shift to the right third).
+      .fromTo([photo, cutout], { opacity: 0 }, { opacity: 1, duration: 3.2, ease: EASE.soft }, 0)
       .fromTo(
-        [photo, cutout],
-        { opacity: 0, scale: 1.04 },
-        { opacity: 1, scale: 1, duration: 3.2, ease: EASE.soft },
+        [photo, cutout].map((l) => l.querySelector('picture')).filter(Boolean),
+        { scale: 1.04 },
+        { scale: 1, duration: 3.2, ease: EASE.soft },
         0,
       )
       .fromTo(top, { opacity: 0 }, { opacity: 1, duration: 1 }, 0.6)

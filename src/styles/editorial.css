@@ -1234,7 +1234,7 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(3.4rem, 1rem + 15vw, 17rem);
+  font-size: clamp(3.4rem, 0.5rem + 19vw, 17rem);
   line-height: 0.84;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -1349,6 +1349,11 @@
 
 /* Small screens: the figure sits behind the type (cutout hidden) so no letter is lost. */
 @media (max-width: 59.99rem) {
+  .name__type {
+    place-items: start center;
+    padding-top: calc(7rem + env(safe-area-inset-top));
+  }
+
   .name__cutout {
     display: none;
   }
@@ -1361,4 +1366,30 @@
   .name__line--last {
     justify-self: start;
   }
+}
+
+/* Drawings and the shifted statue never create scrollable overflow. */
+.roomview {
+  overflow: hidden;
+}
+
+.name {
+  overflow: clip;
+}
+
+/* HUD on phones: the chapter title truncates so the marks and the sound toggle always fit. */
+.progress {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.progress__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discovery,
+.hud .sound-toggle {
+  flex: none;
 }

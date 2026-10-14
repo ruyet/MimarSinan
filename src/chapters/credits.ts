@@ -42,6 +42,9 @@ export function createCredits(ctx: ChapterContext): Chapter {
             `“${img.credit.title}” on Wikimedia Commons`,
           ),
         ),
+        'modified' in img.credit
+          ? h('span', { class: 'credits__meta' }, `Modified: ${img.credit.modified}`)
+          : null,
       ),
     ),
   );
