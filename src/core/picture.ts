@@ -18,20 +18,26 @@ export interface PictureOptions {
   position?: string;
   /** Override the alt text (e.g. '' when a caption already describes it). */
   alt?: string;
+  /** Use the transparent "-cutout" rendition (AVIF/WebP with alpha; see optimize-images.mjs). */
+  cutout?: boolean;
 }
 
 export function picture(key: ImageKey, opts: PictureOptions = {}): HTMLPictureElement {
   const img = images[key];
+  const base = opts.cutout ? `${img.src}-cutout` : img.src;
+  const fallback = opts.cutout ? 'webp' : 'jpg';
   const sizes = opts.sizes ?? '100vw';
   const el = h(
     'picture',
     { class: opts.className },
-    h('source', { type: 'image/avif', srcset: srcset(img.src, 'avif'), sizes }),
-    h('source', { type: 'image/webp', srcset: srcset(img.src, 'webp'), sizes }),
+    h('source', { type: 'image/avif', srcset: srcset(base, 'avif'), sizes }),
+    ...(opts.cutout
+      ? []
+      : [h('source', { type: 'image/webp', srcset: srcset(base, 'webp'), sizes })]),
   );
   const imgEl = h('img', {
-    src: `${img.src}-1600.jpg`,
-    srcset: srcset(img.src, 'jpg'),
+    src: `${base}-1600.${fallback}`,
+    srcset: srcset(base, fallback),
     sizes,
     alt: opts.alt ?? img.alt,
     width: img.width,

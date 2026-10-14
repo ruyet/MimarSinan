@@ -62,6 +62,9 @@ controller.registerLazy('legacy', () =>
 controller.registerLazy('synthesis', () =>
   import('./chapters/synthesis').then((m) => m.createSynthesis(controller)),
 );
+controller.registerLazy('name', () =>
+  import('./chapters/name').then((m) => m.createName(controller)),
+);
 controller.registerLazy('epilogue', () =>
   import('./chapters/epilogue').then((m) => m.createEpilogue(controller)),
 );

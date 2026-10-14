@@ -1151,3 +1151,214 @@
     aspect-ratio: 2 / 1;
   }
 }
+
+/* --- X · MIMAR SINAN (the recognition moment) ----------------------------- */
+
+.name {
+  overflow: hidden;
+  background: var(--night-950);
+}
+
+.name__photo,
+.name__cutout,
+.name__type,
+.name__shade,
+.name__band {
+  position: absolute;
+  inset: 0;
+}
+
+.name__photo {
+  z-index: 1;
+}
+
+.name__type {
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding-inline: var(--gutter);
+  pointer-events: none;
+}
+
+.name__cutout {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.name__shade {
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 35%, transparent 45%, rgb(10 11 15 / 0.75) 100%),
+    linear-gradient(
+      180deg,
+      rgb(10 11 15 / 0.55) 0%,
+      transparent 22%,
+      transparent 55%,
+      rgb(10 11 15 / 0.92) 100%
+    );
+}
+
+.name__band {
+  z-index: 5;
+  right: auto;
+  width: 22vw;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(240 210 140 / 0.22) 38%,
+    rgb(255 236 190 / 0.5) 50%,
+    rgb(240 210 140 / 0.22) 62%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.name__picture,
+.name__picture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 16%;
+  /* Darkened bronze; applied identically to photo and cutout so they read as one image. */
+  filter: brightness(0.52) contrast(1.08) saturate(0.55);
+}
+
+.name__title {
+  display: grid;
+  width: min(100%, 92rem);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(3.4rem, 1rem + 15vw, 17rem);
+  line-height: 0.84;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-variation-settings:
+    'opsz' 144,
+    'SOFT' 20;
+}
+
+.name__line {
+  position: relative;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+}
+
+.name__line--first {
+  justify-self: start;
+}
+
+.name__line--last {
+  justify-self: end;
+}
+
+.name__dim {
+  color: rgb(238 231 218 / 0.1);
+}
+
+.name__wipe {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.name__lit {
+  position: absolute;
+  inset: 0;
+  color: #f4ead6;
+  text-shadow: 0 0 40px rgb(227 194 122 / 0.35);
+  will-change: transform;
+}
+
+.name__top {
+  position: absolute;
+  z-index: 6;
+  top: calc(3.5rem + env(safe-area-inset-top));
+  left: var(--gutter);
+}
+
+.name__foot {
+  position: absolute;
+  z-index: 6;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: max(var(--space-l), env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-m);
+}
+
+.name__dates {
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--paper-on-night);
+}
+
+.name__motto {
+  margin-top: var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 320;
+  color: var(--paper-on-night);
+}
+
+.name__motto em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.name__caption {
+  margin-top: var(--space-xs);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step--1);
+  color: var(--muted-on-night);
+}
+
+/* Keep the name legible: on wide screens the figure stands in the right third and only grazes
+   the letters; the second line steps in under the first, as on a title page. */
+@media (min-width: 60rem) {
+  .name__photo,
+  .name__cutout {
+    transform: translateX(27%);
+    /* Fade the shifted photo's left edge into the night. */
+    mask-image: linear-gradient(90deg, transparent 0%, #000 30%);
+  }
+
+  .name__picture,
+  .name__picture img {
+    filter: brightness(0.62) contrast(1.08) saturate(0.55);
+  }
+
+  .name__line--last {
+    justify-self: start;
+    margin-left: 0.55em;
+  }
+}
+
+/* Small screens: the figure sits behind the type (cutout hidden) so no letter is lost. */
+@media (max-width: 59.99rem) {
+  .name__cutout {
+    display: none;
+  }
+
+  .name__picture,
+  .name__picture img {
+    filter: brightness(0.42) contrast(1.05) saturate(0.5);
+  }
+
+  .name__line--last {
+    justify-self: start;
+  }
+}
