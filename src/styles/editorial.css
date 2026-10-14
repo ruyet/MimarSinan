@@ -410,9 +410,25 @@
   background: var(--gold-light);
 }
 
-.annot-label.is-below::after {
+.annot-label[data-place='below']::after {
   top: auto;
   bottom: 100%;
+}
+
+.annot-label[data-place='right']::after,
+.annot-label[data-place='left']::after {
+  top: 50%;
+  width: 12px;
+  height: 1px;
+}
+
+.annot-label[data-place='right']::after {
+  left: auto;
+  right: 100%;
+}
+
+.annot-label[data-place='left']::after {
+  left: 100%;
 }
 
 .annot-label .mark {
@@ -499,4 +515,92 @@
   font-style: italic;
   font-size: var(--step--1);
   color: var(--fg-muted);
+}
+
+/* --- V · annotated photographs ------------------------------------------ */
+
+.slide__zoom {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.slide__text {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(8rem, 17dvh, 10.5rem);
+  display: grid;
+  gap: var(--space-xs);
+  max-width: 44rem;
+}
+
+.slide__text .slide__caption {
+  position: static;
+}
+
+.slide__fig {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--step--1);
+  color: var(--muted-on-night);
+}
+
+.slide__note {
+  display: grid;
+  gap: 0.3rem;
+  max-width: 34rem;
+  padding: var(--space-xs) var(--space-s);
+  border-left: 2px solid var(--gold-light);
+  background: rgb(15 17 22 / 0.72);
+}
+
+.slide__note .anno-note__text {
+  color: var(--paper-on-night);
+}
+
+/* Portrait phones: show the whole photo (contain), so annotated areas are never cropped away. */
+@media (orientation: portrait) {
+  .slide__picture img {
+    object-fit: contain;
+    object-position: 50% 28%;
+  }
+
+  .slide__text {
+    bottom: clamp(6.5rem, 14dvh, 8rem);
+  }
+}
+
+@media (max-width: 40rem) {
+  .annot-label {
+    white-space: normal;
+    max-width: 60%;
+    font-size: 0.7rem;
+  }
+}
+
+/* The caption block moves to a free corner when the highlighted area needs the space. */
+.slide__text.is-right {
+  left: auto;
+  right: var(--gutter);
+  max-width: min(36rem, 46vw);
+}
+
+.slide__text.is-top {
+  left: auto;
+  right: var(--gutter);
+  top: calc(4.5rem + env(safe-area-inset-top));
+  bottom: auto;
+  max-width: min(36rem, 46vw);
+}
+
+.slide__text.is-right .slide__caption,
+.slide__text.is-top .slide__caption {
+  font-size: var(--step-2);
+}
+
+@media (min-width: 60rem) {
+  .slide__text {
+    max-width: min(40rem, 46vw);
+  }
 }

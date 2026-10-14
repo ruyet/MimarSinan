@@ -213,17 +213,38 @@ export function createAnnotator(
     if (current && label) placeLabel(current, label);
   }
 
-  /** Places the label above the highlighted area (or below it near the top edge). */
+  /**
+   * Places the label next to the highlighted area: above it if there is room, otherwise beside
+   * it (right, then left), and only below it as a last resort.
+   */
   function placeLabel(a: Annotation, el: HTMLElement): void {
     const b = bounds(a.shapes);
-    const x = visible.x + (b.x / 100) * visible.w;
-    const yTop = visible.y + (b.y / 100) * visible.h;
-    const yBottom = visible.y + ((b.y + b.h) / 100) * visible.h;
-    const below = yTop < 64;
-    const maxX = frame.clientWidth - el.offsetWidth - 12;
-    el.style.left = `${Math.max(12, Math.min(x, maxX))}px`;
-    el.style.top = below ? `${yBottom + 10}px` : `${yTop - el.offsetHeight - 10}px`;
-    el.classList.toggle('is-below', below);
+    const fw = frame.clientWidth;
+    const fh = frame.clientHeight;
+    const lw = el.offsetWidth;
+    const lh = el.offsetHeight;
+    const left = visible.x + (b.x / 100) * visible.w;
+    const right = visible.x + ((b.x + b.w) / 100) * visible.w;
+    const top = Math.max(visible.y + (b.y / 100) * visible.h, 0);
+    const bottom = visible.y + ((b.y + b.h) / 100) * visible.h;
+    const clampX = (x: number) => Math.max(12, Math.min(x, fw - lw - 12));
+    const clampY = (y: number) => Math.max(64, Math.min(y, fh - lh - 12));
+    let place: 'above' | 'right' | 'left' | 'below';
+    if (top - lh - 10 >= 64) place = 'above';
+    else if (right + 14 + lw <= fw - 12) place = 'right';
+    else if (left - 14 - lw >= 12) place = 'left';
+    else place = 'below';
+    const pos =
+      place === 'above'
+        ? { x: clampX(left), y: top - lh - 10 }
+        : place === 'right'
+          ? { x: right + 14, y: clampY(top + 8) }
+          : place === 'left'
+            ? { x: left - 14 - lw, y: clampY(top + 8) }
+            : { x: clampX(left), y: bottom + 10 };
+    el.style.left = `${pos.x}px`;
+    el.style.top = `${pos.y}px`;
+    el.dataset.place = place;
   }
 
   function holeFor(a: Annotation) {

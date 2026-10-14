@@ -995,7 +995,12 @@ export const insideSlides: InsideSlide[] = [
         id: 'mihrab-windows',
         label: 'Windows on three sides',
         text: 'The mihrab’s own apse is lit from three sides.',
-        shapes: [{ kind: 'rect', x: 20, y: 14, w: 60, h: 52 }],
+        // Three groups of windows: the left wall, the half-dome above, the right wall.
+        shapes: [
+          { kind: 'rect', x: 21, y: 37, w: 6, h: 20 },
+          { kind: 'rect', x: 30, y: 15, w: 40, h: 21 },
+          { kind: 'rect', x: 73, y: 37, w: 6, h: 20 },
+        ],
         principle: 'light',
       },
     ],
