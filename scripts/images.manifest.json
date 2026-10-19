@@ -26,5 +26,9 @@
     "out": "career/suleymaniye-domes-from-below",
     "commons": "File:Istanbul Suleymaniye Mosque Interior Ceiling 2015 1311.jpg",
     "crop": "square"
+  },
+  {
+    "out": "legacy/sehzade-mosque-exterior",
+    "commons": "File:Şehzade Mosque.jpg"
   }
 ]

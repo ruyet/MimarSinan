@@ -420,3 +420,104 @@ Four participants tested `v2.1-final-polish`. Their responses, the problems foun
 changes made (the step 5 reliability fix, a central Back control, plainer terms, a career
 timeline, and a clearer legacy link) are documented in
 [`USABILITY_ITERATION_2.md`](USABILITY_ITERATION_2.md).
+
+---
+
+## 18. Final targeted refinement: lifetime, career, legacy (branch `refine/career-legacy`)
+
+Three problems the student identified after the usability iteration (**Student**); the rest of
+the site was left as approved.
+
+### 18.1 Scrollbar flash in "Look up"
+
+**Cause (verified):** while the camera swings to look straight up, the drawn plan is tilted in
+perspective. For about four frames its box reached up to 51 px past the bottom of the viewport,
+so the scene became scrollable and the scrollbar appeared, then vanished.
+**Fix:** `overflow: clip` on the scene's grid. It clips at the scene's own edge, which is at
+least the viewport, so nothing visible is cut. It creates no scroll container, so phones, where
+this scene does scroll, still scroll. **Verified:** 0 frames with overflow during the whole
+animation at 1920 × 1080 (sampled every 0.2 s of animation time).
+
+### 18.2 "A lifetime": one idea again
+
+**Why it was overcrowded:** after the usability iteration, one screen held three photographs,
+three stage labels, explanatory lines, a fifty-year timeline with eight entries, a scale note,
+an optional detail and navigation. The timeline's small dots and type competed with the
+photographs, which carry the scene.
+**Change:** the scene shows only the three mosques: apprentice, journeyman, master. The
+photographs are larger (up to 44 % of the viewport height). The introduction is one sentence
+("Sinan described three of his mosques as milestones in his career, from apprentice to
+master."), and each building has one plain line. The divider above the actions was removed. The
+minaret detail stays as the only optional element, a quiet button that opens a dialog.
+
+### 18.3 New scene "Fifty years of architecture"
+
+**Why a separate scene:** the progression (how he developed) and the breadth (how much he
+built) are two different ideas. Each now gets one screen.
+**Design:** a typographic chronology, like a wall of dates in an exhibition. Eight large years
+read left to right, then the next row, each with a name and one short note. No line, dots,
+cards or dividers. The three mosques of the previous scene carry the accent colour, so the
+visitor finds them again among the others. Selimiye (1575) is followed by a bridge (1577) and a
+late mosque (1586), so it reads as late but not last. The milestones appear in order once
+(about one second); Continue is there from the start. One sourced sentence closes the scene:
+"Hundreds of works are attributed to Sinan and the imperial architects he led: mosques and
+bridges, but also schools, baths, hospitals and waterworks." No single count is shown, because
+the sources differ (at least 374; 476 in one list).
+**Verified facts:** chief architect from 1539 (Wikipedia, "Mimar Sinan": appointed by Lütfi
+Pasha); Şehzade 1548, Süleymaniye 1557, Selimiye 1575 (existing facts); Rüstem Pasha Mosque,
+Istanbul, 1561–1563 (Wikipedia); the bridge over the Drina, Višegrad, 1571–1577, UNESCO 2007
+(Wikipedia, UNESCO); the Muradiye Mosque, Manisa, 1583–1586, designed by Sinan and built by
+other architects (Wikipedia citing Necipoğlu 2005; TDV İslâm Ansiklopedisi); died 1588. The
+Muradiye is labelled "his design, built by other architects", not as completed by Sinan.
+
+### 18.4 "After Sinan": one photographic comparison
+
+**Why exteriors:** the documented link between the two buildings is their plan: a central dome
+held up by four half-domes, with smaller domes stepping down around them. From outside, that
+cascade of domes is visible at a glance; interior dome views (used in "A lifetime") would have
+repeated the previous scene.
+**Photographs:** Şehzade Mosque, Brian Jeffery Beggerly, CC BY 2.0 (Commons category "Şehzade
+Mosque", licence reviewed by Commons' Flickr review); Sultan Ahmed Mosque, public domain (already
+in the project).
+**Sequence:** the scene opens on Şehzade with "Şehzade Mosque · Mimar Sinan · 1548". When both
+photographs have decoded (or after 3 s), it waits 2.6 s, then crossfades once to "Sultan Ahmed
+Mosque · Sedefkâr Mehmed Ağa · 1609–1617". It is a plain crossfade, not a morph, because these
+are two buildings. Two equal buttons (Şehzade | Sultan Ahmed) switch at any time; they form a
+radio group (arrow keys work) in the same style as the support choice. A choice by the visitor
+cancels the automatic step. The sequence never loops, runs once per visit, and is skipped under
+reduced motion (the scene then stays on Şehzade until a button is used). Photo, label, line and
+selected button always change together; captions share one reserved cell, so nothing shifts.
+**Historical verification:**
+
+- "The design of the mosque is based on that of the earlier Şehzade Mosque designed by Mimar
+  Sinan" and its architect "synthesized the ideas of his master Sinan" (Wikipedia, "Blue Mosque,
+  Istanbul"; also TDV for the plan).
+- Sedefkâr Mehmed Ağa was "one of the important architects trained by Mimar Sinan" (TDV İslâm
+  Ansiklopedisi).
+- "The last great mosque of the classical period" (Wikipedia).
+- **Removed** from the legacy narrative: "his pupil finishes the Muradiye". The sources say he
+  took over its construction in January 1586, but not clearly that he completed it.
+- The scene does not say the Sultan Ahmed Mosque copies Şehzade, or that Sinan designed it.
+
+### 18.5 Navigation
+
+The story now has 11 parts in the progress bar: … A lifetime → Fifty years → After Sinan →
+Remember him → Epilogue. Deep link `/#career` added. Back, Continue, restart and progress
+labels were checked across the new scene.
+
+### 18.6 Checks performed
+
+- Full path with the main buttons, scene 1 → epilogue → restart; Back across the new scene;
+  labels 1/11 to 11/11.
+- Comparison: automatic crossfade (sampled), manual choice before the automatic step (no later
+  flip), switching, arrow keys, re-entry opens on Şehzade, reduced motion (no automatic step,
+  instant switch).
+- Layout: the changed scenes fit without scrolling at 1280 × 720, 1920 × 1080 and
+  2560 × 1276. Phones and tablets scroll vertically as designed (chronology in two columns on
+  tablets, one on phones), with no horizontal overflow.
+- Production build served under `/MimarSinan/`: all image URLs for these scenes return 200 (see
+  the commit message).
+- `npm run lint` and `npm run build` pass.
+
+**Not verified:** a second browser engine; real phones; screen readers; whether visitors read
+the chronology or notice the Şehzade → Sultan Ahmed connection (to test in the next round).

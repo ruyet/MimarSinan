@@ -2,10 +2,10 @@
  * Scene 7 — A lifetime. Selimiye was not a lucky stroke but the end of decades of work. Sinan
  * himself named three stages: apprentice (Şehzade), journeyman (Süleymaniye), master (Selimiye).
  * The visitor looks up in all three, in the same frame as the reveal, and can see the half-domes
- * give way to a single dome over one room. His age belongs to the story, so it is in the intro,
- * not attached to one card.
+ * give way to a single dome over one room.
  *
- * One page, one idea. The legacy is its own scene (legacy.ts). The minaret stairs stay as an
+ * One page, one idea: the three works, side by side. The breadth of his career is the next
+ * scene (career.ts), his influence the one after (legacy.ts). The minaret stairs stay as an
  * optional detail in a dialog, so they never crowd the comparison.
  */
 import { gsap } from 'gsap';
@@ -49,32 +49,6 @@ export function createLifetime(ctx: ChapterContext): Chapter {
     return { item, frame, image: w.image };
   });
   const list = h('ol', { class: 'works' }, ...works.map((w) => w.item));
-
-  // Fifty years in one line: the three works above, a few others, and his death. Years are placed
-  // in proportion, so Selimiye visibly comes late, but not last.
-  const L = t.lineage;
-  const span = L.to - L.from;
-  const line = h('span', { class: 'lineage__line', 'aria-hidden': 'true' });
-  const marks = L.items.map((it) => {
-    const x = ((it.year - L.from) / span) * 100;
-    const edge = x < 2 ? ' is-start' : x > 98 ? ' is-end' : '';
-    const li = h(
-      'li',
-      { class: `lineage__item${'major' in it && it.major ? ' is-major' : ''}${edge}` },
-      h('span', { class: 'lineage__year' }, String(it.year)),
-      h('span', { class: 'lineage__name' }, it.name),
-      it.place ? h('span', { class: 'lineage__place' }, it.place) : null,
-    );
-    li.style.setProperty('--x', `${x}%`);
-    return li;
-  });
-  const lineage = h(
-    'div',
-    { class: 'lineage' },
-    h('h3', { class: 'label lineage__label' }, L.label),
-    h('div', { class: 'lineage__track' }, line, h('ol', { class: 'lineage__items' }, ...marks)),
-    h('p', { class: 'small lineage__scale' }, L.scale),
-  );
 
   // Optional: one remarkable detail of Selimiye, in a dialog that covers nothing permanently.
   const d = t.detail;
@@ -121,7 +95,6 @@ export function createLifetime(ctx: ChapterContext): Chapter {
       { class: 'grid lifetime__grid' },
       h('header', { class: 'col lifetime__head' }, top, title.el, body),
       list,
-      lineage,
       foot,
     ),
     dialog,
@@ -148,17 +121,9 @@ export function createLifetime(ctx: ChapterContext): Chapter {
       enterText([top, title.el, body]);
       const items = works.map((w) => w.item);
       if (reducedMotion()) {
-        gsap.fromTo([...items, lineage, foot], { opacity: 0 }, { opacity: 1, duration: 0.5 });
+        gsap.fromTo([...items, foot], { opacity: 0 }, { opacity: 1, duration: 0.5 });
         return;
       }
-      // The line is drawn left to right once: the passage of time, in under a second.
-      gsap.fromTo(lineage, { opacity: 0 }, { opacity: 1, duration: 0.5, delay: 0.9 });
-      gsap.fromTo(
-        line,
-        { scaleX: 0 },
-        { scaleX: 1, duration: 0.9, ease: EASE.inOut, delay: 0.9, transformOrigin: '0 50%' },
-      );
-      gsap.fromTo(marks, { opacity: 0 }, { opacity: 1, duration: 0.4, stagger: 0.08, delay: 1.1 });
       // The three works arrive in order, left to right: the passage of time.
       gsap.fromTo(
         items,

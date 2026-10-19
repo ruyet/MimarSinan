@@ -391,6 +391,11 @@
 .reveal__grid {
   align-items: center;
   row-gap: var(--space-l);
+  /* The tilted plan briefly reaches past the viewport while the camera swings; clipping at the
+     scene's own edge keeps that from creating scrollable overflow (a flashing scrollbar). The
+     grid is at least as tall as the scene and grows with its content, so real scrolling on
+     small screens is unaffected. */
+  overflow: clip;
 }
 
 .reveal__text {
@@ -757,7 +762,7 @@
 
 .work__frame {
   position: relative;
-  width: min(100%, 31dvh);
+  width: min(100%, 44dvh);
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
@@ -814,8 +819,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s) var(--space-l);
-  padding-top: var(--space-m);
-  border-top: 1px solid var(--line-faint);
 }
 
 .lifetime__foot .actions {
@@ -914,74 +917,6 @@
 
   .detail__body .minaret {
     width: 7rem;
-  }
-}
-
-/* --- 8 · After Sinan ------------------------------------------------------------- */
-
-.legacy__grid {
-  align-items: center;
-  row-gap: var(--space-l);
-}
-
-.legacy__text {
-  grid-column: 1 / -1;
-}
-
-.legacy__link {
-  display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
-  gap: var(--space-m);
-  align-items: center;
-  max-width: 30rem;
-  padding-top: var(--space-m);
-  border-top: 1px solid var(--line-faint);
-}
-
-.legacy__disc {
-  width: 5.5rem;
-}
-
-.legacy__link p {
-  display: grid;
-  gap: 0.25rem;
-  font-size: var(--step-0);
-  line-height: 1.4;
-}
-
-.legacy__figure {
-  grid-column: 1 / -1;
-  order: -1;
-  display: grid;
-  gap: var(--space-xs);
-}
-
-.legacy__media {
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-  background: var(--bg-raised);
-}
-
-.legacy__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-@media (min-width: 64rem) {
-  .legacy__text {
-    grid-column: 1 / span 5;
-    grid-row: 1;
-  }
-
-  .legacy__figure {
-    grid-column: 6 / -1;
-    grid-row: 1;
-    order: 0;
-  }
-
-  .legacy__media {
-    max-height: calc(100dvh - var(--hud-h) - 6rem);
   }
 }
 
@@ -1289,7 +1224,7 @@
   }
 
   .work__frame {
-    width: min(100%, 26dvh);
+    width: min(100%, 38dvh);
   }
 
   .lifetime__grid {
@@ -1300,7 +1235,7 @@
 /* --- Very short desktop screens (e.g. 1280 × 720) ------------------------------------------ */
 @media (min-width: 64rem) and (max-height: 760px) {
   .work__frame {
-    width: min(100%, 18dvh);
+    width: min(100%, 33dvh);
   }
 
   .work__line {
@@ -1358,248 +1293,274 @@
   }
 }
 
-/* --- Lineage: Sinan's fifty years in one line (lifetime), continued after him (legacy) ---- */
+/* --- 8 · Fifty years: a typographic chronology ----------------------------------------- */
 
-.lineage {
+.career__grid {
+  align-content: center;
+  row-gap: var(--space-l);
+}
+
+.career__head {
   grid-column: 1 / -1;
-  display: grid;
   gap: var(--space-s);
 }
 
-.lineage__track {
-  position: relative;
-  height: 6.5rem;
-  margin-inline: 0.5rem;
+.career__lede {
+  color: var(--fg-muted);
 }
 
-.lineage__line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 2.6rem;
-  height: 2px;
-  background: var(--fg);
-}
-
-.lineage__items {
+/* Read like a wall of dates: left to right, then the next row. Years are the anchors. */
+.milestones {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-l) var(--gutter);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.lineage__item {
-  position: absolute;
-  left: var(--x);
-  top: 2.6rem;
+.milestone {
   display: grid;
-  justify-items: center;
-  width: max-content;
-  max-width: 11rem;
-  padding-top: 0.75rem;
-  transform: translateX(-50%);
-  text-align: center;
+  align-content: start;
+  gap: 0.3rem;
+}
+
+.milestone__year {
   font-family: var(--font-display);
-  line-height: 1.2;
-}
-
-/* The dot on the line. */
-.lineage__item::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  margin-left: -5px;
-  border-radius: 50%;
-  background: var(--bg);
-  border: 2px solid var(--fg);
-}
-
-/* The three works above, and his death, sit above the line, larger. */
-.lineage__item.is-major {
-  top: auto;
-  bottom: calc(100% - 2.6rem);
-  padding: 0 0 0.75rem;
-}
-
-.lineage__item.is-major::before {
-  top: auto;
-  bottom: -6px;
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.lineage__item.is-start {
-  justify-items: start;
-  transform: translateX(-5px);
-  text-align: left;
-}
-
-.lineage__item.is-start::before {
-  left: 5px;
-}
-
-.lineage__item.is-end {
-  justify-items: end;
-  transform: translateX(calc(-100% + 5px));
-  text-align: right;
-}
-
-.lineage__item.is-end::before {
-  left: calc(100% - 5px);
-}
-
-.lineage__year {
-  font-size: var(--step--1);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--fg-muted);
+  font-size: var(--step-3);
+  font-weight: 640;
+  font-stretch: 75%;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
-}
-
-.lineage__name {
-  font-size: var(--step--1);
-  font-weight: 600;
-}
-
-.lineage__item.is-major .lineage__name {
-  font-size: var(--step-0);
-  font-weight: 700;
-  font-stretch: 85%;
-}
-
-.lineage__place {
-  font-size: var(--step--1);
   color: var(--fg-muted);
 }
 
-.lineage__scale {
-  max-width: 60ch;
-}
-
-/* On narrow screens the line runs down the page instead. */
-@media (max-width: 47.99rem) {
-  .lineage__track {
-    height: auto;
-    margin: 0;
-  }
-
-  .lineage__line {
-    top: 0;
-    bottom: 0;
-    left: 4px;
-    right: auto;
-    width: 2px;
-    height: auto;
-  }
-
-  .lineage__items {
-    display: grid;
-    gap: var(--space-s);
-  }
-
-  .lineage__item,
-  .lineage__item.is-major,
-  .lineage__item.is-start,
-  .lineage__item.is-end {
-    position: relative;
-    left: auto;
-    top: auto;
-    bottom: auto;
-    justify-items: start;
-    max-width: none;
-    padding: 0 0 0 1.5rem;
-    transform: none;
-    text-align: left;
-  }
-
-  .lineage__item::before,
-  .lineage__item.is-major::before,
-  .lineage__item.is-start::before,
-  .lineage__item.is-end::before {
-    top: 0.3rem;
-    bottom: auto;
-    left: 0;
-    margin-left: 0;
-  }
-}
-
-/* Legacy: the same line, continued past his death. */
-.after-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs) var(--space-l);
-  margin: 0;
-  padding: var(--space-s) 0 0;
-  list-style: none;
-  border-top: 2px solid var(--fg);
-}
-
-.after-line li {
-  display: grid;
-  gap: 0.1rem;
-  font-family: var(--font-display);
-  line-height: 1.2;
-}
-
-.after-line li:last-child .lineage__name {
+/* The three works of the previous scene stand out, so they are found again among the others. */
+.milestone--major .milestone__year {
   color: var(--accent);
 }
 
-/* Desktop: the heading sits beside the three works, so photos, timeline and actions share one screen. */
+.milestone__name {
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 640;
+  font-stretch: 85%;
+  line-height: 1.1;
+}
+
+.milestone__note {
+  font-size: var(--step-0);
+  line-height: 1.35;
+  color: var(--fg-muted);
+}
+
+.career__foot {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m) var(--space-l);
+}
+
+.career__scale {
+  max-width: 52ch;
+  font-size: var(--step-1);
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
 @media (min-width: 64rem) {
-  .lifetime__head {
-    grid-column: 1 / span 4;
-    grid-row: 1;
-    align-self: center;
-  }
-
-  .lifetime__grid > .works {
-    grid-column: 5 / -1;
-    grid-row: 1;
-  }
-
-  .lifetime__grid > .lineage {
-    grid-row: 2;
-  }
-
-  .lifetime__grid > .lifetime__foot {
-    grid-row: 3;
+  .career__head {
+    grid-column: 1 / span 7;
   }
 }
 
-/* Very short desktop screens: the timeline and the legacy line get compact too. */
+@media (max-width: 63.99rem) {
+  .milestones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 30rem) {
+  .milestones {
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+  }
+
+  .milestone__year {
+    font-size: var(--step-2);
+  }
+}
+
+/* --- 9 · After Sinan: one large comparison of two exteriors ------------------------------ */
+
+.legacy__grid {
+  align-items: center;
+  row-gap: var(--space-l);
+}
+
+.legacy__text {
+  grid-column: 1 / -1;
+}
+
+.compare {
+  grid-column: 1 / -1;
+  order: -1;
+  display: grid;
+  gap: var(--space-m);
+  margin: 0;
+}
+
+/* Both photographs stacked in one frame; the frame never changes size, so nothing shifts. */
+.compare__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--bg-raised);
+}
+
+.compare__layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.compare__picture,
+.compare__picture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+.compare__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-m) var(--space-l);
+}
+
+/* One caption per building in a shared cell: as tall as the longer one. */
+.compare__captions {
+  display: grid;
+  flex: 1 1 22rem;
+  max-width: 44rem;
+}
+
+.compare__caption {
+  grid-area: 1 / 1;
+  display: grid;
+  gap: 0.15rem;
+  visibility: hidden;
+}
+
+.compare__caption.is-current {
+  visibility: visible;
+}
+
+.compare__name {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 640;
+  font-stretch: 82%;
+  line-height: 1;
+}
+
+.compare__meta {
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.compare__text {
+  margin-top: 0.3rem;
+  font-size: var(--step-0);
+  line-height: 1.4;
+}
+
+/* Two equal options in the same family as the support choice. */
+.compare__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xs);
+  width: min(100%, 22rem);
+}
+
+.compare__option {
+  min-height: 48px;
+  padding: 0 1em;
+  border: 1px solid var(--line-faint);
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.compare__option:hover {
+  border-color: var(--fg);
+}
+
+.compare__option[aria-checked='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+@media (min-width: 64rem) {
+  .legacy__text {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+  }
+
+  .compare {
+    grid-column: 5 / -1;
+    grid-row: 1;
+    order: 0;
+  }
+
+  /* Sized by height as well, so the photo, caption and options fit one screen. */
+  .compare__stage {
+    width: min(100%, calc((100dvh - var(--hud-h) - 15rem) * 1.5));
+  }
+}
+
+/* Short desktop screens: the chronology and comparison tighten rather than scroll. */
 @media (min-width: 64rem) and (max-height: 760px) {
-  .lineage {
-    gap: var(--space-xs);
+  .milestones {
+    row-gap: var(--space-m);
   }
 
-  .lineage__track {
-    height: 5.75rem;
+  .milestone__year {
+    font-size: var(--step-2);
   }
 
-  .lineage__place {
-    display: none;
-  }
-
-  .lifetime__body,
-  .legacy__text .text {
+  .milestone__name {
     font-size: var(--step-0);
   }
 
-  .legacy__text {
-    gap: var(--space-xs);
+  .milestone__note,
+  .career__scale {
+    font-size: var(--step--1);
   }
 
-  .legacy__link {
-    padding-top: var(--space-s);
-  }
-}
-
-/* Narrow desktops: secondary names wrap rather than collide. */
-@media (max-width: 80rem) {
-  .lineage__item:not(.is-major) {
-    max-width: 8rem;
+  .career__grid {
+    row-gap: var(--space-m);
   }
 }

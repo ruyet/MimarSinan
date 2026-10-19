@@ -239,7 +239,7 @@ export const facts = {
   },
   sultanAhmed: {
     title: 'The Sultan Ahmed Mosque',
-    text: 'He designed the Sultan Ahmed Mosque, the “Blue Mosque” in Istanbul, built 1609–1616/17. Its plan builds on Sinan’s Şehzade Mosque, not on Selimiye’s eight piers.',
+    text: 'He designed the Sultan Ahmed Mosque, the “Blue Mosque” in Istanbul, built 1609–1617. Its design is based on Sinan’s Şehzade Mosque (a central dome with four half-domes), not on Selimiye’s eight piers. It was the last great mosque of the classical period.',
     sources: ['tdvSultanAhmed', 'wikipediaBlueMosque'],
   },
 } satisfies Record<string, Fact>;
@@ -258,6 +258,7 @@ export type ChapterId =
   | 'reveal'
   | 'inside'
   | 'lifetime'
+  | 'career'
   | 'legacy'
   | 'name'
   | 'epilogue'
@@ -279,6 +280,7 @@ export const chapters: ChapterMeta[] = [
   { id: 'reveal', title: 'Look up', inProgress: true },
   { id: 'inside', title: 'Space', inProgress: true },
   { id: 'lifetime', title: 'A lifetime', inProgress: true },
+  { id: 'career', title: 'Fifty years', inProgress: true },
   { id: 'legacy', title: 'After Sinan', inProgress: true },
   { id: 'name', title: 'Remember him', inProgress: true },
   { id: 'epilogue', title: 'Epilogue', inProgress: true },
@@ -388,14 +390,14 @@ export const copy = {
   lifetime: {
     label: 'A lifetime',
     headline: 'It took him a lifetime.',
-    body: 'Sinan called three of his mosques his apprentice work, his journeyman work and his masterwork. Look up in each: the half-domes, smaller domes that lean against the main one, give way to a single dome.',
+    body: 'Sinan described three of his mosques as milestones in his career, from apprentice to master.',
     works: [
       {
         image: 'sehzadeDomes' as const,
         year: '1548',
         name: 'Şehzade',
         stage: 'Apprentice',
-        text: 'A main dome held up by four half-domes',
+        text: 'Smaller half-domes on all four sides',
         /** Where the main dome sits in the photo, and how much to show around it (% of width). */
         frame: { cx: 49, cy: 45, r: 42 },
       },
@@ -404,7 +406,7 @@ export const copy = {
         year: '1557',
         name: 'Süleymaniye',
         stage: 'Journeyman',
-        text: 'A main dome with two half-domes',
+        text: 'Half-domes on two sides',
         frame: { cx: 49, cy: 41.5, r: 41 },
       },
       {
@@ -412,32 +414,11 @@ export const copy = {
         year: '1575',
         name: 'Selimiye',
         stage: 'Master',
-        text: 'One dome on eight piers, built in his eighties',
+        text: 'One dome, with nothing in its way',
         frame: { cx: 51.4, cy: 53.7, r: 46 },
       },
     ],
-    /**
-     * The timeline under the three photos: fifty years in one line. `major` works are the three
-     * above; the others show the range of his work and that Selimiye was not his last.
-     */
-    lineage: {
-      label: 'Fifty years as chief architect',
-      from: 1539,
-      to: 1588,
-      items: [
-        { year: 1539, name: 'Becomes chief architect', place: '' },
-        { year: 1548, name: 'Şehzade', place: '', major: true },
-        { year: 1557, name: 'Süleymaniye', place: '', major: true },
-        { year: 1563, name: 'Rüstem Pasha Mosque', place: 'Istanbul' },
-        { year: 1575, name: 'Selimiye', place: '', major: true },
-        { year: 1577, name: 'Bridge over the Drina', place: 'Višegrad, Bosnia' },
-        { year: 1586, name: 'Muradiye Mosque', place: 'Manisa' },
-        { year: 1588, name: 'Dies in Istanbul', place: '', major: true },
-      ],
-      scale:
-        'Hundreds of works are attributed to Sinan and the architects he led: mosques, bridges, schools, baths, hospitals.',
-    },
-    scale: 'Photographs: looking up in each mosque, with different lenses; not to scale.',
+    scale: 'Looking up in each mosque. Different lenses; not to scale.',
     detail: {
       open: 'One remarkable detail',
       title: 'Three stairs in one minaret',
@@ -449,17 +430,56 @@ export const copy = {
     },
   },
 
+  career: {
+    label: 'Fifty years',
+    headline: 'Fifty years of architecture.',
+    lede: 'Selimiye was one work among hundreds.',
+    /** Verified in `facts` (sinanAppointed, masterwork, rustem, visegrad, muradiye, sinanLife). */
+    milestones: [
+      { year: '1539', name: 'Chief architect', note: 'Appointed to lead the imperial architects' },
+      { year: '1548', name: 'Şehzade Mosque', note: 'Istanbul · his apprentice work', major: true },
+      {
+        year: '1557',
+        name: 'Süleymaniye Mosque',
+        note: 'Istanbul · his journeyman work',
+        major: true,
+      },
+      { year: '1563', name: 'Rüstem Pasha Mosque', note: 'Istanbul · built 1561–1563' },
+      { year: '1575', name: 'Selimiye Mosque', note: 'Edirne · his masterwork', major: true },
+      { year: '1577', name: 'Bridge over the Drina', note: 'Višegrad, Bosnia · built 1571–1577' },
+      {
+        year: '1586',
+        name: 'Muradiye Mosque',
+        note: 'Manisa · his design, built by other architects',
+      },
+      { year: '1588', name: 'Dies in Istanbul', note: 'After about fifty years in office' },
+    ],
+    scale:
+      'Hundreds of works are attributed to Sinan and the imperial architects he led: mosques and bridges, but also schools, baths, hospitals and waterworks.',
+  },
+
   legacy: {
     label: 'After Sinan',
-    headline: 'His work ended. His influence did not.',
-    body: 'Sinan trained the architects who came after him. One of them, Sedefkâr Mehmed Ağa, finished building Sinan’s Muradiye Mosque, then designed the Sultan Ahmed Mosque in Istanbul.',
-    link: 'Its plan grows from Şehzade, Sinan’s apprentice work: a main dome held up by four half-domes.',
-    sehzade: 'Şehzade, 1548',
-    blue: 'Sultan Ahmed Mosque, Istanbul, 1609–1617',
-    lineage: [
-      { year: '1586', name: 'His pupil finishes the Muradiye' },
-      { year: '1588', name: 'Sinan dies' },
-      { year: '1609–1617', name: 'The pupil’s Sultan Ahmed Mosque' },
+    headline: 'His ideas outlived him.',
+    body: 'Sinan trained the architects who came after him. One of them designed the Sultan Ahmed Mosque, the last great mosque of the classical Ottoman style, on the plan of Sinan’s Şehzade.',
+    groupLabel: 'Show building',
+    buildings: [
+      {
+        key: 'sehzade' as const,
+        image: 'sehzadeExterior' as const,
+        button: 'Şehzade',
+        name: 'Şehzade Mosque',
+        meta: 'Mimar Sinan · 1548',
+        text: 'A central dome, held up by four half-domes, with smaller domes stepping down around them.',
+      },
+      {
+        key: 'blue' as const,
+        image: 'sultanAhmed' as const,
+        button: 'Sultan Ahmed',
+        name: 'Sultan Ahmed Mosque',
+        meta: 'Sedefkâr Mehmed Ağa · 1609–1617',
+        text: 'The same idea, built about sixty years later on a grander scale: a central dome with four half-domes.',
+      },
     ],
   },
 
@@ -494,10 +514,6 @@ export const copy = {
     restart: 'Start again',
   },
 };
-
-/** How a looking-up photo from the lifetime scene is framed (reused by the legacy scene). */
-export const lifetimeFrame = (image: (typeof copy.lifetime.works)[number]['image']) =>
-  copy.lifetime.works.find((w) => w.image === image)!.frame;
 
 /* ------------------------------------------------------------------ */
 /* Images                                                              */
@@ -611,6 +627,19 @@ export const images = {
       sourceUrl:
         'https://commons.wikimedia.org/wiki/File:Istanbul_Suleymaniye_Mosque_Interior_Ceiling_2015_1311.jpg',
       modified: 'Cropped to a square.',
+    },
+  },
+  sehzadeExterior: {
+    src: 'images/legacy/sehzade-mosque-exterior',
+    width: 3840,
+    height: 2560,
+    alt: 'The Şehzade Mosque in Istanbul from outside: a large central dome over half-domes and smaller domes, with ornate corner turrets and a slender minaret.',
+    credit: {
+      title: 'Şehzade Mosque',
+      author: 'Brian Jeffery Beggerly',
+      license: 'CC BY 2.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by/2.0/',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:%C5%9Eehzade_Mosque.jpg',
     },
   },
   sultanAhmed: {

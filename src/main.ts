@@ -52,6 +52,9 @@ controller.registerLazy('inside', () =>
 controller.registerLazy('lifetime', () =>
   import('./chapters/lifetime').then((m) => m.createLifetime(controller)),
 );
+controller.registerLazy('career', () =>
+  import('./chapters/career').then((m) => m.createCareer(controller)),
+);
 controller.registerLazy('legacy', () =>
   import('./chapters/legacy').then((m) => m.createLegacy(controller)),
 );
