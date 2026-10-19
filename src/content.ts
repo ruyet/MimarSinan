@@ -434,23 +434,51 @@ export const copy = {
     label: 'Fifty years',
     headline: 'Fifty years of architecture.',
     lede: 'Selimiye was one work among hundreds.',
+    /** Shown only where hovering is possible; touch screens get `hintTouch`. */
+    hint: 'Point at a building to see it.',
+    hintTouch: 'Tap a building to see it.',
+    close: 'Hide photograph',
     /** Verified in `facts` (sinanAppointed, masterwork, rustem, visegrad, muradiye, sinanLife). */
     milestones: [
       { year: '1539', name: 'Chief architect', note: 'Appointed to lead the imperial architects' },
-      { year: '1548', name: 'Şehzade Mosque', note: 'Istanbul · his apprentice work', major: true },
+      {
+        year: '1548',
+        name: 'Şehzade Mosque',
+        note: 'Istanbul · his apprentice work',
+        major: true,
+        image: 'sehzadeExterior' as const,
+      },
       {
         year: '1557',
         name: 'Süleymaniye Mosque',
         note: 'Istanbul · his journeyman work',
         major: true,
+        image: 'suleymaniyeExterior' as const,
       },
-      { year: '1563', name: 'Rüstem Pasha Mosque', note: 'Istanbul · built 1561–1563' },
-      { year: '1575', name: 'Selimiye Mosque', note: 'Edirne · his masterwork', major: true },
-      { year: '1577', name: 'Bridge over the Drina', note: 'Višegrad, Bosnia · built 1571–1577' },
+      {
+        year: '1563',
+        name: 'Rüstem Pasha Mosque',
+        note: 'Istanbul · built 1561–1563',
+        image: 'rustemInterior' as const,
+      },
+      {
+        year: '1575',
+        name: 'Selimiye Mosque',
+        note: 'Edirne · his masterwork',
+        major: true,
+        image: 'selimiyeExterior' as const,
+      },
+      {
+        year: '1577',
+        name: 'Bridge over the Drina',
+        note: 'Višegrad, Bosnia · built 1571–1577',
+        image: 'drinaBridge' as const,
+      },
       {
         year: '1586',
         name: 'Muradiye Mosque',
         note: 'Manisa · his design, built by other architects',
+        image: 'muradiyeManisa' as const,
       },
       { year: '1588', name: 'Dies in Istanbul', note: 'After about fifty years in office' },
     ],
@@ -527,6 +555,8 @@ export interface ImageAsset {
   src: string;
   width: number;
   height: number;
+  /** Rendition widths, if not the default 800 / 1600 / 2400 (small previews use 640 / 1280). */
+  widths?: number[];
   alt: string;
   credit: {
     title: string;
@@ -640,6 +670,81 @@ export const images = {
       license: 'CC BY 2.0',
       licenseUrl: 'https://creativecommons.org/licenses/by/2.0/',
       sourceUrl: 'https://commons.wikimedia.org/wiki/File:%C5%9Eehzade_Mosque.jpg',
+    },
+  },
+  suleymaniyeExterior: {
+    src: 'images/works/suleymaniye-exterior',
+    width: 3840,
+    height: 2560,
+    widths: [640, 1280],
+    alt: 'The Süleymaniye Mosque in Istanbul from its garden: a great dome rising over smaller domes, with tall minarets.',
+    credit: {
+      title: 'Süleymaniye Mosque exterior view',
+      author: 'İhsan Deniz Kılıçoğlu',
+      license: 'CC BY-SA 3.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:S%C3%BCleymaniye_Mosque_exterior_view.JPG',
+    },
+  },
+  rustemInterior: {
+    src: 'images/works/rustem-pasha-interior',
+    width: 3840,
+    height: 2580,
+    widths: [640, 1280],
+    alt: 'Inside the Rüstem Pasha Mosque in Istanbul: the dome over arches and walls covered in blue İznik tiles.',
+    credit: {
+      title: 'Rustem pacha mosque Istanbul July 2022-1',
+      author: 'Alvesgaspar',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: CC_BY_SA_4,
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Rustem_pacha_mosque_Istanbul_July_2022-1.jpg',
+    },
+  },
+  selimiyeExterior: {
+    src: 'images/works/selimiye-exterior',
+    width: 3840,
+    height: 2555,
+    widths: [640, 1280],
+    alt: 'The Selimiye Mosque in Edirne from a distance: one great dome between four tall minarets.',
+    credit: {
+      title: 'Edirne Selimiye Mosque from distance in 2009',
+      author: 'Dosseman',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: CC_BY_SA_4,
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Edirne_Selimiye_Mosque_from_distance_in_2009_6427.jpg',
+    },
+  },
+  drinaBridge: {
+    src: 'images/works/drina-bridge',
+    width: 3531,
+    height: 1907,
+    widths: [640, 1280],
+    alt: 'The Mehmed Paša Sokolović Bridge in Višegrad: a long stone bridge of many arches over the Drina river.',
+    credit: {
+      title: 'Mehmed Paša Sokolović Bridge, Višegrad',
+      author: 'Pudelek (Marcin Szala)',
+      license: 'CC BY-SA 3.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Mehmed_Pa%C5%A1a_Sokolovi%C4%87_Bridge,_Vi%C5%A1egrad.JPG',
+    },
+  },
+  muradiyeManisa: {
+    src: 'images/works/muradiye-manisa',
+    width: 3840,
+    height: 2550,
+    widths: [640, 1280],
+    alt: 'The Muradiye Mosque in Manisa from its garden: a domed fountain in front of the mosque’s arched portico.',
+    credit: {
+      title: 'Manisa Muradiye Camii from garden',
+      author: 'Dosseman',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: CC_BY_SA_4,
+      sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Manisa_Muradiye_Camii_from_garden_6079.jpg',
     },
   },
   sultanAhmed: {

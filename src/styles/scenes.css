@@ -118,7 +118,7 @@
   display: grid;
   margin: 0 0 var(--space-xs);
   font-family: var(--font-display);
-  font-size: min(var(--step-hero), 22dvh);
+  font-size: min(var(--step-hero), 20dvh);
   font-weight: 760;
   font-stretch: 68%;
   line-height: 0.84;
@@ -762,7 +762,10 @@
 
 .work__frame {
   position: relative;
-  width: min(100%, 44dvh);
+  /* Sized by the height that is left once the header, title, captions and buttons have their
+     room, so the three photographs stay as large as possible without pushing anything off
+     screen. Below the minimum, the scene scrolls rather than shrinking them further. */
+  width: min(100%, clamp(11rem, calc(100dvh - 38rem), 46dvh));
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
@@ -1224,7 +1227,7 @@
   }
 
   .work__frame {
-    width: min(100%, 38dvh);
+    width: min(100%, clamp(11rem, calc(100dvh - 34rem), 46dvh));
   }
 
   .lifetime__grid {
@@ -1235,7 +1238,7 @@
 /* --- Very short desktop screens (e.g. 1280 × 720) ------------------------------------------ */
 @media (min-width: 64rem) and (max-height: 760px) {
   .work__frame {
-    width: min(100%, 33dvh);
+    width: min(100%, clamp(10rem, calc(100dvh - 31rem), 46dvh));
   }
 
   .work__line {
@@ -1445,13 +1448,14 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-m) var(--space-l);
+  min-width: 0;
 }
 
 /* One caption per building in a shared cell: as tall as the longer one. */
 .compare__captions {
   display: grid;
-  flex: 1 1 22rem;
-  max-width: 44rem;
+  flex: 1 1 16rem;
+  min-width: 0;
 }
 
 .compare__caption {
@@ -1491,9 +1495,12 @@
 /* Two equal options in the same family as the support choice. */
 .compare__options {
   display: grid;
+  flex: 0 1 20rem;
+  /* Stays on the photograph's right edge, also when it wraps under the caption. */
+  margin-left: auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-xs);
-  width: min(100%, 22rem);
+  max-width: 100%;
 }
 
 .compare__option {
@@ -1529,22 +1536,22 @@
     grid-row: 1;
   }
 
+  /* Photo, caption and options are one component, exactly as wide as the photograph. The
+     photograph is sized by height as well, so all of it fits one screen; the options then sit
+     on the photograph's right edge, never beyond it. */
   .compare {
     grid-column: 5 / -1;
     grid-row: 1;
     order: 0;
-  }
-
-  /* Sized by height as well, so the photo, caption and options fit one screen. */
-  .compare__stage {
-    width: min(100%, calc((100dvh - var(--hud-h) - 15rem) * 1.5));
+    justify-self: end;
+    width: min(100%, calc((100dvh - var(--hud-h) - 16rem) * 1.5));
   }
 }
 
 /* Short desktop screens: the chronology and comparison tighten rather than scroll. */
 @media (min-width: 64rem) and (max-height: 760px) {
   .milestones {
-    row-gap: var(--space-m);
+    row-gap: var(--space-s);
   }
 
   .milestone__year {
@@ -1562,5 +1569,111 @@
 
   .career__grid {
     row-gap: var(--space-m);
+  }
+}
+
+/* --- Fifty years: buildings that can be seen ------------------------------------------------ */
+
+.career__hint {
+  margin-top: var(--space-xs);
+}
+
+/* The whole milestone is the control; it looks like the plain ones until it is pointed at. */
+.milestone__link {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.milestone__link .milestone__name {
+  text-decoration: underline;
+  text-decoration-color: var(--line-faint);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.milestone__link:hover .milestone__name,
+.milestone__link:focus-visible .milestone__name,
+.milestone__link[aria-expanded='true'] .milestone__name {
+  text-decoration-color: var(--accent);
+}
+
+/* The photograph: fixed to the viewport, above the scene but below the header. */
+.preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  width: clamp(14rem, 18vw, 22rem);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--bg-raised);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+
+.preview__shot {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.preview__shot.is-current {
+  visibility: visible;
+}
+
+.preview__picture,
+.preview__picture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 47.99rem) {
+  .preview {
+    width: min(70vw, 18rem);
+  }
+}
+
+/* Short desktop screens (e.g. 1366 × 768): chronology and comparison tighten rather than scroll. */
+@media (min-width: 64rem) and (max-height: 800px) {
+  .career__hint {
+    margin-top: 0;
+  }
+
+  .milestones {
+    row-gap: var(--space-xs);
+  }
+
+  .milestone__year {
+    font-size: var(--step-2);
+  }
+
+  .milestone__name {
+    margin-top: 0.15rem;
+    font-size: var(--step-0);
+  }
+
+  .milestone__note,
+  .career__scale {
+    font-size: var(--step--1);
+  }
+
+  .compare {
+    width: min(100%, calc((100dvh - var(--hud-h) - 19rem) * 1.5));
+  }
+
+  .compare__name {
+    font-size: var(--step-1);
   }
 }

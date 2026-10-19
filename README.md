@@ -41,6 +41,10 @@ _contents_ of `dist/` into the folder. Paths into `public/` that are built at ru
 preloads) go through `src/core/asset.ts`, which prefixes `import.meta.env.BASE_URL`; store such
 paths without a leading slash (`images/…`, not `/images/…`).
 
+An absolute base also works: `npm run build -- --base=/MimarSinan/`. In **Git Bash on Windows**
+prefix it with `MSYS_NO_PATHCONV=1`, or Git Bash rewrites `/MimarSinan/` into a Windows path
+(`/Program Files/Git/MimarSinan/`) and the built page cannot find its files.
+
 ## The story
 
 Three ideas explain part of Sinan's mastery (**Structure, Space, Light**), but the subject is

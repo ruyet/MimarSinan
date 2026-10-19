@@ -30,5 +30,30 @@
   {
     "out": "legacy/sehzade-mosque-exterior",
     "commons": "File:Şehzade Mosque.jpg"
+  },
+  {
+    "out": "works/suleymaniye-exterior",
+    "commons": "File:Süleymaniye Mosque exterior view.JPG",
+    "widths": [640, 1280]
+  },
+  {
+    "out": "works/rustem-pasha-interior",
+    "commons": "File:Rustem pacha mosque Istanbul July 2022-1.jpg",
+    "widths": [640, 1280]
+  },
+  {
+    "out": "works/selimiye-exterior",
+    "commons": "File:Edirne Selimiye Mosque from distance in 2009 6427.jpg",
+    "widths": [640, 1280]
+  },
+  {
+    "out": "works/drina-bridge",
+    "commons": "File:Mehmed Paša Sokolović Bridge, Višegrad.JPG",
+    "widths": [640, 1280]
+  },
+  {
+    "out": "works/muradiye-manisa",
+    "commons": "File:Manisa Muradiye Camii from garden 6079.jpg",
+    "widths": [640, 1280]
   }
 ]

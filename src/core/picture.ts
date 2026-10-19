@@ -2,14 +2,14 @@
  * Responsive photos: <picture> with AVIF → WebP → JPEG sources at 800/1600/2400 px.
  * Pictures are created lazily (from a chapter's `prepare()`), never at page load.
  */
-import { images, type ImageKey } from '../content';
+import { images, type ImageAsset, type ImageKey } from '../content';
 import { publicUrl } from './asset';
 import { h } from './dom';
 
 const WIDTHS = [800, 1600, 2400];
 
-const srcset = (base: string, ext: string): string =>
-  WIDTHS.map((w) => `${base}-${w}.${ext} ${w}w`).join(', ');
+const srcset = (base: string, ext: string, widths: readonly number[] = WIDTHS): string =>
+  widths.map((w) => `${base}-${w}.${ext} ${w}w`).join(', ');
 
 export interface PictureOptions {
   sizes?: string;
@@ -22,19 +22,20 @@ export interface PictureOptions {
 }
 
 export function picture(key: ImageKey, opts: PictureOptions = {}): HTMLPictureElement {
-  const img = images[key];
+  const img: ImageAsset = images[key];
   const base = publicUrl(img.src);
   const fallback = 'jpg';
   const sizes = opts.sizes ?? '100vw';
+  const widths = img.widths ?? WIDTHS;
   const el = h(
     'picture',
     { class: opts.className },
-    h('source', { type: 'image/avif', srcset: srcset(base, 'avif'), sizes }),
-    h('source', { type: 'image/webp', srcset: srcset(base, 'webp'), sizes }),
+    h('source', { type: 'image/avif', srcset: srcset(base, 'avif', widths), sizes }),
+    h('source', { type: 'image/webp', srcset: srcset(base, 'webp', widths), sizes }),
   );
   const imgEl = h('img', {
-    src: `${base}-1600.${fallback}`,
-    srcset: srcset(base, fallback),
+    src: `${base}-${widths[widths.length - 1]}.${fallback}`,
+    srcset: srcset(base, fallback, widths),
     sizes,
     alt: opts.alt ?? img.alt,
     width: img.width,

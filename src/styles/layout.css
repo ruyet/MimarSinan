@@ -212,16 +212,15 @@
   }
 }
 
-/* On phones scenes scroll under the HUD: give it a soft backdrop there. */
-@media (max-width: 63.99rem) {
-  .hud::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 -0.75rem;
-    z-index: -1;
-    background: linear-gradient(var(--bg) 65%, transparent);
-    transition: background var(--dur-slow) var(--ease-in-out);
-  }
+/* A scene that scrolls (phones, short screens) must never run visibly under the HUD: a soft
+   backdrop in the scene's own colour. */
+.hud::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -0.75rem;
+  z-index: -1;
+  background: linear-gradient(var(--bg) 65%, transparent);
+  transition: background var(--dur-slow) var(--ease-in-out);
 }
 
 /* --- Back: one control, always in the same place --------------------------------------- */

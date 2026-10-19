@@ -27,7 +27,8 @@ for (const item of manifest) {
   const buffer = await base.toBuffer();
   const outBase = join('public', 'images', item.out);
   await mkdir(dirname(outBase), { recursive: true });
-  for (const w of WIDTHS) {
+  // Small previews (e.g. the chronology's photos) can ask for smaller renditions.
+  for (const w of item.widths ?? WIDTHS) {
     const resized = sharp(buffer).resize({ width: w, withoutEnlargement: true });
     await Promise.all([
       resized.clone().avif({ quality: 50, effort: 5 }).toFile(`${outBase}-${w}.avif`),

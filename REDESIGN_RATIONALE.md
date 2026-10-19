@@ -521,3 +521,98 @@ labels were checked across the new scene.
 
 **Not verified:** a second browser engine; real phones; screen readers; whether visitors read
 the chronology or notice the Şehzade → Sultan Ahmed connection (to test in the next round).
+
+---
+
+## 19. Responsive refinement for common desktop sizes (branch `refine/responsive`)
+
+### 19.1 The problem at 1920 × 1080
+
+**Student (screenshots):** on a 1920 × 1080 display, "A lifetime" scrolled and its heading slid
+under the fixed header. The After Sinan buttons sat to the right of the photograph.
+**Cause (verified):** earlier checks used a 1920 × 1080 _viewport_. A 1920 × 1080 _display_
+leaves about 1920 × 940 for the page once the browser's own bars are drawn. At that height
+"A lifetime" was 51 px too tall (73 px at 1920 × 900), because its circles were sized as a fixed
+share of the viewport height (44 %) regardless of everything else in the scene. Scenes that
+scrolled also ran under the header, which only had a backdrop on phones.
+
+### 19.2 "A lifetime"
+
+- The circles are sized by the height that is left once the header, title, captions and buttons
+  have their room: `clamp(11rem, 100dvh − 38rem, 46dvh)`, never wider than their column. They
+  measure 472 px at 1920 × 1080, 332 px at 1920 × 940, 292 px at 1920 × 900 and 1440 × 900,
+  224 px at 1366 × 768 and 662 px at 2560 × 1440. They stay round and are never stretched.
+- No `overflow: hidden`: below the minimum size the scene scrolls rather than cutting off
+  Continue.
+- The header now has a soft backdrop in the scene's own colour at every size, so a scene that
+  does scroll never runs visibly under it.
+
+### 19.3 "Fifty years": seeing the buildings
+
+**Why:** the chronology names six buildings that most visitors have never seen. A small
+photograph next to the name connects name and building without adding a click to the story.
+**Behaviour:**
+
+- **Mouse:** hovering a building shows its photograph beside the milestone: to the right of it,
+  or to the left near the edge. It does not follow the cursor. The names are long, and a
+  photograph trailing the pointer ended up covering the very name being read (measured on all
+  six). An anchored position also cannot jitter.
+- **Keyboard:** the same photograph appears when the milestone receives focus. A focus that comes
+  from a mouse press or tap is ignored here, so clicking does not double up. Escape hides it.
+- **Touch:** hovering does not exist, so a tap shows the photograph. A second tap, a tap elsewhere
+  or Escape hides it. On phones it appears below the milestone, or above it near the bottom of
+  the screen, never over the name.
+- The photograph always stays inside the viewport and below the header. A 90 ms grace period
+  between buildings prevents flicker. It fades in and out (opacity, plus a slight scale that is
+  dropped under reduced motion) and is cleaned up when the scene is left.
+- The hint matches the device: "Point at a building to see it." or "Tap a building to see it."
+- His appointment (1539) and his death (1588) stay typographic: no image is invented for them.
+- Each building milestone is a button whose accessible name is its year, name and note; the
+  photograph itself is decorative (the name already says what it shows), and `aria-expanded`
+  reports when it is open.
+
+**Photographs (all Wikimedia Commons, licences confirmed by the Commons API):** Şehzade (reused,
+Brian Jeffery Beggerly, CC BY 2.0); Süleymaniye (İhsan Deniz Kılıçoğlu, CC BY-SA 3.0); Rüstem
+Pasha, interior with its İznik tiles, since its exterior is hidden among shops (Alvesgaspar,
+CC BY-SA 4.0); Selimiye from a distance (Dosseman, CC BY-SA 4.0); the Drina bridge, Višegrad
+(Pudelek, CC BY-SA 3.0); the Muradiye, Manisa (Dosseman, CC BY-SA 4.0). The new previews are
+built at 640 and 1280 px only (about 2.6 MB on disk in all formats; a visitor loads one small
+rendition each), and are loaded with the scene so a photograph is ready when it is asked for.
+
+### 19.4 "After Sinan": one component
+
+**Cause:** the photograph was sized by height, but the caption row under it spanned the whole
+column, so on most desktop sizes the buttons sat right of the photograph's edge.
+**Fix:** photograph, building name, line and buttons now form one component exactly as wide as
+the photograph. The buttons sit on its right edge (measured: 0 px difference at every desktop
+size tested); when the component is narrow they wrap under the caption and stay right-aligned.
+The comparison itself (photographs, automatic crossfade, manual switch) is unchanged.
+
+### 19.5 Also fixed in the audit
+
+- The opening scene was 13 px too tall at 1920 × 900: the name's size is now capped at 20 % of
+  the viewport height.
+- "Fifty years" (62 px) and "After Sinan" (25 px) were too tall at 1366 × 768: compact type and
+  a smaller photograph on screens up to 800 px high.
+
+### 19.6 Tested
+
+Scripted audit of every scene (overflow, controls below the fold, horizontal overflow), every
+preview (position, covering its name, correct image) and the comparison alignment at:
+
+| Viewport                           | Result                                                                           |
+| ---------------------------------- | -------------------------------------------------------------------------------- |
+| 1920 × 1080                        | every scene fits                                                                 |
+| 1920 × 940 (a 1920 × 1080 display) | every scene fits                                                                 |
+| 1920 × 900                         | every scene fits                                                                 |
+| 1440 × 900                         | every scene fits                                                                 |
+| 1366 × 768                         | every scene fits                                                                 |
+| 2560 × 1440                        | every scene fits                                                                 |
+| 390 × 844                          | scenes scroll as designed; previews by tap, inside the screen, never over a name |
+
+Production build with `--base=/MimarSinan/`, served from that folder: the six preview photographs
+load (e.g. `/MimarSinan/images/works/suleymaniye-exterior-640.avif`), all 57 image URLs of the
+scene return 200. `npm run lint` and `npm run build` pass.
+
+**Not verified:** real keyboard focus in the test browser (its pane has no window focus, so
+focus events were dispatched by script); real touch devices; a second browser engine.
