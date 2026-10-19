@@ -435,8 +435,8 @@ export const copy = {
     headline: 'Fifty years of architecture.',
     lede: 'Selimiye was one work among hundreds.',
     /** Shown only where hovering is possible; touch screens get `hintTouch`. */
-    hint: 'Point at a building to see it.',
-    hintTouch: 'Tap a building to see it.',
+    hint: 'Hover over a building to see it.',
+    hintTouch: 'Tap a building to see it, tap again to close.',
     close: 'Hide photograph',
     /** Verified in `facts` (sinanAppointed, masterwork, rustem, visegrad, muradiye, sinanLife). */
     milestones: [

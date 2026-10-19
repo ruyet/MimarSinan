@@ -1606,29 +1606,42 @@
   text-decoration-color: var(--accent);
 }
 
-/* The photograph: fixed to the viewport, above the scene but below the header. */
+/* The photograph: fixed to the viewport, above the scene but below the header. It never takes
+   the pointer, so the cursor stays free to move on to the next building. */
 .preview {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 40;
-  width: clamp(14rem, 18vw, 22rem);
+  width: clamp(16rem, 17.5vw, 24rem);
   aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: var(--bg-raised);
-  opacity: 0;
   pointer-events: none;
-  transform-origin: 0 0;
+  will-change: transform;
 }
 
+/* The print itself: a thin warm edge and a low, soft shadow, like a photograph laid on stone. */
+.preview__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--bg-raised);
+  box-shadow:
+    0 0 0 1px rgb(26 25 22 / 0.08),
+    0 18px 40px -18px rgb(26 25 22 / 0.45);
+  opacity: 0;
+}
+
+/* Switching buildings, the new photograph fades in on top of the previous one (career.ts). */
 .preview__shot {
   position: absolute;
   inset: 0;
-  visibility: hidden;
+  z-index: 1;
+  opacity: 0;
 }
 
 .preview__shot.is-current {
-  visibility: visible;
+  z-index: 2;
 }
 
 .preview__picture,
@@ -1641,7 +1654,7 @@
 
 @media (max-width: 47.99rem) {
   .preview {
-    width: min(70vw, 18rem);
+    width: min(72vw, 18rem);
   }
 }
 

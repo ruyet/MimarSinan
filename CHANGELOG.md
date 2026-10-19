@@ -1,5 +1,14 @@
 # Changelog
 
+## Hover previews (branch `refine/hover-preview`)
+
+See `REDESIGN_RATIONALE.md` §20.
+
+- **Fifty years:** the building photograph now emerges beside the cursor and follows it with a
+  slight delay (GSAP `quickTo`), flips at the right and bottom edges and crossfades between
+  buildings in one reusable frame. Keyboard, touch and reduced motion keep an anchored position.
+- **Hint:** "Hover over a building to see it." / "Tap a building to see it, tap again to close."
+
 ## Refinement round (branch `refine/final-polish`)
 
 See `REDESIGN_RATIONALE.md` §16 for reasons and measurements.

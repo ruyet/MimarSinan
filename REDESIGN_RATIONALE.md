@@ -616,3 +616,84 @@ scene return 200. `npm run lint` and `npm run build` pass.
 
 **Not verified:** real keyboard focus in the test browser (its pane has no window focus, so
 focus events were dispatched by script); real touch devices; a second browser engine.
+
+---
+
+## 20. Fifty years: the photograph follows the cursor (branch `refine/hover-preview`)
+
+**Student:** the photograph appeared in a fixed or detached place to the right of the
+chronology. It should feel connected to the building being pointed at, like the floating image
+previews on creative portfolio sites, but without their custom cursor or component-library look.
+This section supersedes the mouse behaviour described in §19.3; keyboard, touch and the
+photographs themselves are unchanged.
+
+### 20.1 How it works
+
+- **One reusable frame.** A single fixed `.preview` holds the six photographs stacked, loaded
+  with the scene. Nothing is created or destroyed per hover. The outer element carries only the
+  position (`x`/`y`), an inner `.preview__frame` carries the entrance (`scale`/`opacity`), so
+  the two animations never compete for one transform.
+- **Following.** One `pointermove` listener on the list feeds two GSAP `quickTo` functions
+  (0.55 s, `power3.out`). Measured: after a 200 px jump of the cursor the photograph has covered
+  110 px after 0.1 s and 191 px after 0.3 s. It trails slightly, without feeling heavy. The
+  frame's size and the header's edge are measured once per appearance, so following the cursor
+  reads no layout and only writes transforms.
+- **Entrance and exit.** Scale 0.94 → 1 and opacity 0 → 1 in 0.35 s (`power3.out`), growing out
+  of the corner nearest the cursor. It leaves in 0.22 s (opacity, scale to 0.97). No bounce, no
+  spring.
+- **Switching buildings.** The new photograph fades in on top of the previous one (0.24 s); the
+  previous one is cleared only after it is covered, so the frame is never blank. A 90 ms grace
+  period lets the cursor cross the gap between two buildings without the frame disappearing. A
+  fresh appearance swaps instantly, so an earlier building never shows underneath.
+- **Look.** About 336 px wide at 1920 px (`clamp(16rem, 17.5vw, 24rem)`: 256 px at 1366 and
+  1440, 384 px at 2560), 4:3, a 2 px radius, a hairline edge and one low, soft shadow, like a
+  print laid on the stone. The normal cursor is kept; there is no custom cursor or label. The
+  active name keeps its accent underline (the same state for hover, focus and an open photo).
+
+### 20.2 Positioning at the edges
+
+The photograph sits 28 px below and to the right of the cursor. If it would cross the right
+edge, it moves to the left of the cursor; if it would cross the bottom edge, it moves above the
+cursor (only when there is room under the header). It is then kept 12 px inside the viewport
+and below the header. It never takes the pointer (`pointer-events: none`). Resizing the window
+re-measures and repositions it.
+
+### 20.3 Keyboard, touch, reduced motion
+
+- **Keyboard:** focus shows the photograph anchored beside the milestone (right of it, else
+  left), the predictable place for someone who is not using a pointer. Moving focus moves it,
+  leaving the list hides it, Escape hides it. Focus is never trapped.
+- **Touch:** a tap shows it under the milestone (or above it near the bottom); tapping another
+  building switches, tapping the same one again, tapping elsewhere or Escape hides it.
+- **Reduced motion:** no following and no entrance: the photograph appears beside the milestone
+  at once, and switching is instant.
+- **Hint:** "Hover over a building to see it." on devices that can hover (clearer than "Point
+  at"); "Tap a building to see it, tap again to close." on touch screens, which also says how to
+  dismiss it.
+
+### 20.4 Lifecycle
+
+The follow functions are created in `enter()` and killed in `leave()`, together with the move,
+document, scroll and resize listeners, so nothing accumulates across visits. Leaving the scene
+hides the photograph at once. Verified: after leaving with a photograph open, it is hidden with
+no remaining tweens; after re-entering, every check below passes again.
+
+### 20.5 Tested
+
+Scripted checks in the browser (pointer, focus and touch events dispatched by script; the
+animation clock advanced manually because the test pane does not render while hidden), plus
+screenshots:
+
+| Viewport | Result |
+| --- | --- |
+| 1366 × 768, 1440 × 900, 1920 × 1080, 2560 × 1440 | 54 cursor positions over the six buildings: always inside the viewport and below the header, never under the cursor, correct photograph, follows on all six; right edge, bottom edge, bottom-right corner and just under the header all correct; switching never blank; keyboard focus beside each name; Escape and blur hide it |
+| 1920 × 1080, `?reduced-motion` | anchored, no following or entrance, never over a name |
+| 375 × 812 (touch) | every tap shows the right photograph below or above, inside the screen, never over the name; tap again and tap elsewhere hide it |
+| Scene change and re-entry | hidden on leave, no leftover tweens, all checks pass again |
+
+Production build with `--base=/MimarSinan/`: the six photographs load from
+`/MimarSinan/images/…` (all 26 source URLs return 200) and decode. `npm run lint` and the build
+pass.
+
+**Not verified:** a real mouse and a real touch screen (events were scripted); a second browser
+engine; how smooth it feels on a slow machine.
