@@ -200,18 +200,19 @@ export function createChapterController(
     const incoming = nextChapter.el;
     const tl = gsap.timeline({ onComplete: finishing! });
     gsap.set(incoming, { visibility: 'visible', zIndex: 2, opacity: 0 });
+    // Enter first: every entrance sets its starting state before the first visible frame, so a
+    // scene can never flash in its final state while it fades in.
+    nextChapter.enter();
     tl.to(prevChapter.el, {
       opacity: reduced ? 1 : 0.4,
       duration: reduced ? 0.01 : 0.7,
       ease: EASE.inOut,
-    })
-      .fromTo(
-        incoming,
-        { opacity: 0 },
-        { opacity: 1, duration: reduced ? 0.3 : 0.8, ease: EASE.inOut },
-        reduced ? 0 : 0.1,
-      )
-      .call(() => nextChapter.enter(), [], reduced ? 0.1 : 0.3);
+    }).fromTo(
+      incoming,
+      { opacity: 0 },
+      { opacity: 1, duration: reduced ? 0.3 : 0.8, ease: EASE.inOut },
+      reduced ? 0 : 0.1,
+    );
   }
 
   const goTo = (id: ChapterId): void => goToIndex(order.indexOf(id));

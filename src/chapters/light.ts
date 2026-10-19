@@ -15,7 +15,7 @@ import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
 import { preloadImage } from '../core/picture';
-import { button, enterText, label, show, title as makeTitle } from '../core/ui';
+import { button, conceal, enterText, label, reveal, title as makeTitle } from '../core/ui';
 import { buildHall } from '../render/hall';
 
 const MAX = 4;
@@ -44,9 +44,10 @@ export function createLight(ctx: ChapterContext): Chapter {
     slider,
   );
 
-  const closing = h('p', { class: 'closing', hidden: true }, t.closing);
+  // The conclusion and Continue already hold their place, so reaching full light moves nothing.
+  const closing = h('p', { class: 'closing is-waiting' }, t.closing);
   const cont = button(copy.meta.continue, 'primary', '→');
-  cont.hidden = true;
+  const actions = h('div', { class: 'actions is-waiting' }, cont);
 
   const hall = buildHall('light-figure-desc', '-light');
   hall.setSupports(8);
@@ -66,16 +67,7 @@ export function createLight(ctx: ChapterContext): Chapter {
     h(
       'div',
       { class: 'grid scene-split scene-split--mirror' },
-      h(
-        'div',
-        { class: 'col scene-split__text' },
-        top,
-        title.el,
-        body,
-        control,
-        closing,
-        h('div', { class: 'actions' }, cont),
-      ),
+      h('div', { class: 'col scene-split__text' }, top, title.el, body, control, closing, actions),
       figure,
     ),
   );
@@ -120,10 +112,19 @@ export function createLight(ctx: ChapterContext): Chapter {
     if (rising) audio.shimmer(level);
     announce(t.levels[level]);
 
-    if (level === MAX && closing.hidden) {
-      show(closing, 0.6);
-      show(cont, 0.9);
+    if (level === MAX && closing.classList.contains('is-waiting')) {
+      reveal(closing, 0.6);
+      reveal(actions, 0.9);
       window.setTimeout(() => announce(t.closing), 1200);
+    } else if (!closing.classList.contains('is-waiting')) {
+      // Once learned, the conclusion belongs to the lit room: it fades with the light, in place.
+      gsap.to(closing, {
+        opacity: level === MAX ? 1 : 0,
+        duration: reducedMotion() ? 0 : 0.6,
+        delay: level === MAX ? 0.6 : 0,
+        ease: EASE.soft,
+        overwrite: true,
+      });
     }
   }
 
@@ -167,8 +168,8 @@ export function createLight(ctx: ChapterContext): Chapter {
     },
     leave() {},
     reset() {
-      closing.hidden = true;
-      cont.hidden = true;
+      conceal(closing);
+      conceal(actions);
       setLevel(0, false);
     },
     focusTarget: () => title.el,

@@ -1,11 +1,12 @@
 /**
- * Scene 8 — Return to Mimar Sinan. The story began with his name and his monument seen from a
+ * Scene 9 — Return to Mimar Sinan. The story began with his name and his monument seen from a
  * distance; it ends closer, with his face in daylight and his name set at the same scale as
- * the opening. Between the two, what the visitor now knows he did — structure, space and
- * light — written as three short sentences about him, not as three icons.
+ * the opening. Beneath the name, one sentence ties what the visitor saw back to him: at
+ * Selimiye, structure, space and light became one building. Then three plain facts.
  *
  * Motion is deliberately plain: the photograph settles, the name rises once (the same gesture
- * as the opening, so the two read as a pair), the three sentences follow in order.
+ * as the opening, so the two read as a pair), the sentence and facts follow. Every element is
+ * set to its starting state on the first frame (see the controller), so nothing flashes.
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
@@ -29,21 +30,13 @@ export function createName(ctx: ChapterContext): Chapter {
     last,
   );
   const dates = h('p', { class: 'label name__dates' }, t.dates);
-
-  const rows = t.synthesis.map((row) =>
-    h('div', { class: 'name__row' }, h('dt', { class: 'label' }, row.term), h('dd', {}, row.text)),
-  );
-  const synthesis = h('dl', { class: 'name__synthesis' }, ...rows);
+  const summary = h('p', { class: 'name__summary' }, t.summary);
   const facts = h('ul', { class: 'name__facts' }, ...t.facts.map((f) => h('li', {}, f)));
   const cont = button(copy.meta.continue, 'primary', '→');
+  const actions = h('div', { class: 'actions' }, cont);
 
   const media = h('div', { class: 'name__frame' });
-  const figure = h(
-    'figure',
-    { class: 'name__figure' },
-    media,
-    h('figcaption', { class: 'small' }, t.caption),
-  );
+  const figure = h('figure', { class: 'name__figure' }, media);
 
   const el = h(
     'section',
@@ -51,15 +44,7 @@ export function createName(ctx: ChapterContext): Chapter {
     h(
       'div',
       { class: 'grid name__grid' },
-      h(
-        'div',
-        { class: 'col name__text' },
-        dates,
-        title,
-        synthesis,
-        facts,
-        h('div', { class: 'actions' }, cont),
-      ),
+      h('div', { class: 'col name__text' }, dates, title, summary, facts, actions),
       figure,
     ),
   );
@@ -68,33 +53,29 @@ export function createName(ctx: ChapterContext): Chapter {
   let prepared = false;
 
   function play(): void {
+    const rest = [summary, facts, actions];
     if (reducedMotion()) {
-      gsap.fromTo(
-        [figure, dates, title, ...rows, facts, cont],
-        { opacity: 0 },
-        { opacity: 1, duration: 0.5 },
-      );
+      gsap.fromTo([figure, dates, title, ...rest], { opacity: 0 }, { opacity: 1, duration: 0.5 });
       return;
     }
     const pic = media.querySelector('picture');
     gsap
       .timeline()
-      .fromTo(figure, { opacity: 0 }, { opacity: 1, duration: 1.4, ease: EASE.soft }, 0)
+      .fromTo(figure, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: EASE.soft }, 0)
       .fromTo(pic, { scale: 1.05 }, { scale: 1, duration: 3, ease: EASE.out }, 0)
-      .fromTo(dates, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.3)
+      .fromTo(dates, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0.2)
       .fromTo(
         [first, last],
         { yPercent: 40, opacity: 0 },
         { yPercent: 0, opacity: 1, duration: 1, ease: EASE.out, stagger: 0.12 },
-        0.35,
+        0.25,
       )
       .fromTo(
-        rows,
+        rest,
         { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.7, ease: EASE.out, stagger: 0.35 },
-        1.1,
-      )
-      .fromTo([facts, cont], { opacity: 0 }, { opacity: 1, duration: 0.7, stagger: 0.15 }, 2.3);
+        { opacity: 1, y: 0, duration: 0.7, ease: EASE.out, stagger: 0.2 },
+        1,
+      );
   }
 
   return {

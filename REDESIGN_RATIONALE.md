@@ -1,8 +1,8 @@
 # Redesign rationale
 
 **Project:** Hold Up the Sky — Mimar Sinan · ICT & Media Design, _Typography & Design_
-**Branch:** `redesign/sinan-story` · the first version is tagged `original-v1`
-**Status:** implemented and checked in a browser at four viewport sizes; **not yet tested with
+**Branches:** `redesign/sinan-story` (redesign), `refine/final-polish` (refinement) · tags `original-v1`, `v2.0-feedback-stan-bardt`
+**Status:** implemented and refined in two rounds (see §16), checked in a browser at six viewport sizes; **not yet tested with
 real visitors** (see §13).
 
 This document explains what changed and why, so the design can be defended in an assessment.
@@ -342,3 +342,72 @@ photographs; Fraunces and Instrument Sans; the old stylesheets.
   It was kept unaltered because it is the honest, well-lit image of Sinan's face.
 - **The previous `DECISIONS.md` and `IMPROVEMENT_PLAN.md`** describe the first version and
   are kept as history; where they conflict with this document, this document applies.
+
+---
+
+## 16. Revision 2: refinement (branch `refine/final-polish`)
+
+The redesign's direction was approved (**Student**). This round fixes what still felt
+unfinished. Nothing was redesigned for its own sake: palette, type, drawings, collapse, light
+interaction, reveal, interior photo, ending and epilogue are kept.
+
+### Issues identified (Student review of a screen recording) and what changed
+
+| Issue                                                                            | Change                                                                                                                                                                                                                                                                                                                                          | Verified                                                                                                                                              |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Choosing a support count moved the whole text column (up to 75 px).              | All explanations are rendered up front and stacked in one grid cell (as tall as the longest); Continue keeps its place invisibly until it appears.                                                                                                                                                                                              | Title, buttons, text and drawing: 0 px movement over 4→8→16→4→16→8, at 1920 and 390 px wide.                                                          |
+| Options were 4 / 16 / "Sinan's 8", with 8 styled differently.                    | 4 / 8 / 16, identical number buttons; one selected style. "Sinan's answer" is revealed only after 8 is chosen. The generic "many ways" paragraph is removed; the nuance lives in the 4 text ("in this simplified drawing") and the note under the drawing.                                                                                      | Buttons measured 112 × 64 px each.                                                                                                                    |
+| Reaching full light pushed the layout up when the conclusion appeared.           | The conclusion and Continue hold their place from the start and fade in; the conclusion fades out again if the walls are closed. Body text shortened to one sentence.                                                                                                                                                                           | 0 px movement through every light level, forwards and back; no shafts, pools or windows remain lit at level 0.                                        |
+| In the reveal, "Look around" appeared before the three ideas.                    | New order: drawing → photograph (waits until it is decoded) → title → Structure, Light, Space one by one with their highlights → "Look around" 2.5 s after the third → clean photo. Space for the three lines is reserved.                                                                                                                      | Timeline sampled step by step (below).                                                                                                                |
+| The window highlight had to be found and clicked.                                | It plays once automatically, about 0.8 s after the photograph has decoded, for about 2 s, then returns; the toggle stays. A click during the demo cancels it; a visitor's "on" is never overridden; leaving the scene cancels it; reduced motion skips it.                                                                                      | Dim level sampled over time; click-during-demo, revisit with toggle on, and revisit after toggling off all checked.                                   |
+| "A lifetime" mixed career, legacy, age and a staircase in one slide.             | Split: **A lifetime** shows only the three works (aligned, same size, short labels); the age moved into the introduction ("after decades of building, when he was in his eighties"). **After Sinan** is its own short scene.                                                                                                                    | Both fit without scrolling from 1280 × 720 to 2560 × 1276.                                                                                            |
+| Legacy was squeezed under the progression.                                       | One photograph, two sentences, and the same Şehzade disc as in the previous scene, so "its plan grows from Şehzade" is visible, not only stated. Selimiye's eight piers are not claimed as its model.                                                                                                                                           | —                                                                                                                                                     |
+| The minaret detail sat in a crowded corner.                                      | An optional "One remarkable detail" button opens a native dialog (Esc, backdrop and Close all dismiss it; focus moves to Close). The drawing is labelled "Schematic drawing, not to scale."                                                                                                                                                     | Dialog open/close and focus checked.                                                                                                                  |
+| The ending sometimes appeared pale before settling; the epilogue text flashed.   | Root cause (verified in code): the controller called each scene's entrance 0.3 s into the crossfade, so incoming content was painted in its final state first; the epilogue's words were only hidden when their reveal began at 0.9 s. The entrance now runs on the first frame of the crossfade, and the epilogue hides its words immediately. | On the first frame of the transition every text element of the ending and all epilogue words have opacity 0, both via Continue and via a direct jump. |
+| The ending listed three principles as rows.                                      | One sentence: "At Selimiye, structure, space and light became one building…", then three plain facts at body size.                                                                                                                                                                                                                              | —                                                                                                                                                     |
+| "Type & making" on the public credits page.                                      | Removed from the page (it remains in this document, §8 and §11). All image authors, licences, links and text sources stay.                                                                                                                                                                                                                      | Credits headings: Photographs, Sources.                                                                                                               |
+| Thin grey caption under the opening monument.                                    | Removed; "a modern sculpture" moved into the alt text, and the credits list the photo.                                                                                                                                                                                                                                                          | —                                                                                                                                                     |
+| Controls looked unrelated (segmented boxes, a rounded switch, a details marker). | One family: 48 px height, 1 px border, no radius, Archivo caps; number buttons 64 px with the same border and the same selected colour as the primary action.                                                                                                                                                                                   | —                                                                                                                                                     |
+| Progress marks were very faint.                                                  | Ticks 22 × 3 px with higher contrast (unvisited 0.3, visited 0.75, current in the accent). Still one row, no labels.                                                                                                                                                                                                                            | —                                                                                                                                                     |
+| Reduced motion could leave a scene hidden.                                       | The reduced-motion stylesheet set every transition to 0.01 ms on all properties, so a scene's visibility could wait on a transition. Durations are now exactly 0.                                                                                                                                                                               | Reveal under reduced motion: title, three ideas and button visible.                                                                                   |
+
+### Narrative structure after this round
+
+Mimar Sinan → The challenge → Structure → Light → Look up → Space → A lifetime → **After Sinan**
+→ Remember him → Epilogue (10 parts in the progress bar; credits sit outside it).
+
+### Why lifetime and legacy were separated
+
+Each answers a different question: _how did he get here?_ (decades of refinement, shown by
+three photographs) and _what happened after him?_ (his pupils, one building). Together on one
+page they competed; apart, each needs one glance and one sentence.
+
+### Reveal timeline as verified (seconds after the photograph opens, sampled at 4.5 s per step)
+
+Title +0 → Structure +1.5 → Light +6 → Space +10.5 → "Look around" +13 → clean photo +14.5.
+The step was then shortened to 4 s, so each idea now arrives about 4 s after the previous one.
+
+### Responsive check (scripted: scroll height vs. viewport, elements outside the viewport)
+
+| Viewport    | Result                                                                     |
+| ----------- | -------------------------------------------------------------------------- |
+| 2560 × 1276 | Every scene fits; no overflow.                                             |
+| 1920 × 1080 | Every scene fits; no overflow.                                             |
+| 1280 × 720  | Every scene fits after compact rules for short screens; no overflow.       |
+| 768 × 1024  | Single column; scenes scroll vertically by design; no horizontal overflow. |
+| 390 × 844   | Same; drawings stay pinned above their controls; no horizontal overflow.   |
+| 360 × 740   | Same; no horizontal overflow.                                              |
+
+Elements flagged outside the viewport in "Look up" and the epilogue are the faded plan drawing
+and the light layer, both inside clipped containers; the document never scrolls sideways.
+
+### Still to validate
+
+- Everything listed in §13 (comprehension, timing, screen readers, Safari and Firefox, real
+  touch devices, sound) still needs real visitors or devices.
+- Whether 4 s per idea in the reveal is the right pace, and whether visitors notice the optional
+  detail button.
+- Whether the automatic window demonstration reads as an explanation rather than a glitch.
+- Visual checks were made with browser automation in a hidden browser pane, where images and
+  timers are throttled. Layout was measured by script; some screenshots were taken before
+  photographs had painted.

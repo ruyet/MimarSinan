@@ -70,8 +70,6 @@ export function createCredits(ctx: ChapterContext): Chapter {
       imageList,
       h('h3', { class: 'credits__heading' }, t.sourcesTitle),
       sourceList,
-      h('h3', { class: 'credits__heading' }, t.typeTitle),
-      h('p', { class: 'small' }, t.type),
       h('div', { class: 'credits__actions' }, restart, back),
     ),
   );

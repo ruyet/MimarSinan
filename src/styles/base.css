@@ -92,7 +92,7 @@ img {
 
 .small {
   font-family: var(--font-display);
-  font-size: var(--step--1);
+  font-size: max(0.85rem, var(--step--1));
   font-stretch: 100%;
   line-height: 1.45;
   color: var(--fg-muted);
@@ -199,13 +199,16 @@ img {
   transform: none;
 }
 
+/* Reduced motion: no CSS transitions or animations at all (0 s, not a tiny duration, so no
+   property ever waits on a transition to finish). GSAP handles its own reduced versions. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
@@ -214,8 +217,15 @@ img {
 .force-reduced-motion *,
 .force-reduced-motion *::before,
 .force-reduced-motion *::after {
-  animation-duration: 0.01ms !important;
+  animation-duration: 0s !important;
   animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
   scroll-behavior: auto !important;
+}
+
+/* Holds its place in the layout but is not shown yet (see reveal() in core/ui.ts). */
+.is-waiting {
+  visibility: hidden;
+  opacity: 0;
 }

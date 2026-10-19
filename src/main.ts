@@ -51,6 +51,9 @@ controller.registerLazy('inside', () =>
 controller.registerLazy('lifetime', () =>
   import('./chapters/lifetime').then((m) => m.createLifetime(controller)),
 );
+controller.registerLazy('legacy', () =>
+  import('./chapters/legacy').then((m) => m.createLegacy(controller)),
+);
 controller.registerLazy('name', () =>
   import('./chapters/name').then((m) => m.createName(controller)),
 );

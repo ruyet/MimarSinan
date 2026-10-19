@@ -35,11 +35,11 @@ export function createSinan(ctx: ChapterContext): Chapter {
     className: 'sinan__picture',
   });
   photo.querySelector('img')?.setAttribute('fetchpriority', 'high');
+  // No visible caption: the alt text and the credits page say what it is (a modern sculpture).
   const figure = h(
     'figure',
     { class: 'sinan__figure' },
     h('div', { class: 'sinan__frame' }, photo),
-    h('figcaption', { class: 'small' }, t.caption),
   );
 
   const text = h(

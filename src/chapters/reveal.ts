@@ -20,7 +20,7 @@ import type { Chapter, ChapterContext } from '../core/chapters';
 import { h, s } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
 import { picture } from '../core/picture';
-import { button, enterText, label, title as makeTitle } from '../core/ui';
+import { button, conceal, enterText, label, reveal, title as makeTitle } from '../core/ui';
 import { stroke } from '../render/svg';
 
 const SIZES = 'min(100vw, 100dvh)';
@@ -31,7 +31,7 @@ const SIZES = 'min(100vw, 100dvh)';
  * that, so the frame can reach the piers without ever showing past the photo's edge.
  */
 const FRAME_RADIUS = 49.2;
-const STEP = 5;
+const STEP = 4;
 
 /** Octagon with corners at 22.5° + k·45°, as a clip-path; scale 0 collapses it to the centre. */
 const octagon = (scale: number): string =>
@@ -55,7 +55,7 @@ export function createReveal(ctx: ChapterContext): Chapter {
   const items = revealAnnotations.map((a, i) =>
     h(
       'li',
-      {},
+      { class: 'is-waiting' },
       h(
         'button',
         { type: 'button', class: 'guide__item', 'data-i': i },
@@ -64,10 +64,10 @@ export function createReveal(ctx: ChapterContext): Chapter {
       ),
     ),
   );
-  const guide = h('ol', { class: 'guide', hidden: true }, ...items);
+  const guide = h('ol', { class: 'guide' }, ...items);
   const buttons = items.map((li) => li.firstElementChild as HTMLButtonElement);
   const cont = button(t.cta, 'primary', '→');
-  const actions = h('div', { class: 'actions' }, cont);
+  const actions = h('div', { class: 'actions is-waiting' }, cont);
 
   const frame = h('div', { class: 'reveal__frame' });
   frame.style.setProperty('--k', String(50 / FRAME_RADIUS));
@@ -117,20 +117,38 @@ export function createReveal(ctx: ChapterContext): Chapter {
     sequence = [];
   }
 
-  /** Structure → Light → Space, five seconds each, then the clean photograph. */
+  /**
+   * Structure → Light → Space. Each line appears with its highlight on the photograph, in space
+   * that was reserved from the start. "Look around" appears only once all three are on screen,
+   * and the highlights finish on the clean photograph.
+   */
   function runGuide(): void {
     stopSequence();
-    guide.hidden = false;
-    enterText(items);
+    if (reducedMotion()) {
+      items.forEach((li) => reveal(li));
+      reveal(actions, 0.2);
+      return;
+    }
     revealAnnotations.forEach((a, i) => {
       sequence.push(
-        gsap.delayedCall(0.6 + i * STEP, () => {
+        gsap.delayedCall(0.4 + i * STEP, () => {
+          reveal(items[i]);
           highlight(i);
           announce(`${a.label}. ${a.text}`);
         }),
       );
     });
-    sequence.push(gsap.delayedCall(0.6 + revealAnnotations.length * STEP, () => highlight(null)));
+    const last = 0.4 + (revealAnnotations.length - 1) * STEP;
+    sequence.push(gsap.delayedCall(last + 2.5, () => reveal(actions)));
+    sequence.push(gsap.delayedCall(last + STEP, () => highlight(null)));
+  }
+
+  /** Everything readable at once (revisits, or leaving mid-sequence). */
+  function showAll(): void {
+    [...items, actions].forEach((n) => {
+      n.classList.remove('is-waiting');
+      gsap.set(n, { clearProps: 'opacity,transform' });
+    });
   }
 
   buttons.forEach((b, i) => {
@@ -152,17 +170,28 @@ export function createReveal(ctx: ChapterContext): Chapter {
 
   function finalState(): void {
     tl?.kill();
+    stopSequence();
     gsap.set(drawing.svg, { clearProps: 'transform', opacity: 0 });
     gsap.set(frame, { clipPath: OPEN, opacity: 1 });
-    gsap.set([title.el, actions, guide], { opacity: 1 });
-    guide.hidden = false;
+    gsap.set(title.el, { opacity: 1 });
+    showAll();
     highlight(null);
+  }
+
+  /** Resolves when the photograph can be painted (or after 4 s, so the story never stalls). */
+  function photoReady(): Promise<void> {
+    const img = photo?.querySelector('img');
+    if (!img) return Promise.resolve();
+    const ready = img.complete
+      ? img.decode().catch(() => {})
+      : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true }));
+    return Promise.race([ready, new Promise<void>((r) => setTimeout(r, 4000))]);
   }
 
   function play(): void {
     const reduced = reducedMotion();
-    gsap.set([title.el, actions], { opacity: 0 });
-    guide.hidden = true;
+    gsap.set(title.el, { opacity: 0 });
+    [...items, actions].forEach(conceal);
     gsap.set(drawing.strokes, { strokeDasharray: 1, strokeDashoffset: reduced ? 0 : 1 });
 
     if (reduced) {
@@ -172,7 +201,7 @@ export function createReveal(ctx: ChapterContext): Chapter {
         .timeline({ onComplete: runGuide })
         .to(frame, { opacity: 1, duration: 0.8 }, 0.6)
         .to(drawing.svg, { opacity: 0, duration: 0.8 }, 1.2)
-        .to([title.el, actions], { opacity: 1, duration: 0.5 }, 1.2);
+        .to(title.el, { opacity: 1, duration: 0.5 }, 1.2);
       return;
     }
 
@@ -199,13 +228,22 @@ export function createReveal(ctx: ChapterContext): Chapter {
         { rotationX: 0, rotationZ: 0, scale: 1, duration: 2.6, ease: EASE.inOut },
         1.3,
       )
+      // Hold here until the photograph is ready, so it never opens onto an empty frame.
+      .call(
+        () => {
+          const t0 = tl!;
+          t0.pause();
+          void photoReady().then(() => t0.resume());
+        },
+        [],
+        4.15,
+      )
       // A beat of stillness. Then the photograph opens from the centre, out to the piers.
       .call(() => audio.chime(196, 0.1), [], 4.2)
       .to(frame, { clipPath: OPEN, duration: 2.8, ease: 'power2.inOut' }, 4.2)
       .to(drawing.svg, { opacity: 0.35, duration: 1.4, ease: EASE.soft }, 4.8)
       .to(drawing.svg, { opacity: 0, duration: 1.6, ease: EASE.soft }, 6.4)
-      .to(title.el, { opacity: 1, duration: 0.8, ease: EASE.out }, 6.2)
-      .to(actions, { opacity: 1, duration: 0.6, ease: EASE.out }, 6.8);
+      .to(title.el, { opacity: 1, duration: 0.8, ease: EASE.out }, 6.2);
   }
 
   return {
@@ -237,7 +275,7 @@ export function createReveal(ctx: ChapterContext): Chapter {
       tl?.kill();
       stopSequence();
       annot?.show(null);
-      guide.hidden = true;
+      [...items, actions].forEach(conceal);
     },
     focusTarget: () => title.el,
   };

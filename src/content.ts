@@ -216,6 +216,7 @@ export type ChapterId =
   | 'reveal'
   | 'inside'
   | 'lifetime'
+  | 'legacy'
   | 'name'
   | 'epilogue'
   | 'credits';
@@ -236,6 +237,7 @@ export const chapters: ChapterMeta[] = [
   { id: 'reveal', title: 'Look up', inProgress: true },
   { id: 'inside', title: 'Space', inProgress: true },
   { id: 'lifetime', title: 'A lifetime', inProgress: true },
+  { id: 'legacy', title: 'After Sinan', inProgress: true },
   { id: 'name', title: 'Remember him', inProgress: true },
   { id: 'epilogue', title: 'Epilogue', inProgress: true },
   { id: 'credits', title: 'Sources', inProgress: false },
@@ -252,8 +254,6 @@ export const copy = {
     soundAnnounceOn: 'Sound turned on.',
     soundAnnounceOff: 'Sound turned off.',
     continue: 'Continue',
-    back: 'Back',
-    progress: 'Story',
     model: 'A simplified drawing, not an engineering model.',
   },
 
@@ -262,9 +262,8 @@ export const copy = {
     first: 'Mimar',
     last: 'Sinan',
     lede: 'For about fifty years he was chief architect of the Ottoman Empire. Hundreds of buildings are attributed to him.',
-    turn: 'In his eighties he finished the one he called his masterwork. This is how he built it.',
+    turn: 'In his eighties he finished the building he called his masterwork. This is how he built it.',
     begin: 'Begin',
-    caption: 'Monument to Mimar Sinan in Edirne. A modern sculpture.',
   },
 
   challenge: {
@@ -286,31 +285,29 @@ export const copy = {
   structure: {
     label: 'Structure',
     headline: 'Where do the supports go?',
-    body: 'Every support carries weight, and every support takes up room. Try three answers.',
+    body: 'Every support carries weight, and every support takes up room. Try each number.',
     groupLabel: 'Number of supports',
     options: [
       {
         n: 4,
-        label: 'Four',
+        label: 'Four supports',
         title: 'Four supports',
-        body: 'Long gaps. Between the supports the dome’s edge hangs over empty space and pushes outwards.',
-      },
-      {
-        n: 16,
-        label: 'Sixteen',
-        title: 'Sixteen supports',
-        body: 'Well carried, but the columns wall off the centre. The hall breaks into a middle and an edge.',
+        body: 'Long spans between them. In this simplified drawing the dome’s edge hangs over empty space and pushes outwards.',
       },
       {
         n: 8,
-        label: 'Sinan’s eight',
-        title: 'Sinan’s eight',
-        body: 'Eight piers on an octagon, close to the walls. The dome is carried all the way round, and the floor stays one room.',
+        label: 'Eight supports',
+        title: 'Eight: Sinan’s answer',
+        body: 'At Selimiye, eight piers stand close to the walls. The dome is held all the way round, and the floor stays one open room.',
+      },
+      {
+        n: 16,
+        label: 'Sixteen supports',
+        title: 'Sixteen supports',
+        body: 'The dome is well held, but the columns divide the floor into a centre and an edge.',
       },
     ],
-    empty: 'Choose an arrangement.',
-    other:
-      'Domes have been carried in many ways. Hagia Sophia used two great half-domes. This was Sinan’s answer at Selimiye.',
+    empty: 'Choose a number.',
     floor: 'Open floor',
     figureLabel: (n: number) =>
       n === 0
@@ -321,10 +318,10 @@ export const copy = {
   light: {
     label: 'Light',
     headline: 'Free walls can open.',
-    body: 'The piers carry the dome, and buttresses hide inside the walls. The walls between them are free for windows.',
+    body: 'The eight piers carry the dome, so the walls between them can be opened for windows.',
     control: 'Open the walls',
     levels: ['Closed', 'One row open', 'Two rows open', 'Three rows open', 'Dome windows open'],
-    closing: 'The structure let the light in.',
+    closing: 'Sinan’s structure filled the room with daylight.',
     figureLabel:
       'Cut-away drawing of the prayer hall: eight piers carry the dome, and the walls between them fill with windows. Light falls across the floor.',
   },
@@ -335,7 +332,6 @@ export const copy = {
     headline: 'This is Selimiye.',
     figureLabel:
       'The eight-pier plan, seen from directly below, turns into a photograph of the real dome of the Selimiye Mosque.',
-    replay: 'Show again',
     cta: 'Look around',
   },
 
@@ -343,21 +339,21 @@ export const copy = {
     label: 'Space',
     headline: 'One room, full of daylight.',
     body: 'Nothing stands between you and the dome. The light comes in from every wall.',
-    toggle: 'Show only the windows',
+    toggle: 'Highlight the windows',
     caption: 'The prayer hall of the Selimiye Mosque, seen from the floor.',
   },
 
   lifetime: {
     label: 'A lifetime',
     headline: 'It took him a lifetime.',
-    body: 'Sinan called three of his mosques his apprentice work, his journeyman work and his masterwork. Look up in each.',
+    body: 'Sinan called three of his mosques his apprentice work, his journeyman work and his masterwork. The last came after decades of building, when he was in his eighties.',
     works: [
       {
         image: 'sehzadeDomes' as const,
         year: '1548',
         name: 'Şehzade',
         stage: 'Apprentice',
-        text: 'One dome, braced by four half-domes.',
+        text: 'A dome braced by four half-domes',
         /** Where the main dome sits in the photo, and how much to show around it (% of width). */
         frame: { cx: 49, cy: 45, r: 42 },
       },
@@ -366,7 +362,7 @@ export const copy = {
         year: '1557',
         name: 'Süleymaniye',
         stage: 'Journeyman',
-        text: 'One dome, extended by two half-domes.',
+        text: 'A dome extended by two half-domes',
         frame: { cx: 49, cy: 41.5, r: 41 },
       },
       {
@@ -374,39 +370,42 @@ export const copy = {
         year: '1575',
         name: 'Selimiye',
         stage: 'Master',
-        text: 'One dome on eight piers, over one room. He was in his eighties.',
+        text: 'One dome on eight piers',
         frame: { cx: 51.4, cy: 53.7, r: 46 },
       },
     ],
-    scale: 'Photographs taken with different lenses; not to scale.',
-    after: {
-      label: 'After Sinan',
-      text: 'The architects he trained carried his work on. One of them, Sedefkâr Mehmed Ağa, designed the Sultan Ahmed Mosque in Istanbul (1609–1617). Its plan grows from Şehzade, Sinan’s apprentice work.',
-      caption: 'The Sultan Ahmed Mosque, Istanbul.',
-    },
+    scale: 'Looking up in each mosque. Different lenses; not to scale.',
     detail: {
-      summary: 'One more detail: three stairs in one minaret',
+      open: 'One remarkable detail',
+      title: 'Three stairs in one minaret',
       text: 'Two of Selimiye’s minarets each hold three separate staircases, one to each balcony. Three people can climb at once without ever meeting.',
+      note: 'Schematic drawing, not to scale.',
+      close: 'Close',
       label:
-        'Diagram of a minaret cut open: three spiral staircases wind around each other, each ending at a different balcony.',
+        'Schematic drawing of a minaret cut open: three spiral staircases wind around each other, each ending at a different balcony.',
     },
+  },
+
+  legacy: {
+    label: 'After Sinan',
+    headline: 'His ideas outlived him.',
+    body: 'The architects he trained carried his work on. One of them, Sedefkâr Mehmed Ağa, designed the Sultan Ahmed Mosque in Istanbul (1609–1617).',
+    link: 'Its plan grows from Şehzade, Sinan’s apprentice work: a central dome braced by four half-domes.',
+    sehzade: 'Şehzade, 1548',
+    blue: 'Sultan Ahmed Mosque, 1609–1617',
   },
 
   name: {
     first: 'Mimar',
     last: 'Sinan',
     dates: 'c. 1490–1588',
-    synthesis: [
-      { term: 'Structure', text: 'He set a dome 31 metres wide on eight piers.' },
-      { term: 'Space', text: 'He kept one open room beneath it.' },
-      { term: 'Light', text: 'He opened its walls to daylight.' },
-    ],
+    summary:
+      'At Selimiye, structure, space and light became one building: a single great dome on eight piers, an open room beneath it, and walls full of windows.',
     facts: [
       'Chief architect of the Ottoman Empire for about fifty years',
       'Hundreds of buildings, from mosques to bridges and hospitals',
       'Teacher of the architects who came after him',
     ],
-    caption: 'Monument to Mimar Sinan in Edirne, near the Selimiye. A modern sculpture.',
   },
 
   epilogue: {
@@ -423,12 +422,14 @@ export const copy = {
       'The drawings of the dome and its supports are simplified illustrations of an idea. They are not engineering calculations.',
     imagesTitle: 'Photographs',
     sourcesTitle: 'Sources',
-    typeTitle: 'Type & making',
-    type: 'Set in Archivo and Newsreader. Drawings, sound and code made for this case study (Typography & Design), with AI-assisted implementation; see REDESIGN_RATIONALE.md.',
     back: 'Back to the epilogue',
     restart: 'Start again',
   },
 };
+
+/** How a looking-up photo from the lifetime scene is framed (reused by the legacy scene). */
+export const lifetimeFrame = (image: (typeof copy.lifetime.works)[number]['image']) =>
+  copy.lifetime.works.find((w) => w.image === image)!.frame;
 
 /* ------------------------------------------------------------------ */
 /* Images                                                              */
@@ -458,7 +459,7 @@ export const images = {
     src: '/images/people/mimar-sinan-monument-edirne',
     width: 3840,
     height: 5760,
-    alt: 'Bronze monument of Mimar Sinan in Edirne: a bearded man in a large turban and a long robe, seated, looking down at his hands.',
+    alt: 'The modern bronze monument to Mimar Sinan in Edirne: a bearded man in a large turban and a long robe, seated, looking down at his hands.',
     credit: {
       title: 'Mimar Sinan monument in 2024',
       author: 'Dosseman',
@@ -472,7 +473,7 @@ export const images = {
     src: '/images/people/mimar-sinan-monument-portrait',
     width: 1440,
     height: 1800,
-    alt: 'Close view of the bronze monument of Mimar Sinan in Edirne: his face, full beard and large turban, eyes lowered, against a clear sky.',
+    alt: 'Close view of the modern bronze monument to Mimar Sinan in Edirne: his face, full beard and large turban, eyes lowered, against a clear sky.',
     credit: {
       title: 'Mimar Sinan monument in 2024 (detail)',
       author: 'Dosseman',

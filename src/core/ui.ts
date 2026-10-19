@@ -89,11 +89,25 @@ export function setButtonLabel(btn: HTMLButtonElement, text: string): void {
   if (span) span.textContent = text;
 }
 
-/** Reveal an element that was hidden, with the shared entrance. */
-export function show(el: HTMLElement, delay = 0): void {
-  if (!el.hidden) return;
-  el.hidden = false;
-  enterText([el], delay);
+/**
+ * Reveal an element that already holds its place in the layout (class `is-waiting`: invisible
+ * but measured). Nothing around it moves: it only fades in where it has always been.
+ */
+export function reveal(el: HTMLElement, delay = 0): void {
+  if (!el.classList.contains('is-waiting')) return;
+  el.classList.remove('is-waiting');
+  if (reducedMotion()) {
+    gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3, delay });
+    return;
+  }
+  gsap.fromTo(el, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.7, ease: EASE.out, delay });
+}
+
+/** Put an element back into its waiting state (used by reset). */
+export function conceal(el: HTMLElement): void {
+  gsap.killTweensOf(el);
+  gsap.set(el, { clearProps: 'opacity,transform' });
+  el.classList.add('is-waiting');
 }
 
 /* --- Epilogue only: the word-by-word headline it has always had ----------- */

@@ -1,11 +1,15 @@
 /**
  * Scene 3 — Structure (and the first sight of Space).
- * The same cut-away hall, with the dome waiting above it. Three answers can be tried:
- *   four supports  → the rim hangs over empty space and pushes outwards (red marks);
- *   sixteen        → well carried, but a ring of columns fences off the middle of the room;
- *   Sinan's eight  → carried all the way round, and the whole floor stays one open room.
- * The shaded floor shows the room you would actually stand in. No meters, no scores: the
- * drawing shows the trade-off, and the text names it in one sentence.
+ * The same cut-away hall, with the dome waiting above it. Three numbers can be tried, all
+ * presented alike, so the visitor finds Sinan's answer rather than being shown it:
+ *   4  → long spans: the rim hangs over empty space and pushes outwards (red marks);
+ *   8  → Sinan's answer at Selimiye: carried all round, and the floor stays one room;
+ *   16 → well carried, but a ring of columns divides the floor.
+ * The shaded floor shows the room you would actually stand in. No meters, no scores.
+ *
+ * Layout stability: every explanation is rendered up front and stacked in one grid cell, so the
+ * cell is always as tall as the longest text; choosing a number only cross-fades between them.
+ * The Continue button keeps its place while it waits to appear.
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
@@ -14,7 +18,7 @@ import { announce } from '../core/announcer';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
-import { button, enterText, label, show, swapText, title as makeTitle } from '../core/ui';
+import { button, conceal, enterText, label, reveal, title as makeTitle } from '../core/ui';
 import { buildHall } from '../render/hall';
 
 export function createStructure(ctx: ChapterContext): Chapter {
@@ -24,20 +28,20 @@ export function createStructure(ctx: ChapterContext): Chapter {
   const title = makeTitle('h2', 'structure-title', t.headline);
   const body = h('p', { class: 'text' }, t.body);
 
-  // Three answers: a radio group with roving focus and large targets.
+  // Three numbers: a radio group with roving focus and identical buttons.
   const options = t.options.map((o, i) =>
     h(
       'button',
       {
         type: 'button',
         role: 'radio',
-        class: `choice__option${o.n === 8 ? ' choice__option--sinan' : ''}`,
+        class: 'choice__option',
         'aria-checked': 'false',
+        'aria-label': o.label,
         tabindex: i === 0 ? '0' : '-1',
         'data-n': o.n,
       },
-      h('span', { class: 'choice__n', 'aria-hidden': 'true' }, String(o.n)),
-      h('span', { class: 'choice__label' }, o.label),
+      String(o.n),
     ),
   );
   const group = h(
@@ -46,18 +50,27 @@ export function createStructure(ctx: ChapterContext): Chapter {
     ...options,
   );
 
-  const resultTitle = h('p', { class: 'result__title' }, t.empty);
-  const resultBody = h('p', { class: 'result__body' });
-  const result = h('div', { class: 'result', 'aria-live': 'polite' }, resultTitle, resultBody);
-  const other = h('p', { class: 'small structure__other', hidden: true }, t.other);
+  // One panel per state, stacked in the same cell; only the current one is visible.
+  const panel = (titleText: string, bodyText: string, key: string) =>
+    h(
+      'div',
+      { class: 'result__panel', 'data-key': key },
+      h('p', { class: 'result__title' }, titleText),
+      bodyText ? h('p', { class: 'result__body' }, bodyText) : null,
+    );
+  const panels = [
+    panel(t.empty, '', '0'),
+    ...t.options.map((o) => panel(o.title, o.body, String(o.n))),
+  ];
+  const result = h('div', { class: 'result' }, ...panels);
   const cont = button(copy.meta.continue, 'primary', '→');
-  cont.hidden = true;
+  const actions = h('div', { class: 'actions is-waiting' }, cont);
 
   const hall = buildHall('structure-figure-desc', '-structure');
   const figDesc = h('p', { id: 'structure-figure-desc', class: 'sr-only' }, t.figureLabel(0));
   const legend = h(
     'p',
-    { class: 'legend', hidden: true },
+    { class: 'legend' },
     h('span', { class: 'legend__swatch', 'aria-hidden': 'true' }),
     t.floor,
   );
@@ -80,17 +93,7 @@ export function createStructure(ctx: ChapterContext): Chapter {
     h(
       'div',
       { class: 'grid scene-split' },
-      h(
-        'div',
-        { class: 'col scene-split__text' },
-        top,
-        title.el,
-        body,
-        group,
-        result,
-        other,
-        h('div', { class: 'actions' }, cont),
-      ),
+      h('div', { class: 'col scene-split__text' }, top, title.el, body, group, result, actions),
       figure,
     ),
   );
@@ -104,32 +107,33 @@ export function createStructure(ctx: ChapterContext): Chapter {
 
   let current = 0;
 
+  function showPanel(n: number, animate: boolean): void {
+    panels.forEach((p) => {
+      const on = p.dataset.key === String(n);
+      p.classList.toggle('is-current', on);
+      p.setAttribute('aria-hidden', String(!on));
+      if (on && animate && !reducedMotion()) {
+        gsap.fromTo(p, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.45, ease: EASE.out });
+      } else {
+        gsap.set(p, { clearProps: 'opacity,transform' });
+      }
+    });
+  }
+
   function choose(n: number, animate = true): void {
     if (n === current) return;
     current = n;
-    const o = t.options.find((x) => x.n === n);
     options.forEach((btn) => {
       const on = Number(btn.dataset.n) === n;
       btn.setAttribute('aria-checked', String(on));
       btn.tabIndex = on ? 0 : -1;
     });
+    if (n === 0) options[0].tabIndex = 0;
 
     const parts = hall.setSupports(n);
     figDesc.textContent = t.figureLabel(n);
-    legend.hidden = n === 0;
-
-    if (!o) {
-      resultTitle.textContent = t.empty;
-      resultBody.textContent = '';
-      return;
-    }
-    if (animate) {
-      swapText(resultTitle, o.title);
-      swapText(resultBody, o.body);
-    } else {
-      resultTitle.textContent = o.title;
-      resultBody.textContent = o.body;
-    }
+    legend.classList.toggle('is-off', n === 0);
+    showPanel(n, animate);
 
     if (animate && !reducedMotion()) {
       // Supports rise from the floor; the open floor and any push marks follow.
@@ -150,12 +154,12 @@ export function createStructure(ctx: ChapterContext): Chapter {
     }
 
     if (!animate) return;
+    const o = t.options.find((x) => x.n === n)!;
     audio.tick(n === 8 ? 1 : 0.8);
     announce(`${o.title}. ${o.body}`);
     if (n === 8) {
       audio.lock();
-      show(other, 0.5);
-      show(cont, 0.7);
+      reveal(actions, 0.5);
     }
   }
 
@@ -176,6 +180,8 @@ export function createStructure(ctx: ChapterContext): Chapter {
     });
   });
   cont.addEventListener('click', () => ctx.next());
+  showPanel(0, false);
+  legend.classList.add('is-off');
 
   return {
     id: 'structure',
@@ -195,9 +201,7 @@ export function createStructure(ctx: ChapterContext): Chapter {
     leave() {},
     reset() {
       choose(0, false);
-      other.hidden = true;
-      cont.hidden = true;
-      options[0].tabIndex = 0;
+      conceal(actions);
     },
     focusTarget: () => title.el,
   };

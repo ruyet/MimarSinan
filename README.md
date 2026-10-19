@@ -7,9 +7,10 @@ Empire for about fifty years, told through his masterwork, the **Selimiye Mosque
 > The visitor meets Mimar Sinan at the beginning, experiences his thinking through his
 > masterpiece, and returns to him at the end — when his name carries meaning.
 
-The redesign (branch `redesign/sinan-story`) and the reasons behind every decision are
-documented in [`REDESIGN_RATIONALE.md`](REDESIGN_RATIONALE.md). The first version is tagged
-`original-v1`.
+The redesign and the reasons behind every decision are documented in
+[`REDESIGN_RATIONALE.md`](REDESIGN_RATIONALE.md). Milestones are tagged: `original-v1` (first
+version), `v2.0-feedback-stan-bardt` (redesign after the teachers' feedback), and the refinement
+round on branch `refine/final-polish`.
 
 ## Run
 
@@ -24,7 +25,7 @@ npm run lint
 **For user tests:**
 
 - Deep links jump to a scene: `/#sinan`, `/#challenge`, `/#structure`, `/#light`, `/#reveal`,
-  `/#inside`, `/#lifetime`, `/#name`, `/#epilogue`, `/#credits`.
+  `/#inside`, `/#lifetime`, `/#legacy`, `/#name`, `/#epilogue`, `/#credits`.
 - `?reduced-motion` forces the reduced-motion experience, e.g. `/?reduced-motion#reveal`.
 - `?annotate=1` overlays a grid and the raw annotation shapes on the photos.
 
@@ -35,21 +36,22 @@ Netlify (`netlify.toml`) and Vercel (`vercel.json`) are both configured. They bu
 
 ## The story
 
-Three ideas explain part of Sinan's mastery — **Structure, Space, Light** — but the subject is
-the man. Eight scenes and an epilogue:
+Three ideas explain part of Sinan's mastery (**Structure, Space, Light**), but the subject is
+the man. Nine scenes and an epilogue:
 
-| #   | Scene         | What happens                                                                        | Idea             |
-| --- | ------------- | ----------------------------------------------------------------------------------- | ---------------- |
-| 1   | Mimar Sinan   | His name, his monument, two sentences: fifty years, one masterwork. Begin.          | —                |
-| 2   | The challenge | A hall is drawn, a 31 m dome hovers above it. Let it fall: it needs support.        | —                |
-| 3   | Structure     | Try four, sixteen or Sinan's eight supports; the drawing shows the trade-off.       | Structure, Space |
-| 4   | Light         | The same hall: open the walls between the piers; light floods in.                   | Light            |
-| 5   | Look up       | The plan turns into the real dome, in an octagon frame on the piers; a guided look. | all three        |
-| 6   | Space         | The prayer hall, full bleed. Optional: show only the windows.                       | Space, Light     |
-| 7   | A lifetime    | Look up in Şehzade, Süleymaniye, Selimiye; one line of legacy; one optional detail. | —                |
-| 8   | Remember him  | His name again, a closer portrait, and what he did in three sentences.              | recap            |
-| —   | Epilogue      | "He didn't just hold up the sky. He let the light in."                              | —                |
-| —   | Sources       | Every photo and text source, generated from `content.ts`.                           | —                |
+| #   | Scene         | What happens                                                                           | Idea             |
+| --- | ------------- | -------------------------------------------------------------------------------------- | ---------------- |
+| 1   | Mimar Sinan   | His name, his monument, two sentences: fifty years, one masterwork. Begin.             | —                |
+| 2   | The challenge | A hall is drawn, a 31 m dome hovers above it. Let it fall: it needs support.           | —                |
+| 3   | Structure     | Try 4, 8 or 16 supports; choosing 8 reveals Sinan's answer.                            | Structure, Space |
+| 4   | Light         | The same hall: open the walls between the piers; light floods in.                      | Light            |
+| 5   | Look up       | The plan turns into the real dome (octagon frame on the piers); three ideas, in turn.  | all three        |
+| 6   | Space         | The prayer hall, full bleed; the windows are highlighted once, then on demand.         | Space, Light     |
+| 7   | A lifetime    | Look up in Şehzade, Süleymaniye, Selimiye. Optional: three stairs in one minaret.      | —                |
+| 8   | After Sinan   | The architects he trained; the Sultan Ahmed Mosque, whose plan grows from Şehzade.     | —                |
+| 9   | Remember him  | His name again, a closer portrait, and one sentence on what came together at Selimiye. | recap            |
+| —   | Epilogue      | "He didn't just hold up the sky. He let the light in."                                 | —                |
+| —   | Sources       | Every photo and text source, generated from `content.ts`.                              | —                |
 
 ## Stack
 

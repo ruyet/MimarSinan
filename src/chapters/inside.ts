@@ -2,8 +2,11 @@
  * Scene 6 — Space, at eye level. After looking up, the visitor looks around: one photograph of
  * the prayer hall, full bleed. The whole floor is one room under one dome.
  *
- * One optional control demonstrates where the light comes from: "Show only the windows" darkens
- * the photograph except its windows (a photo that teaches, rather than decorates).
+ * The photograph demonstrates where the light comes from, once, by itself: shortly after it is
+ * visible, everything but the windows darkens for about two seconds, then the clean photo
+ * returns. The same effect stays available as a toggle. The demonstration runs once per visit to
+ * the scene, never overrides a choice the visitor has made, is cancelled by any click on the
+ * toggle, and is skipped under reduced motion (the text says the same thing).
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
@@ -54,6 +57,8 @@ export function createInside(ctx: ChapterContext): Chapter {
   let prepared = false;
   let annot: Annotator | null = null;
   let windowsOnly = false;
+  let demo: gsap.core.Tween[] = [];
+  let visit = 0;
 
   function setWindowsOnly(on: boolean): void {
     windowsOnly = on;
@@ -62,7 +67,40 @@ export function createInside(ctx: ChapterContext): Chapter {
     if (on) announce(insideWindows.text);
   }
 
-  toggle.addEventListener('click', () => setWindowsOnly(!windowsOnly));
+  function stopDemo(): void {
+    demo.forEach((d) => d.kill());
+    demo = [];
+  }
+
+  /** Resolves once the photograph has decoded (or after 3 s, so it never waits forever). */
+  function photoReady(): Promise<void> {
+    const img = media.querySelector('img');
+    if (!img) return Promise.resolve();
+    const ready = img.complete
+      ? img.decode().catch(() => {})
+      : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true }));
+    return Promise.race([ready, new Promise<void>((r) => setTimeout(r, 3000))]);
+  }
+
+  function playDemo(): void {
+    if (reducedMotion() || windowsOnly) return;
+    const id = ++visit;
+    void photoReady().then(() => {
+      // Still the same visit, and the visitor has not taken over?
+      if (id !== visit || windowsOnly) return;
+      demo = [
+        gsap.delayedCall(0.8, () => annot?.show(insideWindows)),
+        gsap.delayedCall(0.8 + 2.2, () => {
+          if (!windowsOnly) annot?.show(null);
+        }),
+      ];
+    });
+  }
+
+  toggle.addEventListener('click', () => {
+    stopDemo();
+    setWindowsOnly(!windowsOnly);
+  });
   cont.addEventListener('click', () => ctx.next());
 
   return {
@@ -85,6 +123,7 @@ export function createInside(ctx: ChapterContext): Chapter {
       audio.setMood('room');
       annot?.update();
       enterText([top, title.el, body, toggle.parentElement], 0.3);
+      playDemo();
       if (!reducedMotion()) {
         // The camera lowers its gaze: a slow settle from slightly above.
         gsap.fromTo(
@@ -94,8 +133,13 @@ export function createInside(ctx: ChapterContext): Chapter {
         );
       }
     },
-    leave() {},
+    leave() {
+      visit++;
+      stopDemo();
+      if (!windowsOnly) annot?.show(null);
+    },
     reset() {
+      stopDemo();
       setWindowsOnly(false);
     },
     focusTarget: () => title.el,

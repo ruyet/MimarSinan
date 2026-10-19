@@ -1,12 +1,12 @@
 /**
- * Scene 7 — A lifetime (the achievement, and what came after).
- * Selimiye was not a lucky stroke but the end of a long line of work. Sinan himself named three
- * stages: apprentice (Şehzade), journeyman (Süleymaniye), master (Selimiye). The visitor looks
- * up in all three, in the same circular frame as the reveal, and can see the half-domes give way
- * to a single dome over one room.
+ * Scene 7 — A lifetime. Selimiye was not a lucky stroke but the end of decades of work. Sinan
+ * himself named three stages: apprentice (Şehzade), journeyman (Süleymaniye), master (Selimiye).
+ * The visitor looks up in all three, in the same frame as the reveal, and can see the half-domes
+ * give way to a single dome over one room. His age belongs to the story, so it is in the intro,
+ * not attached to one card.
  *
- * Then one short, tangible line of legacy — an architect he trained, and the Sultan Ahmed Mosque,
- * whose plan grows from Şehzade — and one optional discovery: three stairs in one minaret.
+ * One page, one idea. The legacy is its own scene (legacy.ts). The minaret stairs stay as an
+ * optional detail in a dialog, so they never crowd the comparison.
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
@@ -22,7 +22,7 @@ export function createLifetime(ctx: ChapterContext): Chapter {
 
   const top = label(t.label);
   const title = makeTitle('h2', 'lifetime-title', t.headline);
-  const body = h('p', { class: 'text' }, t.body);
+  const body = h('p', { class: 'text lifetime__body' }, t.body);
 
   const works = t.works.map((w) => {
     const frame = h('div', { class: 'work__frame' });
@@ -31,7 +31,7 @@ export function createLifetime(ctx: ChapterContext): Chapter {
     frame.style.setProperty('--cy', `${w.frame.cy}%`);
     const item = h(
       'li',
-      { class: `work${w.stage === 'Master' ? ' work--master' : ''}` },
+      { class: 'work' },
       frame,
       h(
         'div',
@@ -39,9 +39,8 @@ export function createLifetime(ctx: ChapterContext): Chapter {
         h(
           'p',
           { class: 'work__meta' },
-          h('span', { class: 'work__year' }, w.year),
-          ' ',
           h('span', { class: 'work__stage' }, w.stage),
+          h('span', { class: 'work__year' }, w.year),
         ),
         h('h3', { class: 'work__name' }, w.name),
         h('p', { class: 'work__line' }, w.text),
@@ -50,37 +49,43 @@ export function createLifetime(ctx: ChapterContext): Chapter {
     return { item, frame, image: w.image };
   });
   const list = h('ol', { class: 'works' }, ...works.map((w) => w.item));
-  const scaleNote = h('p', { class: 'small works__note' }, t.scale);
 
-  // After Sinan: one architect, one building, one link back to the apprentice work.
-  const afterMedia = h('div', { class: 'after__media' });
-  const after = h(
-    'figure',
-    { class: 'after' },
-    afterMedia,
-    h(
-      'figcaption',
-      { class: 'after__text' },
-      h('p', { class: 'label' }, t.after.label),
-      h('p', { class: 'after__body' }, t.after.text),
-      h('p', { class: 'small' }, t.after.caption),
-    ),
-  );
-
-  // Optional: the minaret stairs.
-  const detail = h(
-    'details',
-    { class: 'detail' },
-    h('summary', { class: 'detail__summary' }, t.detail.summary),
+  // Optional: one remarkable detail of Selimiye, in a dialog that covers nothing permanently.
+  const d = t.detail;
+  const close = button(d.close, 'ghost');
+  const dialog = h(
+    'dialog',
+    { class: 'detail', 'aria-labelledby': 'detail-title' },
     h(
       'div',
       { class: 'detail__body' },
-      minaretDiagram(t.detail.label),
-      h('p', { class: 'detail__text' }, t.detail.text),
+      minaretDiagram(d.label),
+      h(
+        'div',
+        { class: 'detail__text' },
+        h('h3', { id: 'detail-title', class: 'detail__title' }, d.title),
+        h('p', {}, d.text),
+        h('p', { class: 'small' }, d.note),
+        h('div', { class: 'actions' }, close),
+      ),
     ),
   );
+  const openDetail = button(d.open, 'ghost', '+');
+  openDetail.setAttribute('aria-haspopup', 'dialog');
+  openDetail.addEventListener('click', () => dialog.showModal());
+  close.addEventListener('click', () => dialog.close());
+  // A click on the backdrop (the dialog element itself, outside its content) closes it too.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
 
   const cont = button(copy.meta.continue, 'primary', '→');
+  const foot = h(
+    'div',
+    { class: 'lifetime__foot' },
+    h('p', { class: 'small' }, t.scale),
+    h('div', { class: 'actions' }, openDetail, cont),
+  );
 
   const el = h(
     'section',
@@ -89,10 +94,10 @@ export function createLifetime(ctx: ChapterContext): Chapter {
       'div',
       { class: 'grid lifetime__grid' },
       h('header', { class: 'col lifetime__head' }, top, title.el, body),
-      h('div', { class: 'lifetime__works' }, list, scaleNote),
-      h('div', { class: 'lifetime__after' }, after),
-      h('div', { class: 'lifetime__detail' }, detail, h('div', { class: 'actions' }, cont)),
+      list,
+      foot,
     ),
+    dialog,
   );
 
   cont.addEventListener('click', () => ctx.next());
@@ -107,37 +112,31 @@ export function createLifetime(ctx: ChapterContext): Chapter {
       prepared = true;
       works.forEach((w) =>
         w.frame.append(
-          picture(w.image, { sizes: '(min-width: 64rem) 30vw, 80vw', className: 'work__photo' }),
+          picture(w.image, { sizes: '(min-width: 64rem) 28vw, 80vw', className: 'work__photo' }),
         ),
       );
-      afterMedia.append(picture('sultanAhmed', { sizes: '(min-width: 64rem) 20vw, 60vw' }));
     },
     enter() {
       audio.setMood('stone');
       enterText([top, title.el, body]);
+      const items = works.map((w) => w.item);
       if (reducedMotion()) {
-        gsap.fromTo(
-          [list, scaleNote, after, detail.parentElement],
-          { opacity: 0 },
-          { opacity: 1, duration: 0.5 },
-        );
+        gsap.fromTo([...items, foot], { opacity: 0 }, { opacity: 1, duration: 0.5 });
         return;
       }
       // The three works arrive in order, left to right: the passage of time.
       gsap.fromTo(
-        works.map((w) => w.item),
+        items,
         { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.9, ease: EASE.out, stagger: 0.25, delay: 0.3 },
+        { opacity: 1, y: 0, duration: 0.9, ease: EASE.out, stagger: 0.35, delay: 0.3 },
       );
-      gsap.fromTo(
-        [scaleNote, after, detail.parentElement],
-        { opacity: 0 },
-        { opacity: 1, duration: 0.8, ease: EASE.out, delay: 1.2, stagger: 0.1 },
-      );
+      gsap.fromTo(foot, { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 1.4 });
     },
-    leave() {},
+    leave() {
+      if (dialog.open) dialog.close();
+    },
     reset() {
-      detail.open = false;
+      if (dialog.open) dialog.close();
     },
     focusTarget: () => title.el,
   };

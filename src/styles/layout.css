@@ -120,17 +120,17 @@
 
 .progress__step::before {
   content: '';
-  width: 20px;
-  height: 2px;
+  width: 22px;
+  height: 3px;
   background: currentColor;
-  opacity: 0.22;
+  opacity: 0.3;
   transition:
     opacity var(--dur-med) var(--ease-out),
     background-color var(--dur-med) var(--ease-out);
 }
 
 .progress__step.is-visited::before {
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .progress__step[aria-current='step']::before {
@@ -143,7 +143,7 @@
 }
 
 .progress__step:disabled::before {
-  opacity: 0.12;
+  opacity: 0.18;
 }
 
 .progress__step:not(:disabled):hover::before {

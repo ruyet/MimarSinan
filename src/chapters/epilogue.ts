@@ -84,6 +84,8 @@ export function createEpilogue(ctx: ChapterContext): Chapter {
         return;
       }
       motes.start();
+      // The headline words start hidden on the very first frame; they rise at 0.9 s.
+      gsap.set(title.words, { yPercent: 105, opacity: 0 });
       gsap
         .timeline()
         .fromTo(light, { opacity: 0 }, { opacity: 1, duration: 2.4, ease: EASE.soft }, 0)

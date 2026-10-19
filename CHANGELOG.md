@@ -1,5 +1,23 @@
 # Changelog
 
+## Refinement round (branch `refine/final-polish`)
+
+See `REDESIGN_RATIONALE.md` §16 for reasons and measurements.
+
+- **Stability:** support choices, the light conclusion and the reveal's lines no longer move
+  the layout (all reserved up front); scenes enter on the first frame of the crossfade, so
+  nothing flashes in its final state; the epilogue words start hidden.
+- **Structure:** options 4 / 8 / 16, identical; "Sinan's answer" appears only after choosing 8;
+  the generic "many ways" paragraph is gone.
+- **Reveal:** photograph → three ideas in turn → "Look around"; waits for the photo to decode.
+- **Space:** the window highlight plays once automatically, then stays available as a toggle.
+- **Lifetime / After Sinan:** split into two scenes; age moved into the story; the minaret
+  stairs moved into an optional dialog.
+- **Ending:** one sentence about Selimiye instead of three rows; no captions.
+- **Credits:** "Type & making" removed from the public page.
+- **System:** one control style; clearer progress ticks; larger small text; reduced motion uses
+  zero-length transitions; compact rules for 1280 × 720.
+
 ## Redesign: Mimar Sinan as the protagonist (branch `redesign/sinan-story`)
 
 A complete redesign after feedback from Stan and Bardt and the student's own review. The full

@@ -33,7 +33,7 @@
   --font-text: 'Newsreader', 'Iowan Old Style', Georgia, serif;
 
   /* Fluid scale; the display steps keep growing on very wide screens. */
-  --step--1: clamp(0.78rem, 0.75rem + 0.12vw, 0.9rem);
+  --step--1: clamp(0.8rem, 0.76rem + 0.12vw, 0.92rem);
   --step-0: clamp(1.05rem, 0.98rem + 0.3vw, 1.3rem);
   --step-1: clamp(1.2rem, 1.05rem + 0.6vw, 1.75rem);
   --step-2: clamp(1.6rem, 1.2rem + 1.5vw, 2.8rem);
