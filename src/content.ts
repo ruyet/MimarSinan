@@ -73,6 +73,26 @@ export const sources = {
     label: 'Archnet, “Sedefkâr Mehmed Ağa”',
     url: 'https://archnet.org/authorities/1269',
   },
+  wikipediaRustem: {
+    label: 'Wikipedia, “Rüstem Pasha Mosque”',
+    url: 'https://en.wikipedia.org/wiki/R%C3%BCstem_Pasha_Mosque',
+  },
+  wikipediaVisegrad: {
+    label: 'Wikipedia, “Mehmed Paša Sokolović Bridge”',
+    url: 'https://en.wikipedia.org/wiki/Mehmed_Pa%C5%A1a_Sokolovi%C4%87_Bridge',
+  },
+  unescoVisegrad: {
+    label: 'UNESCO World Heritage Centre, “Mehmed Paša Sokolović Bridge in Višegrad”',
+    url: 'https://whc.unesco.org/en/list/1260/',
+  },
+  wikipediaMuradiye: {
+    label: 'Wikipedia, “Muradiye Mosque, Manisa” (citing Necipoğlu 2005)',
+    url: 'https://en.wikipedia.org/wiki/Muradiye_Mosque,_Manisa',
+  },
+  tdvMuradiye: {
+    label: 'TDV İslâm Ansiklopedisi, “Murâdiye Külliyesi (Manisa)”',
+    url: 'https://islamansiklopedisi.org.tr/muradiye-kulliyesi--manisa',
+  },
   wikipediaBlueMosque: {
     label: 'Wikipedia, “Blue Mosque, Istanbul” (citing Blair & Bloom)',
     url: 'https://en.wikipedia.org/wiki/Blue_Mosque,_Istanbul',
@@ -102,6 +122,11 @@ export const facts = {
   sinanEngineer: {
     title: 'From military engineer to architect',
     text: 'Before he became chief architect, Sinan served in the army as a military engineer.',
+    sources: ['wikipediaSinan'],
+  },
+  sinanAppointed: {
+    title: 'Chief architect from 1539',
+    text: 'In 1539 the grand vizier Lütfi Pasha appointed Sinan chief architect of the court.',
     sources: ['wikipediaSinan'],
   },
   sinanRole: {
@@ -189,11 +214,28 @@ export const facts = {
     sources: ['wikipediaSinan'],
   },
 
+  /* --- Other works on the timeline ----------------------------------------- */
+  rustem: {
+    title: 'Rüstem Pasha Mosque',
+    text: 'The Rüstem Pasha Mosque in Istanbul, designed by Sinan, was built 1561–1563.',
+    sources: ['wikipediaRustem'],
+  },
+  visegrad: {
+    title: 'The bridge at Višegrad',
+    text: 'The Mehmed Paša Sokolović Bridge over the Drina at Višegrad (Bosnia and Herzegovina), designed by Sinan, was built 1571–1577. A UNESCO World Heritage Site since 2007.',
+    sources: ['wikipediaVisegrad', 'unescoVisegrad'],
+  },
+  muradiye: {
+    title: 'The Muradiye in Manisa',
+    text: 'The Muradiye Mosque in Manisa (1583–1586) was designed by Sinan for Sultan Murad III and built by Mahmud Halife and, from January 1586, by Sedefkâr Mehmed Ağa.',
+    sources: ['wikipediaMuradiye', 'tdvMuradiye'],
+  },
+
   /* --- Legacy ------------------------------------------------------------ */
   sedefkar: {
     title: 'Sedefkâr Mehmed Ağa',
-    text: 'Sedefkâr Mehmed Ağa trained among the imperial architects under Sinan and his successors, and became chief imperial architect in 1606.',
-    sources: ['tdvSedefkar', 'archnet'],
+    text: 'Sedefkâr Mehmed Ağa was one of the architects trained by Sinan. He took over the building of Sinan’s Muradiye Mosque in Manisa in 1586 and became chief imperial architect in 1606.',
+    sources: ['tdvSedefkar', 'archnet', 'wikipediaMuradiye'],
   },
   sultanAhmed: {
     title: 'The Sultan Ahmed Mosque',
@@ -292,13 +334,13 @@ export const copy = {
         n: 4,
         label: 'Four supports',
         title: 'Four supports',
-        body: 'Long spans between them. In this simplified drawing the dome’s edge hangs over empty space and pushes outwards.',
+        body: 'Big gaps between them. In this simplified drawing, the dome’s edge hangs over empty space there and pushes outwards.',
       },
       {
         n: 8,
         label: 'Eight supports',
         title: 'Eight: Sinan’s answer',
-        body: 'At Selimiye, eight piers stand close to the walls. The dome is held all the way round, and the floor stays one open room.',
+        body: 'Sinan used eight piers: massive stone pillars, close to the walls. They hold the dome all the way round, and the floor stays one open room.',
       },
       {
         n: 16,
@@ -318,7 +360,7 @@ export const copy = {
   light: {
     label: 'Light',
     headline: 'Free walls can open.',
-    body: 'The eight piers carry the dome, so the walls between them can be opened for windows.',
+    body: 'The eight piers carry the dome. The walls between them hold up much less, so Sinan could fill them with windows.',
     control: 'Open the walls',
     levels: ['Closed', 'One row open', 'Two rows open', 'Three rows open', 'Dome windows open'],
     closing: 'Sinan’s structure filled the room with daylight.',
@@ -346,14 +388,14 @@ export const copy = {
   lifetime: {
     label: 'A lifetime',
     headline: 'It took him a lifetime.',
-    body: 'Sinan called three of his mosques his apprentice work, his journeyman work and his masterwork. The last came after decades of building, when he was in his eighties.',
+    body: 'Sinan called three of his mosques his apprentice work, his journeyman work and his masterwork. Look up in each: the half-domes, smaller domes that lean against the main one, give way to a single dome.',
     works: [
       {
         image: 'sehzadeDomes' as const,
         year: '1548',
         name: 'Şehzade',
         stage: 'Apprentice',
-        text: 'A dome braced by four half-domes',
+        text: 'A main dome held up by four half-domes',
         /** Where the main dome sits in the photo, and how much to show around it (% of width). */
         frame: { cx: 49, cy: 45, r: 42 },
       },
@@ -362,7 +404,7 @@ export const copy = {
         year: '1557',
         name: 'Süleymaniye',
         stage: 'Journeyman',
-        text: 'A dome extended by two half-domes',
+        text: 'A main dome with two half-domes',
         frame: { cx: 49, cy: 41.5, r: 41 },
       },
       {
@@ -370,11 +412,32 @@ export const copy = {
         year: '1575',
         name: 'Selimiye',
         stage: 'Master',
-        text: 'One dome on eight piers',
+        text: 'One dome on eight piers, built in his eighties',
         frame: { cx: 51.4, cy: 53.7, r: 46 },
       },
     ],
-    scale: 'Looking up in each mosque. Different lenses; not to scale.',
+    /**
+     * The timeline under the three photos: fifty years in one line. `major` works are the three
+     * above; the others show the range of his work and that Selimiye was not his last.
+     */
+    lineage: {
+      label: 'Fifty years as chief architect',
+      from: 1539,
+      to: 1588,
+      items: [
+        { year: 1539, name: 'Becomes chief architect', place: '' },
+        { year: 1548, name: 'Şehzade', place: '', major: true },
+        { year: 1557, name: 'Süleymaniye', place: '', major: true },
+        { year: 1563, name: 'Rüstem Pasha Mosque', place: 'Istanbul' },
+        { year: 1575, name: 'Selimiye', place: '', major: true },
+        { year: 1577, name: 'Bridge over the Drina', place: 'Višegrad, Bosnia' },
+        { year: 1586, name: 'Muradiye Mosque', place: 'Manisa' },
+        { year: 1588, name: 'Dies in Istanbul', place: '', major: true },
+      ],
+      scale:
+        'Hundreds of works are attributed to Sinan and the architects he led: mosques, bridges, schools, baths, hospitals.',
+    },
+    scale: 'Photographs: looking up in each mosque, with different lenses; not to scale.',
     detail: {
       open: 'One remarkable detail',
       title: 'Three stairs in one minaret',
@@ -388,11 +451,16 @@ export const copy = {
 
   legacy: {
     label: 'After Sinan',
-    headline: 'His ideas outlived him.',
-    body: 'The architects he trained carried his work on. One of them, Sedefkâr Mehmed Ağa, designed the Sultan Ahmed Mosque in Istanbul (1609–1617).',
-    link: 'Its plan grows from Şehzade, Sinan’s apprentice work: a central dome braced by four half-domes.',
+    headline: 'His work ended. His influence did not.',
+    body: 'Sinan trained the architects who came after him. One of them, Sedefkâr Mehmed Ağa, finished building Sinan’s Muradiye Mosque, then designed the Sultan Ahmed Mosque in Istanbul.',
+    link: 'Its plan grows from Şehzade, Sinan’s apprentice work: a main dome held up by four half-domes.',
     sehzade: 'Şehzade, 1548',
-    blue: 'Sultan Ahmed Mosque, 1609–1617',
+    blue: 'Sultan Ahmed Mosque, Istanbul, 1609–1617',
+    lineage: [
+      { year: '1586', name: 'His pupil finishes the Muradiye' },
+      { year: '1588', name: 'Sinan dies' },
+      { year: '1609–1617', name: 'The pupil’s Sultan Ahmed Mosque' },
+    ],
   },
 
   name: {
@@ -615,7 +683,7 @@ export const revealAnnotations: Annotation[] = [
   {
     id: 'reveal-piers',
     label: 'Structure',
-    text: 'Eight piers carry the dome. They stand where the striped arches meet.',
+    text: 'The eight piers, massive stone pillars, carry the dome. They stand where the striped arches meet.',
     shapes: [{ kind: 'poly', points: pierPoints(revealAlignment.pierRadius) }],
     spot: pierPoints(revealAlignment.pierRadius).map(([cx, cy]) => ({
       kind: 'ellipse',
@@ -634,7 +702,7 @@ export const revealAnnotations: Annotation[] = [
   {
     id: 'reveal-dome',
     label: 'Space',
-    text: 'One dome, about 31 metres across, over a single undivided room.',
+    text: 'One dome, about 31 metres across, over one open room.',
     shapes: [
       {
         kind: 'ellipse',

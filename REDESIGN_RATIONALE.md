@@ -411,3 +411,12 @@ and the light layer, both inside clipped containers; the document never scrolls 
 - Visual checks were made with browser automation in a hidden browser pane, where images and
   timers are throttled. Layout was measured by script; some screenshots were taken before
   photographs had painted.
+
+---
+
+## 17. Iteration after the first usability test
+
+Four participants tested `v2.1-final-polish`. Their responses, the problems found, and the
+changes made (the step 5 reliability fix, a central Back control, plainer terms, a career
+timeline, and a clearer legacy link) are documented in
+[`USABILITY_ITERATION_2.md`](USABILITY_ITERATION_2.md).

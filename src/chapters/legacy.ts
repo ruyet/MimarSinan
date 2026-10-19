@@ -39,6 +39,20 @@ export function createLegacy(ctx: ChapterContext): Chapter {
     ),
   );
 
+  // The line from the previous scene continues past his death: three steps, in order.
+  const after = h(
+    'ol',
+    { class: 'after-line', 'aria-label': 'After Sinan' },
+    ...t.lineage.map((it) =>
+      h(
+        'li',
+        {},
+        h('span', { class: 'lineage__year' }, it.year),
+        h('span', { class: 'lineage__name' }, it.name),
+      ),
+    ),
+  );
+
   const cont = button(copy.meta.continue, 'primary', '→');
   const media = h('div', { class: 'legacy__media' });
   const figure = h(
@@ -59,6 +73,7 @@ export function createLegacy(ctx: ChapterContext): Chapter {
         { class: 'col legacy__text' },
         top,
         title.el,
+        after,
         body,
         link,
         h('div', { class: 'actions' }, cont),
@@ -82,7 +97,7 @@ export function createLegacy(ctx: ChapterContext): Chapter {
     },
     enter() {
       audio.setMood('stone');
-      enterText([top, title.el, body, link, cont.parentElement]);
+      enterText([top, title.el, after, body, link, cont.parentElement]);
       if (!reducedMotion()) {
         gsap.fromTo(figure, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: EASE.soft });
       }

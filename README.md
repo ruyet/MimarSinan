@@ -10,7 +10,8 @@ Empire for about fifty years, told through his masterwork, the **Selimiye Mosque
 The redesign and the reasons behind every decision are documented in
 [`REDESIGN_RATIONALE.md`](REDESIGN_RATIONALE.md). Milestones are tagged: `original-v1` (first
 version), `v2.0-feedback-stan-bardt` (redesign after the teachers' feedback), and the refinement
-round on branch `refine/final-polish`.
+round on branch `refine/final-polish`. Changes after the first usability test (4 participants)
+are in [`USABILITY_ITERATION_2.md`](USABILITY_ITERATION_2.md) (branch `iteration/user-test-2`).
 
 ## Run
 

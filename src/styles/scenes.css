@@ -757,7 +757,7 @@
 
 .work__frame {
   position: relative;
-  width: min(100%, 40dvh);
+  width: min(100%, 31dvh);
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
@@ -1289,7 +1289,7 @@
   }
 
   .work__frame {
-    width: min(100%, 34dvh);
+    width: min(100%, 26dvh);
   }
 
   .lifetime__grid {
@@ -1300,7 +1300,11 @@
 /* --- Very short desktop screens (e.g. 1280 × 720) ------------------------------------------ */
 @media (min-width: 64rem) and (max-height: 760px) {
   .work__frame {
-    width: min(100%, 27dvh);
+    width: min(100%, 18dvh);
+  }
+
+  .work__line {
+    font-size: var(--step--1);
   }
 
   .work {
@@ -1351,5 +1355,251 @@
   .light .scene-split > .figure {
     position: static;
     background: none;
+  }
+}
+
+/* --- Lineage: Sinan's fifty years in one line (lifetime), continued after him (legacy) ---- */
+
+.lineage {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-s);
+}
+
+.lineage__track {
+  position: relative;
+  height: 6.5rem;
+  margin-inline: 0.5rem;
+}
+
+.lineage__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2.6rem;
+  height: 2px;
+  background: var(--fg);
+}
+
+.lineage__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lineage__item {
+  position: absolute;
+  left: var(--x);
+  top: 2.6rem;
+  display: grid;
+  justify-items: center;
+  width: max-content;
+  max-width: 11rem;
+  padding-top: 0.75rem;
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: var(--font-display);
+  line-height: 1.2;
+}
+
+/* The dot on the line. */
+.lineage__item::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--fg);
+}
+
+/* The three works above, and his death, sit above the line, larger. */
+.lineage__item.is-major {
+  top: auto;
+  bottom: calc(100% - 2.6rem);
+  padding: 0 0 0.75rem;
+}
+
+.lineage__item.is-major::before {
+  top: auto;
+  bottom: -6px;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.lineage__item.is-start {
+  justify-items: start;
+  transform: translateX(-5px);
+  text-align: left;
+}
+
+.lineage__item.is-start::before {
+  left: 5px;
+}
+
+.lineage__item.is-end {
+  justify-items: end;
+  transform: translateX(calc(-100% + 5px));
+  text-align: right;
+}
+
+.lineage__item.is-end::before {
+  left: calc(100% - 5px);
+}
+
+.lineage__year {
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.lineage__name {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.lineage__item.is-major .lineage__name {
+  font-size: var(--step-0);
+  font-weight: 700;
+  font-stretch: 85%;
+}
+
+.lineage__place {
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.lineage__scale {
+  max-width: 60ch;
+}
+
+/* On narrow screens the line runs down the page instead. */
+@media (max-width: 47.99rem) {
+  .lineage__track {
+    height: auto;
+    margin: 0;
+  }
+
+  .lineage__line {
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .lineage__items {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .lineage__item,
+  .lineage__item.is-major,
+  .lineage__item.is-start,
+  .lineage__item.is-end {
+    position: relative;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    justify-items: start;
+    max-width: none;
+    padding: 0 0 0 1.5rem;
+    transform: none;
+    text-align: left;
+  }
+
+  .lineage__item::before,
+  .lineage__item.is-major::before,
+  .lineage__item.is-start::before,
+  .lineage__item.is-end::before {
+    top: 0.3rem;
+    bottom: auto;
+    left: 0;
+    margin-left: 0;
+  }
+}
+
+/* Legacy: the same line, continued past his death. */
+.after-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-l);
+  margin: 0;
+  padding: var(--space-s) 0 0;
+  list-style: none;
+  border-top: 2px solid var(--fg);
+}
+
+.after-line li {
+  display: grid;
+  gap: 0.1rem;
+  font-family: var(--font-display);
+  line-height: 1.2;
+}
+
+.after-line li:last-child .lineage__name {
+  color: var(--accent);
+}
+
+/* Desktop: the heading sits beside the three works, so photos, timeline and actions share one screen. */
+@media (min-width: 64rem) {
+  .lifetime__head {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .lifetime__grid > .works {
+    grid-column: 5 / -1;
+    grid-row: 1;
+  }
+
+  .lifetime__grid > .lineage {
+    grid-row: 2;
+  }
+
+  .lifetime__grid > .lifetime__foot {
+    grid-row: 3;
+  }
+}
+
+/* Very short desktop screens: the timeline and the legacy line get compact too. */
+@media (min-width: 64rem) and (max-height: 760px) {
+  .lineage {
+    gap: var(--space-xs);
+  }
+
+  .lineage__track {
+    height: 5.75rem;
+  }
+
+  .lineage__place {
+    display: none;
+  }
+
+  .lifetime__body,
+  .legacy__text .text {
+    font-size: var(--step-0);
+  }
+
+  .legacy__text {
+    gap: var(--space-xs);
+  }
+
+  .legacy__link {
+    padding-top: var(--space-s);
+  }
+}
+
+/* Narrow desktops: secondary names wrap rather than collide. */
+@media (max-width: 80rem) {
+  .lineage__item:not(.is-major) {
+    max-width: 8rem;
   }
 }

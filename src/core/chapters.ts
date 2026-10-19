@@ -50,6 +50,7 @@ export function createChapterController(
   stage: HTMLElement,
   progressList: HTMLOListElement,
   progressLabel: HTMLElement,
+  backButton: HTMLButtonElement,
 ): ChapterController {
   const registered = new Map<ChapterId, Chapter>();
   const loaders = new Map<ChapterId, () => Promise<Chapter>>();
@@ -76,7 +77,20 @@ export function createChapterController(
       return { btn, index };
     });
 
+  /* --- Back: one control in the HUD, always the previous scene in the story ---- */
+  backButton.addEventListener('click', () => {
+    if (current > 0) goToIndex(current - 1);
+  });
+
   function renderProgress(): void {
+    // Hidden (but keeping its place) on the first scene, where there is nothing to go back to.
+    const canGoBack = current > 0;
+    backButton.disabled = !canGoBack;
+    backButton.classList.toggle('is-waiting', !canGoBack);
+    backButton.setAttribute(
+      'aria-label',
+      canGoBack ? `Back to ${chapterMeta[current - 1].title}` : 'Back',
+    );
     steps.forEach(({ btn, index }) => {
       btn.disabled = index > unlocked || !known(order[index]);
       btn.classList.toggle(
@@ -142,7 +156,15 @@ export function createChapterController(
     }
 
     const prevChapter = current >= 0 ? registered.get(order[current]) : undefined;
+    const first = current < 0;
     current = index;
+    // Keep the address in step with the story, so the browser's own Back button retraces it and
+    // every scene can be linked to. The first scene shown replaces the entry instead of adding one.
+    const hash = `#${id}`;
+    if (location.hash !== hash) {
+      if (first) history.replaceState(null, '', hash);
+      else history.pushState(null, '', hash);
+    }
     unlocked = Math.max(unlocked, index);
     transitioning = true;
 

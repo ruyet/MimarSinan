@@ -31,7 +31,8 @@ const SIZES = 'min(100vw, 100dvh)';
  * that, so the frame can reach the piers without ever showing past the photo's edge.
  */
 const FRAME_RADIUS = 49.2;
-const STEP = 4;
+/** Seconds each highlight stays on the photograph. */
+const CYCLE = 3;
 
 /** Octagon with corners at 22.5° + k·45°, as a clip-path; scale 0 collapses it to the centre. */
 const octagon = (scale: number): string =>
@@ -96,7 +97,6 @@ export function createReveal(ctx: ChapterContext): Chapter {
   let photo: HTMLPictureElement | null = null;
   let annot: Annotator | null = null;
   let tl: gsap.core.Timeline | null = null;
-  let sequence: gsap.core.Tween[] = [];
   let played = false;
 
   const ensureAnnot = (): Annotator =>
@@ -112,48 +112,80 @@ export function createReveal(ctx: ChapterContext): Chapter {
     ensureAnnot().show(i === null ? null : revealAnnotations[i]);
   }
 
-  function stopSequence(): void {
-    sequence.forEach((c) => c.kill());
-    sequence = [];
-  }
-
   /**
-   * Structure → Light → Space. Each line appears with its highlight on the photograph, in space
-   * that was reserved from the start. "Look around" appears only once all three are on screen,
-   * and the highlights finish on the clean photograph.
+   * Two separate schedules:
+   *  - `content`: the three lines and "Look around". Nothing the visitor does can cancel it.
+   *  - `cycle`: the highlights walking over the photograph. Optional; any hover, focus or click
+   *    on a line stops it (and then simply shows everything at once).
+   * Earlier one schedule did both, so hovering the first line also cancelled the other two lines
+   * and the button: the visitor was left with no way on (reproduced in Chrome, user test 1).
    */
-  function runGuide(): void {
-    stopSequence();
-    if (reducedMotion()) {
-      items.forEach((li) => reveal(li));
-      reveal(actions, 0.2);
-      return;
-    }
-    revealAnnotations.forEach((a, i) => {
-      sequence.push(
-        gsap.delayedCall(0.4 + i * STEP, () => {
-          reveal(items[i]);
-          highlight(i);
-          announce(`${a.label}. ${a.text}`);
-        }),
-      );
-    });
-    const last = 0.4 + (revealAnnotations.length - 1) * STEP;
-    sequence.push(gsap.delayedCall(last + 2.5, () => reveal(actions)));
-    sequence.push(gsap.delayedCall(last + STEP, () => highlight(null)));
+  let cycle: gsap.core.Tween[] = [];
+  let content: gsap.core.Tween[] = [];
+  let watchdog = 0;
+
+  function stopCycle(): void {
+    cycle.forEach((c) => c.kill());
+    cycle = [];
   }
 
-  /** Everything readable at once (revisits, or leaving mid-sequence). */
+  function stopSequence(): void {
+    stopCycle();
+    content.forEach((c) => c.kill());
+    content = [];
+    window.clearTimeout(watchdog);
+  }
+
+  /** Everything readable at once (revisits, interaction, leaving mid-sequence, the safety net). */
   function showAll(): void {
+    content.forEach((c) => c.kill());
+    content = [];
+    window.clearTimeout(watchdog);
     [...items, actions].forEach((n) => {
+      if (!n.classList.contains('is-waiting')) return;
       n.classList.remove('is-waiting');
       gsap.set(n, { clearProps: 'opacity,transform' });
     });
   }
 
+  /**
+   * The first line appears as soon as the photograph has opened, the other two 1.5 s apart, and
+   * "Look around" 1 s after the third. The highlights walk more slowly (3 s each) and finish on
+   * the clean photograph.
+   */
+  function runGuide(): void {
+    stopSequence();
+    if (reducedMotion()) {
+      showAll();
+      return;
+    }
+    revealAnnotations.forEach((a, i) => {
+      content.push(gsap.delayedCall(i * 1.5, () => reveal(items[i])));
+      cycle.push(
+        gsap.delayedCall(i * CYCLE, () => {
+          highlight(i);
+          announce(`${a.label}. ${a.text}`);
+        }),
+      );
+    });
+    content.push(gsap.delayedCall(2 * 1.5 + 1, () => reveal(actions)));
+    cycle.push(gsap.delayedCall(revealAnnotations.length * CYCLE, () => highlight(null)));
+  }
+
+  /** A safety net that does not depend on GSAP: whatever happens, the scene can be left. */
+  function armWatchdog(ms: number): void {
+    window.clearTimeout(watchdog);
+    watchdog = window.setTimeout(() => {
+      // Restore the whole finished scene (photo open, title, lines, button), not just the text.
+      if (actions.classList.contains('is-waiting')) finalState();
+    }, ms);
+  }
+
   buttons.forEach((b, i) => {
     const on = () => {
-      stopSequence();
+      // The visitor has taken over: stop the walk, keep everything readable.
+      stopCycle();
+      showAll();
       highlight(i);
     };
     b.addEventListener('click', on);
@@ -178,14 +210,14 @@ export function createReveal(ctx: ChapterContext): Chapter {
     highlight(null);
   }
 
-  /** Resolves when the photograph can be painted (or after 4 s, so the story never stalls). */
+  /** Resolves when the photograph can be painted (or after 2.5 s, so the story never stalls). */
   function photoReady(): Promise<void> {
     const img = photo?.querySelector('img');
     if (!img) return Promise.resolve();
     const ready = img.complete
       ? img.decode().catch(() => {})
       : new Promise<void>((r) => img.addEventListener('load', () => r(), { once: true }));
-    return Promise.race([ready, new Promise<void>((r) => setTimeout(r, 4000))]);
+    return Promise.race([ready, new Promise<void>((r) => setTimeout(r, 2500))]);
   }
 
   function play(): void {
@@ -215,7 +247,7 @@ export function createReveal(ctx: ChapterContext): Chapter {
       transformOrigin: '50% 50%',
     });
     tl = gsap
-      .timeline({ onComplete: runGuide })
+      .timeline()
       // The plan is drawn, tilted as in the earlier drawings…
       .to(
         drawing.strokes,
@@ -243,7 +275,9 @@ export function createReveal(ctx: ChapterContext): Chapter {
       .to(frame, { clipPath: OPEN, duration: 2.8, ease: 'power2.inOut' }, 4.2)
       .to(drawing.svg, { opacity: 0.35, duration: 1.4, ease: EASE.soft }, 4.8)
       .to(drawing.svg, { opacity: 0, duration: 1.6, ease: EASE.soft }, 6.4)
-      .to(title.el, { opacity: 1, duration: 0.8, ease: EASE.out }, 6.2);
+      .to(title.el, { opacity: 1, duration: 0.8, ease: EASE.out }, 6.2)
+      // The first takeaway as soon as the photograph is fully open.
+      .call(runGuide, [], 7);
   }
 
   return {
@@ -262,13 +296,17 @@ export function createReveal(ctx: ChapterContext): Chapter {
       if (!played) {
         played = true;
         play();
+        // Drawing (≈4 s) + waiting for the photo (≤2.5 s) + opening (≈3 s): 12 s is past all of it.
+        armWatchdog(reducedMotion() ? 4000 : 12000);
       } else {
         finalState();
       }
     },
     leave() {
       stopSequence();
-      if (tl && tl.progress() < 1) finalState();
+      highlight(null);
+      // Coming back always finds the finished scene: photo open, all lines, the button.
+      if (actions.classList.contains('is-waiting') || (tl && tl.progress() < 1)) finalState();
     },
     reset() {
       played = false;

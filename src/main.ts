@@ -30,6 +30,7 @@ const controller = createChapterController(
   $('#stage'),
   $<HTMLOListElement>('#progress-list'),
   $('#progress-label'),
+  $<HTMLButtonElement>('#back'),
 );
 
 // The first two scenes ship with the page; the rest are split into their own chunks and
@@ -64,7 +65,8 @@ controller.registerLazy('credits', () =>
   import('./chapters/credits').then((m) => m.createCredits(controller)),
 );
 
-// Deep links for user testing, e.g. /#structure jumps straight to that scene.
+// Deep links (e.g. /#structure) and the browser's Back/Forward buttons: the controller keeps the
+// #hash in step with the story, and any change to it (typed, linked, or from history) is followed.
 const fromHash = (): ChapterId | null => {
   const id = location.hash.slice(1);
   return chapters.find((c) => c.id === id)?.id ?? null;
