@@ -3,6 +3,7 @@
  * Pictures are created lazily (from a chapter's `prepare()`), never at page load.
  */
 import { images, type ImageKey } from '../content';
+import { publicUrl } from './asset';
 import { h } from './dom';
 
 const WIDTHS = [800, 1600, 2400];
@@ -22,7 +23,7 @@ export interface PictureOptions {
 
 export function picture(key: ImageKey, opts: PictureOptions = {}): HTMLPictureElement {
   const img = images[key];
-  const base = img.src;
+  const base = publicUrl(img.src);
   const fallback = 'jpg';
   const sizes = opts.sizes ?? '100vw';
   const el = h(
@@ -58,7 +59,7 @@ export function preloadImage(key: ImageKey, sizes = '100vw'): void {
       rel: 'preload',
       as: 'image',
       type: 'image/avif',
-      imagesrcset: srcset(img.src, 'avif'),
+      imagesrcset: srcset(publicUrl(img.src), 'avif'),
       imagesizes: sizes,
     }),
   );

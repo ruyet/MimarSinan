@@ -34,6 +34,12 @@ npm run lint
 Netlify (`netlify.toml`) and Vercel (`vercel.json`) are both configured. They build with
 `npm run build` and publish `dist/`. No environment variables are needed.
 
+**Subfolders (e.g. Hera at `/MimarSinan/`):** the build uses a relative base (`base: './'` in
+`vite.config.ts`), so the same `dist/` works at the domain root and in any folder. Upload the
+_contents_ of `dist/` into the folder. Paths into `public/` that are built at runtime (photos,
+preloads) go through `src/core/asset.ts`, which prefixes `import.meta.env.BASE_URL`; store such
+paths without a leading slash (`images/…`, not `/images/…`).
+
 ## The story
 
 Three ideas explain part of Sinan's mastery (**Structure, Space, Light**), but the subject is

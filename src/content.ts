@@ -436,7 +436,10 @@ export const lifetimeFrame = (image: (typeof copy.lifetime.works)[number]['image
 /* ------------------------------------------------------------------ */
 
 export interface ImageAsset {
-  /** Base path; renditions are `${src}-{800|1600|2400}.{avif|webp|jpg}`. */
+  /**
+   * Path inside /public, without a leading slash (see core/asset.ts, so it also works from a
+   * subfolder); renditions are `${src}-{800|1600|2400}.{avif|webp|jpg}`.
+   */
   src: string;
   width: number;
   height: number;
@@ -456,7 +459,7 @@ const CC_BY_SA_4 = 'https://creativecommons.org/licenses/by-sa/4.0/';
 
 export const images = {
   sinanMonument: {
-    src: '/images/people/mimar-sinan-monument-edirne',
+    src: 'images/people/mimar-sinan-monument-edirne',
     width: 3840,
     height: 5760,
     alt: 'The modern bronze monument to Mimar Sinan in Edirne: a bearded man in a large turban and a long robe, seated, looking down at his hands.',
@@ -470,7 +473,7 @@ export const images = {
     },
   },
   sinanPortrait: {
-    src: '/images/people/mimar-sinan-monument-portrait',
+    src: 'images/people/mimar-sinan-monument-portrait',
     width: 1440,
     height: 1800,
     alt: 'Close view of the modern bronze monument to Mimar Sinan in Edirne: his face, full beard and large turban, eyes lowered, against a clear sky.',
@@ -484,7 +487,7 @@ export const images = {
     },
   },
   domeFromBelow: {
-    src: '/images/reveal/selimiye-dome-from-below',
+    src: 'images/reveal/selimiye-dome-from-below',
     width: 2550,
     height: 2550,
     alt: 'Looking straight up into the dome of the Selimiye Mosque: a ring of arched windows circles a painted dome with a golden centre, framed by eight red-and-white striped arches.',
@@ -499,7 +502,7 @@ export const images = {
     },
   },
   prayerHall: {
-    src: '/images/interior/selimiye-prayer-hall',
+    src: 'images/interior/selimiye-prayer-hall',
     width: 3840,
     height: 2555,
     alt: 'The vast prayer hall seen from the floor: red carpets stretch to massive piers, rows of windows glow high in every wall, and the müezzin’s platform stands in the middle of the room.',
@@ -513,7 +516,7 @@ export const images = {
     },
   },
   sehzadeDomes: {
-    src: '/images/career/sehzade-domes-from-below',
+    src: 'images/career/sehzade-domes-from-below',
     width: 2556,
     height: 2556,
     alt: 'Looking up inside the Şehzade Mosque with a wide lens: a central dome with a half-dome on each of its four sides.',
@@ -528,7 +531,7 @@ export const images = {
     },
   },
   suleymaniyeDomes: {
-    src: '/images/career/suleymaniye-domes-from-below',
+    src: 'images/career/suleymaniye-domes-from-below',
     width: 2556,
     height: 2556,
     alt: 'Looking up inside the Süleymaniye Mosque: the central dome, with a half-dome opening beyond it at the top and at the bottom, and walls of windows to the left and right.',
@@ -543,7 +546,7 @@ export const images = {
     },
   },
   sultanAhmed: {
-    src: '/images/legacy/sultan-ahmed-mosque',
+    src: 'images/legacy/sultan-ahmed-mosque',
     width: 2560,
     height: 1920,
     alt: 'The Sultan Ahmed Mosque in Istanbul: a great central dome with half-domes and smaller domes cascading around it, framed by slender minarets.',
