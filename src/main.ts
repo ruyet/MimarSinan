@@ -1,18 +1,17 @@
 /**
- * Entry point: builds the HUD, registers chapters and starts the story.
+ * Entry point: builds the HUD, registers the scenes and starts the story.
  *
- * Stack note: vanilla TypeScript + GSAP. The experience is a linear sequence of
- * hand-choreographed scenes, so a component framework would add weight without
- * solving a real problem; each chapter is a small module with enter/leave hooks.
+ * Stack note: vanilla TypeScript + GSAP. The experience is a short, linear sequence of
+ * hand-choreographed scenes, so a component framework would add weight without solving a real
+ * problem; each scene is a small module with enter/leave hooks.
  */
 import './styles/main.css';
 import { gsap } from 'gsap';
-import { createOpening } from './chapters/opening';
-import { createProblem } from './chapters/problem';
+import { createChallenge } from './chapters/challenge';
+import { createSinan } from './chapters/sinan';
 import { chapters, type ChapterId } from './content';
 import { initAnnouncer } from './core/announcer';
 import { createChapterController } from './core/chapters';
-import { mountDiscoveryIndex } from './core/principles';
 import { bindSoundToggle, soundToggleContents } from './core/soundToggle';
 
 const $ = <T extends HTMLElement>(sel: string): T => {
@@ -26,7 +25,6 @@ initAnnouncer($('#announcer'));
 const hudSound = $<HTMLButtonElement>('#sound-toggle');
 hudSound.innerHTML = soundToggleContents();
 bindSoundToggle(hudSound);
-mountDiscoveryIndex($('#discovery'));
 
 const controller = createChapterController(
   $('#stage'),
@@ -34,15 +32,15 @@ const controller = createChapterController(
   $('#progress-label'),
 );
 
-// The first two chapters ship with the page; the rest are split into their own chunks and
-// fetched while the previous chapter is on screen.
-controller.register(createOpening(controller));
-controller.register(createProblem(controller));
-controller.registerLazy('dilemma', () =>
-  import('./chapters/dilemma').then((m) => m.createDilemma(controller)),
+// The first two scenes ship with the page; the rest are split into their own chunks and
+// fetched while the previous scene is on screen.
+controller.register(createSinan(controller));
+controller.register(createChallenge(controller));
+controller.registerLazy('structure', () =>
+  import('./chapters/structure').then((m) => m.createStructure(controller)),
 );
-controller.registerLazy('walls', () =>
-  import('./chapters/walls').then((m) => m.createWalls(controller)),
+controller.registerLazy('light', () =>
+  import('./chapters/light').then((m) => m.createLight(controller)),
 );
 controller.registerLazy('reveal', () =>
   import('./chapters/reveal').then((m) => m.createReveal(controller)),
@@ -50,17 +48,8 @@ controller.registerLazy('reveal', () =>
 controller.registerLazy('inside', () =>
   import('./chapters/inside').then((m) => m.createInside(controller)),
 );
-controller.registerLazy('discover', () =>
-  import('./chapters/discover').then((m) => m.createDiscover(controller)),
-);
-controller.registerLazy('masterwork', () =>
-  import('./chapters/masterwork').then((m) => m.createMasterwork(controller)),
-);
-controller.registerLazy('legacy', () =>
-  import('./chapters/legacy').then((m) => m.createLegacy(controller)),
-);
-controller.registerLazy('synthesis', () =>
-  import('./chapters/synthesis').then((m) => m.createSynthesis(controller)),
+controller.registerLazy('lifetime', () =>
+  import('./chapters/lifetime').then((m) => m.createLifetime(controller)),
 );
 controller.registerLazy('name', () =>
   import('./chapters/name').then((m) => m.createName(controller)),
@@ -72,12 +61,12 @@ controller.registerLazy('credits', () =>
   import('./chapters/credits').then((m) => m.createCredits(controller)),
 );
 
-// Deep links for user testing, e.g. /#dilemma jumps straight to chapter II.
+// Deep links for user testing, e.g. /#structure jumps straight to that scene.
 const fromHash = (): ChapterId | null => {
   const id = location.hash.slice(1);
   return chapters.find((c) => c.id === id)?.id ?? null;
 };
-controller.start(fromHash() ?? 'opening');
+controller.start(fromHash() ?? 'sinan');
 window.addEventListener('hashchange', () => {
   const id = fromHash();
   if (id) controller.goTo(id);

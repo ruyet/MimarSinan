@@ -6,14 +6,13 @@ import { audio } from '../audio/audio';
 import { copy, images, sources } from '../content';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
-import { button, eyebrow, headline, introText } from '../core/ui';
+import { button, enterText, title as makeTitle } from '../core/ui';
 
 export function createCredits(ctx: ChapterContext): Chapter {
   const t = copy.credits;
 
-  const top = eyebrow('', t.eyebrow);
-  const title = headline('h2', 'credits-title', t.headline);
-  const intro = h('p', { class: 'lede credits__intro' }, t.intro);
+  const title = makeTitle('h2', 'credits-title', t.headline);
+  const intro = h('p', { class: 'text credits__intro' }, t.intro);
 
   const link = (href: string, text: string, label?: string) =>
     h('a', { href, target: '_blank', rel: 'noopener', 'aria-label': label }, text);
@@ -60,20 +59,19 @@ export function createCredits(ctx: ChapterContext): Chapter {
 
   const el = h(
     'section',
-    { class: 'chapter paper credits', 'data-theme': 'stone', 'aria-labelledby': 'credits-title' },
+    { class: 'chapter credits', 'data-theme': 'stone', 'aria-labelledby': 'credits-title' },
     h(
       'div',
       { class: 'credits__inner' },
-      top,
       title.el,
       intro,
-      h('p', { class: 'callout' }, t.model),
+      h('p', { class: 'small' }, t.model),
       h('h3', { class: 'credits__heading' }, t.imagesTitle),
       imageList,
       h('h3', { class: 'credits__heading' }, t.sourcesTitle),
       sourceList,
       h('h3', { class: 'credits__heading' }, t.typeTitle),
-      h('p', { class: 'body' }, t.type),
+      h('p', { class: 'small' }, t.type),
       h('div', { class: 'credits__actions' }, restart, back),
     ),
   );
@@ -87,7 +85,7 @@ export function createCredits(ctx: ChapterContext): Chapter {
     el,
     enter() {
       audio.setMood(null);
-      introText(top, title.words, [intro]);
+      enterText([title.el, intro]);
     },
     leave() {},
     focusTarget: () => title.el,

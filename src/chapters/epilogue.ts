@@ -1,14 +1,15 @@
 /**
- * Chapter VIII — Epilogue. Mirrors the Prologue: night, a window, a beam of light —
- * which now falls into a small drawn dome and fills it.
+ * Epilogue. Night, a small window, a beam of light that falls into a drawn dome and fills it,
+ * and the line the whole story leads to. Kept from the first version: atmosphere, sound,
+ * light motif and words are unchanged; only the type and the numeral label changed.
  */
 import { gsap } from 'gsap';
 import { audio } from '../audio/audio';
-import { copy, numeralOf } from '../content';
+import { copy } from '../content';
 import type { Chapter, ChapterContext } from '../core/chapters';
 import { h } from '../core/dom';
 import { EASE, reducedMotion } from '../core/motion';
-import { button, eyebrow, headline, revealWords } from '../core/ui';
+import { button, revealWords, splitTitle } from '../core/ui';
 import { createMotes } from '../render/motes';
 
 const WINDOW_SVG = `
@@ -42,12 +43,11 @@ const DOME_SVG = `
 export function createEpilogue(ctx: ChapterContext): Chapter {
   const t = copy.epilogue;
 
-  const top = eyebrow(numeralOf('epilogue'), t.eyebrow);
-  const title = headline('h2', 'epilogue-title', t.headline, 'display epilogue__title');
-  const lede = h('p', { class: 'lede' }, t.lede);
+  const title = splitTitle('h2', 'epilogue-title', t.headline, 'epilogue__title');
+  const lede = h('p', { class: 'text epilogue__lede' }, t.lede);
   const restart = button(t.restart, 'primary', '↺');
   const credits = button(t.credits, 'ghost');
-  const actions = h('div', { class: 'opening__actions' }, restart, credits);
+  const actions = h('div', { class: 'actions' }, restart, credits);
 
   const canvas = h('canvas', { class: 'opening__motes', 'aria-hidden': 'true' });
   const light = h('div', { class: 'opening__light epilogue__light', 'aria-hidden': 'true' });
@@ -57,12 +57,12 @@ export function createEpilogue(ctx: ChapterContext): Chapter {
   const el = h(
     'section',
     {
-      class: 'chapter opening epilogue',
+      class: 'chapter epilogue',
       'data-theme': 'night',
       'aria-labelledby': 'epilogue-title',
     },
     light,
-    h('div', { class: 'opening__content' }, top, title.el, lede, actions),
+    h('div', { class: 'epilogue__content' }, title.el, lede, actions),
   );
 
   const motes = createMotes(canvas, 50, { x0: 0.72, y0: 0.06, dx: 0, dy: 0.75 });
@@ -80,7 +80,7 @@ export function createEpilogue(ctx: ChapterContext): Chapter {
       audio.setMood('night');
       if (reducedMotion()) {
         gsap.set([glow, ...windows], { opacity: 1 });
-        gsap.fromTo([top, title.el, lede, actions], { opacity: 0 }, { opacity: 1, duration: 0.6 });
+        gsap.fromTo([title.el, lede, actions], { opacity: 0 }, { opacity: 1, duration: 0.6 });
         return;
       }
       motes.start();
@@ -93,7 +93,6 @@ export function createEpilogue(ctx: ChapterContext): Chapter {
           { opacity: 1, duration: 2.6, ease: EASE.soft, stagger: 0.12 },
           1.2,
         )
-        .fromTo(top, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 1, ease: EASE.out }, 0.6)
         .call(() => revealWords(title.words, 0, 1.6), [], 0.9)
         .fromTo(
           [lede, actions],

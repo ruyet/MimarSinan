@@ -18,22 +18,18 @@ export interface PictureOptions {
   position?: string;
   /** Override the alt text (e.g. '' when a caption already describes it). */
   alt?: string;
-  /** Use the transparent "-cutout" rendition (AVIF/WebP with alpha; see optimize-images.mjs). */
-  cutout?: boolean;
 }
 
 export function picture(key: ImageKey, opts: PictureOptions = {}): HTMLPictureElement {
   const img = images[key];
-  const base = opts.cutout ? `${img.src}-cutout` : img.src;
-  const fallback = opts.cutout ? 'webp' : 'jpg';
+  const base = img.src;
+  const fallback = 'jpg';
   const sizes = opts.sizes ?? '100vw';
   const el = h(
     'picture',
     { class: opts.className },
     h('source', { type: 'image/avif', srcset: srcset(base, 'avif'), sizes }),
-    ...(opts.cutout
-      ? []
-      : [h('source', { type: 'image/webp', srcset: srcset(base, 'webp'), sizes })]),
+    h('source', { type: 'image/webp', srcset: srcset(base, 'webp'), sizes }),
   );
   const imgEl = h('img', {
     src: `${base}-1600.${fallback}`,
@@ -52,7 +48,7 @@ export function picture(key: ImageKey, opts: PictureOptions = {}): HTMLPictureEl
 
 const preloaded = new Set<ImageKey>();
 
-/** Adds <link rel="preload"> for an image (AVIF), e.g. the reveal photo during chapter III. */
+/** Adds <link rel="preload"> for an image (AVIF), e.g. the reveal photo during the light scene. */
 export function preloadImage(key: ImageKey, sizes = '100vw'): void {
   if (preloaded.has(key)) return;
   preloaded.add(key);

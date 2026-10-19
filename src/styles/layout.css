@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Layout — stage, chapters, HUD (progress + sound).
+   Layout — stage, scenes, the 12-column grid and the HUD (progress + sound).
    ========================================================================== */
 
 .stage {
@@ -8,7 +8,7 @@
   overflow: hidden;
 }
 
-/* Chapters are stacked full-viewport layers; only the active one is visible. */
+/* Scenes are stacked full-viewport layers; only the active one is visible. */
 .chapter {
   position: absolute;
   inset: 0;
@@ -26,7 +26,37 @@
   opacity: 1;
 }
 
-/* --- HUD ------------------------------------------------------------- */
+/* The grid every composed scene sits on: 12 columns, fluid margins and gutters. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  min-height: 100%;
+  padding: calc(var(--hud-h) + var(--space-m)) var(--margin)
+    max(var(--space-l), env(safe-area-inset-bottom));
+}
+
+/* A text column: label → title → text → actions, on one left edge. */
+.col {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--space-m);
+}
+
+.col .title {
+  margin-top: calc(var(--space-xs) * -1);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s);
+  margin-top: var(--space-xs);
+}
+
+/* --- HUD ---------------------------------------------------------------- */
 
 .hud {
   position: fixed;
@@ -36,20 +66,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
-  padding: max(var(--space-2xs), env(safe-area-inset-top)) var(--gutter) 0;
+  height: var(--hud-h);
+  padding: env(safe-area-inset-top) var(--margin) 0;
   color: var(--fg);
   pointer-events: none;
   transition: color var(--dur-slow) var(--ease-in-out);
-}
-
-/* A soft fade behind the HUD so scrolled content never collides with it. */
-.hud::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 -1.25rem;
-  z-index: -1;
-  background: linear-gradient(var(--bg) 55%, transparent);
-  transition: background var(--dur-slow) var(--ease-in-out);
 }
 
 .hud > * {
@@ -59,62 +80,62 @@
 .progress {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  min-height: 48px;
+  gap: var(--space-s);
+  min-height: 44px;
 }
 
 .progress__label {
+  font-family: var(--font-display);
   font-size: var(--step--1);
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--fg-muted);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .progress__label strong {
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   color: var(--fg);
-  letter-spacing: 0.04em;
 }
 
 .progress__list {
-  display: none; /* compact label-only on small screens */
+  display: none; /* label only on small screens */
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
 .progress__step {
-  position: relative;
   display: grid;
   place-items: center;
-  width: 44px;
+  width: 28px;
   height: 44px;
   padding: 0;
   border: 0;
   background: none;
+  color: inherit;
   cursor: pointer;
 }
 
 .progress__step::before {
   content: '';
-  width: 18px;
+  width: 20px;
   height: 2px;
   background: currentColor;
-  opacity: 0.28;
-  transform-origin: left;
+  opacity: 0.22;
   transition:
     opacity var(--dur-med) var(--ease-out),
-    transform var(--dur-med) var(--ease-out);
+    background-color var(--dur-med) var(--ease-out);
+}
+
+.progress__step.is-visited::before {
+  opacity: 0.6;
 }
 
 .progress__step[aria-current='step']::before {
   opacity: 1;
   background: var(--accent);
-  transform: scaleX(1.5);
-}
-
-.progress__step.is-visited::before {
-  opacity: 0.7;
 }
 
 .progress__step:disabled {
@@ -122,33 +143,35 @@
 }
 
 .progress__step:disabled::before {
-  opacity: 0.14;
+  opacity: 0.12;
 }
 
 .progress__step:not(:disabled):hover::before {
   opacity: 1;
 }
 
-@media (min-width: 52rem) {
+@media (min-width: 48rem) {
   .progress__list {
     display: flex;
   }
 }
 
-/* --- Sound toggle ------------------------------------------------------ */
+/* --- Sound toggle -------------------------------------------------------- */
 
 .sound-toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.6em;
-  min-height: 48px;
-  min-width: 48px;
-  padding: 0 0.4em;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.25em;
   border: 0;
   background: none;
   color: inherit;
+  font-family: var(--font-display);
   font-size: var(--step--1);
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   cursor: pointer;
 }
 
@@ -156,7 +179,7 @@
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 14px;
+  height: 13px;
 }
 
 .sound-toggle__icon span {
@@ -169,7 +192,7 @@
 }
 
 .sound-toggle[aria-pressed='true'] .sound-toggle__icon span {
-  animation: eq 1.4s var(--ease-soft) infinite alternate;
+  animation: eq 1.4s ease-in-out infinite alternate;
 }
 
 .sound-toggle[aria-pressed='true'] .sound-toggle__icon span:nth-child(2) {
@@ -186,5 +209,17 @@
   }
   to {
     transform: scaleY(1);
+  }
+}
+
+/* On phones scenes scroll under the HUD: give it a soft backdrop there. */
+@media (max-width: 63.99rem) {
+  .hud::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -0.75rem;
+    z-index: -1;
+    background: linear-gradient(var(--bg) 65%, transparent);
+    transition: background var(--dur-slow) var(--ease-in-out);
   }
 }

@@ -7,10 +7,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 const UA = 'HoldUpTheSky-student-project/0.1 (educational, non-commercial)';
+const only = process.argv[2]; // optional: fetch a single manifest entry (by output path)
 const manifest = JSON.parse(await readFile(new URL('./images.manifest.json', import.meta.url)));
 const api = new URL('https://commons.wikimedia.org/w/api.php');
 
 for (const item of manifest) {
+  if (only && item.out !== only) continue;
   api.search = new URLSearchParams({
     action: 'query',
     titles: item.commons,

@@ -38,45 +38,35 @@ for (const item of manifest) {
         .toFile(`${outBase}-${w}.jpg`),
     ]);
   }
-  if (item.cutout === 'sky') await writeSkyCutout(buffer, outBase);
+  if (item.portrait) await writePortrait(buffer, outBase);
   const m = await sharp(buffer).metadata();
   console.log(`${item.out}: ${m.width}x${m.height}`);
 }
 
 /**
- * Writes `<name>-cutout-<w>.webp/.avif` with the (blue) sky made transparent, so type can sit
- * behind the figure. Only reliable for photos with a clear, plain sky.
+ * Writes `<name-without-"-edirne">-portrait-<w>` renditions: a closer crop of the monument
+ * photo (head and shoulders), used at the end of the story. The crop box is a fraction of the
+ * source so it survives a re-fetch at a different size.
  */
-async function writeSkyCutout(buffer, outBase) {
-  const { data, info } = await sharp(buffer)
-    .removeAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  const alpha = Buffer.alloc(info.width * info.height);
-  for (let i = 0, p = 0; p < alpha.length; p++, i += 3) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    // Sky: bright (blue ≥ ~200) AND strongly blue (blue − red ≥ ~60). Sampled on the Edirne
-    // monument photo: sky ≈ (130,170,230), bronze ≤ (115,130,155). Soft ramps avoid jagged edges.
-    const clamp = (v) => Math.min(1, Math.max(0, v));
-    const sky = Math.min(clamp((b - 185) / 30), clamp((b - r - 55) / 25), clamp((b - g - 30) / 20));
-    alpha[p] = Math.round(255 * (1 - sky));
-  }
-  const mask = await sharp(alpha, { raw: { width: info.width, height: info.height, channels: 1 } })
-    .blur(1.2)
-    .extractChannel(0) // keep a single channel, or joinChannel misreads the buffer
-    .raw()
-    .toBuffer();
-  const rgba = await sharp(data, { raw: { width: info.width, height: info.height, channels: 3 } })
-    .joinChannel(mask, { raw: { width: info.width, height: info.height, channels: 1 } })
-    .png()
-    .toBuffer();
+async function writePortrait(buffer, outBase) {
+  const meta = await sharp(buffer).metadata();
+  const box = {
+    left: Math.round(meta.width * 0.24),
+    top: Math.round(meta.height * 0.13),
+    width: Math.round(meta.width * 0.6),
+    height: Math.round(meta.height * 0.5),
+  };
+  const crop = await sharp(buffer).extract(box).toBuffer();
+  const out = outBase.replace(/-edirne$/, '-portrait');
   for (const w of WIDTHS) {
-    const resized = sharp(rgba).resize({ width: w, withoutEnlargement: true });
+    const resized = sharp(crop).resize({ width: w, withoutEnlargement: true });
     await Promise.all([
-      resized.clone().webp({ quality: 78, alphaQuality: 90 }).toFile(`${outBase}-cutout-${w}.webp`),
-      resized.clone().avif({ quality: 52, effort: 5 }).toFile(`${outBase}-cutout-${w}.avif`),
+      resized.clone().avif({ quality: 52, effort: 5 }).toFile(`${out}-${w}.avif`),
+      resized.clone().webp({ quality: 76 }).toFile(`${out}-${w}.webp`),
+      resized
+        .clone()
+        .jpeg({ quality: 80, mozjpeg: true, progressive: true })
+        .toFile(`${out}-${w}.jpg`),
     ]);
   }
 }

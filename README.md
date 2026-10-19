@@ -1,10 +1,15 @@
-# Hold Up the Sky
+# Hold Up the Sky — Mimar Sinan
 
-An interactive tribute to the **Selimiye Mosque** (Edirne, 1574–75) by **Mimar Sinan**,
-built as a student case study for _Typography & Design_.
+An interactive story about **Mimar Sinan** (c. 1490–1588), chief architect of the Ottoman
+Empire for about fifty years, told through his masterwork, the **Selimiye Mosque** in Edirne
+(1575). Built as a student case study for _Typography & Design_ (ICT & Media Design).
 
-> How can an interactive digital experience help people without architectural knowledge
-> discover and appreciate the architectural brilliance of the Selimiye Mosque?
+> The visitor meets Mimar Sinan at the beginning, experiences his thinking through his
+> masterpiece, and returns to him at the end — when his name carries meaning.
+
+The redesign (branch `redesign/sinan-story`) and the reasons behind every decision are
+documented in [`REDESIGN_RATIONALE.md`](REDESIGN_RATIONALE.md). The first version is tagged
+`original-v1`.
 
 ## Run
 
@@ -18,12 +23,10 @@ npm run lint
 
 **For user tests:**
 
-- Deep links jump to a chapter: `/#problem`, `/#dilemma`, `/#walls`, `/#reveal`,
-  `/#inside`, `/#discover`, `/#masterwork`, `/#legacy`, `/#synthesis`, `/#name`,
-  `/#epilogue`, `/#credits`.
+- Deep links jump to a scene: `/#sinan`, `/#challenge`, `/#structure`, `/#light`, `/#reveal`,
+  `/#inside`, `/#lifetime`, `/#name`, `/#epilogue`, `/#credits`.
 - `?reduced-motion` forces the reduced-motion experience, e.g. `/?reduced-motion#reveal`.
-- `?annotate=1` shows a grid, every annotation shape and live coordinates on the photos,
-  for calibrating highlights, e.g. `/?annotate=1#inside`.
+- `?annotate=1` overlays a grid and the raw annotation shapes on the photos.
 
 ## Deploy
 
@@ -32,34 +35,29 @@ Netlify (`netlify.toml`) and Vercel (`vercel.json`) are both configured. They bu
 
 ## The story
 
-The visitor's goal, set in the Prologue: discover the three ideas behind Sinan's masterpiece:
-**Structure, Space, Light**. Three line-art marks in the header fill in as each is discovered.
+Three ideas explain part of Sinan's mastery — **Structure, Space, Light** — but the subject is
+the man. Eight scenes and an epilogue:
 
-| #    | Chapter                 | What happens                                                                 | Principle        |
-| ---- | ----------------------- | ---------------------------------------------------------------------------- | ---------------- |
-| —    | Prologue                | One beam of light: "How do you hold up _the sky?_" Mimar Sinan, and the goal | all three, empty |
-| I    | The problem             | Sinan's problem: a hall is sketched; release the dome and it collapses       | —                |
-| II   | The dilemma             | Choose 4–16 piers; Stability vs Openness; eight is Sinan's choice            | Structure        |
-| II·b | The unified room        | The floor view grows into one open room under one dome                       | Space            |
-| III  | Opening the walls       | Walls that don't carry the dome open up; light floods in                     | Light            |
-| IV   | Look up                 | The reveal of the real dome, then annotations: piers, window ring, one dome  | all three        |
-| V    | Inside the light        | Photographs that teach: stepped, annotated notes on each photo               | all three        |
-| VI   | Look closer             | Six hotspots that highlight the photo, explained in a margin panel           | tagged           |
-| VII  | A tradition, refined    | Hagia Sophia → Şehzade → Süleymaniye → Selimiye                              | —                |
-| VIII | The legacy              | Sedefkâr Mehmed Ağa and the Sultan Ahmed Mosque, built on Şehzade            | —                |
-| IX   | Why Mimar Sinan matters | Four numbered plates: the synthesis                                          | recap            |
-| X    | MIMAR SINAN             | The name, revealed by light, with his monument                               | —                |
-| XI   | Epilogue                | The beam returns and fills a small dome                                      | —                |
-| —    | Sources & credits       | Every photo and text source, generated from `content.ts`                     | —                |
-
-See `CHANGELOG.md` for what changed in the expert-feedback round and `DECISIONS.md` for why.
+| #   | Scene         | What happens                                                                        | Idea             |
+| --- | ------------- | ----------------------------------------------------------------------------------- | ---------------- |
+| 1   | Mimar Sinan   | His name, his monument, two sentences: fifty years, one masterwork. Begin.          | —                |
+| 2   | The challenge | A hall is drawn, a 31 m dome hovers above it. Let it fall: it needs support.        | —                |
+| 3   | Structure     | Try four, sixteen or Sinan's eight supports; the drawing shows the trade-off.       | Structure, Space |
+| 4   | Light         | The same hall: open the walls between the piers; light floods in.                   | Light            |
+| 5   | Look up       | The plan turns into the real dome, in an octagon frame on the piers; a guided look. | all three        |
+| 6   | Space         | The prayer hall, full bleed. Optional: show only the windows.                       | Space, Light     |
+| 7   | A lifetime    | Look up in Şehzade, Süleymaniye, Selimiye; one line of legacy; one optional detail. | —                |
+| 8   | Remember him  | His name again, a closer portrait, and what he did in three sentences.              | recap            |
+| —   | Epilogue      | "He didn't just hold up the sky. He let the light in."                              | —                |
+| —   | Sources       | Every photo and text source, generated from `content.ts`.                           | —                |
 
 ## Stack
 
-- **Vite + vanilla TypeScript.** The story is a linear sequence of choreographed scenes, so a
-  component framework would add weight without solving a real problem.
-- **GSAP** for timelines; **SVG** for all line art; **Canvas** only for particles (dust,
+- **Vite + vanilla TypeScript.** The story is a short, linear sequence of choreographed scenes,
+  so a component framework would add weight without solving a real problem.
+- **GSAP** for timelines; **SVG** for all drawings; **Canvas** only for particles (dust,
   motes); **Web Audio API** for synthesised sound (no audio files, off by default).
+- **Type:** Archivo (width + weight axes) and Newsreader (optical size), self-hosted, SIL OFL.
 
 ## Structure
 
@@ -67,34 +65,29 @@ See `CHANGELOG.md` for what changed in the expert-feedback round and `DECISIONS.
 index.html                 HUD (progress + sound), stage, aria-live region
 src/
   content.ts               ALL copy, verified facts (+ sources), images, credits, alignment
-  main.ts                  wires the HUD and the chapters
-  model/stability.ts       the simplified, rules-based pier model
-  core/                    chapter controller, principles (discovery index), annotate.ts
-                           (photo annotations), motion prefs, a11y announcer, UI helpers,
-                           responsive <picture> helper, sound toggle
+  main.ts                  wires the HUD and the scenes
+  core/                    scene controller, photo annotations, motion prefs, a11y announcer,
+                           UI helpers, responsive <picture> helper, sound toggle
   audio/audio.ts           Web Audio engine
-  render/                  projection (shared axonometric camera), dome, floor plan, plans,
-                           hall cut-away, pier plan + floor view, dust, motes
-  chapters/                one module per chapter: enter / leave / prepare / reset
-  styles/                  tokens · base · layout · components · spread · drawing ·
-                           opening · scenes
+  render/                  projection (shared axonometric camera), dome, floor plan, hall
+                           (supports + light), dust, motes
+  chapters/                one module per scene: enter / leave / prepare / reset
+  styles/                  fonts · tokens · base · layout · drawing · scenes
 public/images/             optimized photos + CREDITS.md
 scripts/                   fetch-images.mjs, optimize-images.mjs, images.manifest.json
-DECISIONS.md               decisions made during the build, for review
+REDESIGN_RATIONALE.md      the case study: problems, feedback, decisions, verification
 ```
 
 ## Editing content
 
 Everything shown on screen lives in [`src/content.ts`](src/content.ts):
 
-- `facts`: the verified facts, each with `sources`. Only these may be shown on screen.
-- `copy`: every headline, body text and label, per chapter. Wrap a phrase in `*asterisks*`
-  to set it in italic.
-- `images` / `insideSlides` / `hotspots`: photos, captions and hotspot positions (in %).
-- `revealAlignment`: scale, rotation, offset and radii that line the drawn octagon up with
-  the dome photo. Check them with "Show the drawing" in chapter IV.
+- `facts`: the verified facts, each with `sources`. On-screen claims must come from these.
+- `copy`: every headline, sentence and label, per scene.
+- `images`: photos and credits. `revealAlignment` and the `frame` values of the three works
+  centre each dome inside its frame. `insideWindows` lists the window areas of the prayer hall.
 
 ## Accuracy
 
-The meters in chapter II use a **simplified, illustrative model** (`src/model/stability.ts`),
-not an engineering calculation; the UI says so.
+The support comparison in scene 3 is a **simplified illustration**, not an engineering
+calculation; the page and the credits say so. No quotation is attributed to Sinan.

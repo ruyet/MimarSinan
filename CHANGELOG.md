@@ -1,4 +1,34 @@
-# Changelog: expert-feedback round
+# Changelog
+
+## Redesign: Mimar Sinan as the protagonist (branch `redesign/sinan-story`)
+
+A complete redesign after feedback from Stan and Bardt and the student's own review. The full
+reasoning is in `REDESIGN_RATIONALE.md`; this is the short list.
+
+- **Story:** 12 chapters → 8 scenes + epilogue: Mimar Sinan → The challenge → Structure →
+  Light → Look up → Space → A lifetime → Remember him → Epilogue. Sinan opens and closes it.
+- **Identity:** limestone, ink and one accent (Selimiye's arch red); Archivo + Newsreader
+  replace Fraunces + Instrument Sans; no Roman numerals, figure numbers or italic accents.
+- **Copy:** about 1,800 → about 660 words on screen.
+- **Interaction:** shortest path about 27 → 11 actions. Removed: Redraw, five-option stepper,
+  meters, "Show me Sinan's answer", drawing/annotation toggles, the 12-step photo tour, the six
+  hotspots, the plan stepper, the principle icons in the HUD.
+- **Structure scene:** three answers (4, 16, Sinan's 8) on one cut-away drawing; the open floor
+  is shaded; too few supports show the rim pushing outwards.
+- **Light scene:** beams now sit behind piers, dome and cut walls; closing the walls cancels
+  pending "on" tweens, so no beam lingers in the dark.
+- **Reveal:** octagonal frame on the eight piers, centred on the dome; one guided pass
+  (Structure → Light → Space) that stays readable as a list.
+- **New photographs:** Şehzade and Süleymaniye seen from below (Dosseman, CC BY-SA 4.0); a
+  closer crop of the Sinan monument. Removed four photographs no longer used.
+- **Ending:** the sweeping light and the darkened monument are gone; his face is shown in
+  daylight beside his name and three sentences about what he did. The epilogue is unchanged.
+- **Fixes:** text swaps can no longer end on stale text; photo frames no longer stretch the grid;
+  short desktop screens (1366 × 768) fit without scrolling.
+
+---
+
+# Changelog: expert-feedback round (first version)
 
 Response to Stan van Oers's review. Feedback points:
 **1** generic layouts · **2** Sinan barely present · **3** no "why" · **4** no perspective ·

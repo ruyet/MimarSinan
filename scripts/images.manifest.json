@@ -9,28 +9,22 @@
     "commons": "File:Edirne Selimiye Mosque Müezzin mahfili view in the room in 2009 6286.jpg"
   },
   {
-    "out": "interior/selimiye-mihrab-apse",
-    "commons": "File:Edirne Selimiye Mosque Mihrab in 2018 0162.jpg"
-  },
-  {
-    "out": "interior/selimiye-muezzin-platform",
-    "commons": "File:Müezzin mahfili in Selimiye mosque in Edirne 0196.jpg"
-  },
-  {
-    "out": "exterior/selimiye-minarets",
-    "commons": "File:Edirne Mosque.jpg"
-  },
-  {
-    "out": "exterior/selimiye-exterior-overcast",
-    "commons": "File:Edirne Selimiye Mosque from distance in 2009 6427.jpg"
-  },
-  {
     "out": "people/mimar-sinan-monument-edirne",
     "commons": "File:Mimar Sinan monument in 2024 6024.jpg",
-    "cutout": "sky"
+    "portrait": true
   },
   {
     "out": "legacy/sultan-ahmed-mosque",
     "commons": "File:Exterior of Sultan Ahmed I Mosque, (old name P1020390.jpg).jpg"
+  },
+  {
+    "out": "career/sehzade-domes-from-below",
+    "commons": "File:Şehzade Mosque domes in 2018 9508.jpg",
+    "crop": "square"
+  },
+  {
+    "out": "career/suleymaniye-domes-from-below",
+    "commons": "File:Istanbul Suleymaniye Mosque Interior Ceiling 2015 1311.jpg",
+    "crop": "square"
   }
 ]

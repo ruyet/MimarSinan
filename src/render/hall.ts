@@ -1,15 +1,22 @@
 /**
- * Chapter III drawing: a cut-away of the prayer hall in the same axonometric view.
- * The two far walls stand full height; the two near walls are cut low (a section),
- * so we can see inside. Eight piers on an octagon carry arches and the dome (≈ 31 m,
- * crown ≈ 42 m). Window rows in the far walls — and the ring around the dome — are
- * revealed one row at a time, each letting a shaft of light fall across the floor.
+ * The prayer hall as a cut-away, in the shared axonometric view. One drawing serves three
+ * scenes, so the visitor keeps looking at the same room:
+ *  - Structure: `setSupports(n)` places 4, 8 or 16 supports under the dome, shades the floor
+ *    that stays open, and marks where an unsupported rim would push outwards.
+ *  - Light: window rows in the far walls (and the ring around the dome) open one by one,
+ *    each letting a shaft of light fall across the floor.
  *
+ * The two far walls stand full height; the two near walls are cut low (a section).
+ * Proportions follow the verified numbers: hall 45 × 36 m, dome ≈ 31 m, crown ≈ 42 m.
  * Drawing units: 8 units = 1 metre.
+ *
+ * Layering, back to front: walls → floor → open floor → light pools → shade → light shafts
+ * → back supports → dome → front supports → near walls. Shafts sit *behind* every solid
+ * object, so a beam can never cross in front of a pier, the dome or a cut wall.
  */
 import { s } from '../core/dom';
 import { drawDome } from './dome';
-import { createProjector, toPath, type ScreenPoint } from './projection';
+import { createProjector, facesViewer, toPath, type ScreenPoint } from './projection';
 import { stroke } from './svg';
 
 const M = 8;
@@ -23,7 +30,6 @@ export const HALL = {
   cutH: 2.5 * M,
   R: 15.5 * M,
   domeZ: 26.5 * M, // crown = 26.5 + 15.5 = 42 m
-  pierSize: 3 * M,
 } as const;
 
 /** Window rows as [bottom, top] heights in metres. */
@@ -36,17 +42,32 @@ const ROWS: [number, number][] = [
 /** Direction the light travels (into the room and down). */
 const LIGHT = { x: 0.5, y: 0.32 };
 
+/** Supports stand on one ring, just outside the dome's rim (the octagon at Selimiye). */
+const RING = HALL.R / Math.cos(Math.PI / 8);
+const PIER_SIZE: Record<number, number> = { 4: 4.5 * M, 8: 3 * M, 16: 1.8 * M };
+
+export interface SupportsResult {
+  /** New solid elements (pier faces), for an entrance animation. */
+  piers: SVGElement[];
+  /** Outward-push marks (only with too few supports). */
+  push: SVGElement[];
+  /** The shaded open floor. */
+  open: SVGElement | null;
+}
+
 export interface HallDrawing {
   svg: SVGSVGElement;
   /** Window rows: 3 wall rows + the ring of dome windows. */
   rows: { windows: SVGElement[]; rays: SVGElement[]; pools: SVGElement[] }[];
   /** Interior shade that lifts as light enters. */
   shade: SVGPathElement;
+  /** Strokes of the room itself (walls, dome), for a drawn entrance. */
   strokes: SVGPathElement[];
+  setSupports(n: number): SupportsResult;
 }
 
 export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
-  const { origin, hx, hy, wallH, cutH, R, domeZ, pierSize } = HALL;
+  const { origin, hx, hy, wallH, cutH, R, domeZ } = HALL;
   const p = createProjector(origin);
   const svg = s('svg', {
     viewBox: HALL.view.join(' '),
@@ -60,11 +81,11 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
     { id: `hall-ray${idSuffix}`, x1: 0, y1: 0, x2: 0, y2: 1 },
     defs,
   );
-  s('stop', { offset: '0%', 'stop-color': '#f2d48c', 'stop-opacity': 0.75 }, rayGrad);
-  s('stop', { offset: '100%', 'stop-color': '#f2d48c', 'stop-opacity': 0.05 }, rayGrad);
+  s('stop', { offset: '0%', 'stop-color': '#f1d38c', 'stop-opacity': 0.95 }, rayGrad);
+  s('stop', { offset: '100%', 'stop-color': '#f1d38c', 'stop-opacity': 0.12 }, rayGrad);
   const poolGrad = s('radialGradient', { id: `hall-pool${idSuffix}` }, defs);
-  s('stop', { offset: '0%', 'stop-color': '#f6dc9a', 'stop-opacity': 0.9 }, poolGrad);
-  s('stop', { offset: '100%', 'stop-color': '#f6dc9a', 'stop-opacity': 0.15 }, poolGrad);
+  s('stop', { offset: '0%', 'stop-color': '#f6e0a8', 'stop-opacity': 0.95 }, poolGrad);
+  s('stop', { offset: '100%', 'stop-color': '#f6e0a8', 'stop-opacity': 0.15 }, poolGrad);
 
   const strokes: HallDrawing['strokes'] = [];
   const rows: HallDrawing['rows'] = [0, 1, 2, 3].map(() => ({ windows: [], rays: [], pools: [] }));
@@ -79,16 +100,18 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
   /* --- Layers, back to front ------------------------------------------ */
   const gWalls = s('g', {}, svg);
   const gFloor = s('g', {}, svg);
+  const gOpen = s('g', { class: 'hall__open-layer' }, svg);
   const gPools = s('g', { class: 'hall__pools' }, svg);
   const gShade = s('g', {}, svg);
-  const gBackPiers = s('g', {}, svg);
-  const gDome = s('g', {}, svg);
-  const gFrontPiers = s('g', {}, svg);
   const gRays = s('g', { class: 'hall__rays' }, svg);
+  const gBack = s('g', {}, svg);
+  const gPushBack = s('g', {}, svg);
+  const gDome = s('g', {}, svg);
+  const gFront = s('g', {}, svg);
+  const gPushFront = s('g', {}, svg);
   const gNear = s('g', {}, svg);
 
   /* --- Far walls (full height) ----------------------------------------- */
-  // Wall A: along y = -hy (x from -hx to hx). Wall B: along x = -hx (y from -hy to hy).
   const wallA = [p(-hx, -hy, 0), p(hx, -hy, 0), p(hx, -hy, wallH), p(-hx, -hy, wallH)];
   const wallB = [p(-hx, -hy, 0), p(-hx, hy, 0), p(-hx, hy, wallH), p(-hx, -hy, wallH)];
   poly(wallA, 'hall__wall hall__wall--a', gWalls);
@@ -101,7 +124,6 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
   poly(floor, 'hall__floor', gFloor);
   strokes.push(stroke(gFloor, toPath(floor, true), 's-wall'));
 
-  // Interior shade: covers the floor and far walls; fades as the light rises.
   const shade = poly(
     [p(-hx, hy), p(-hx, hy, wallH), p(-hx, -hy, wallH), p(hx, -hy, wallH), p(hx, -hy), p(hx, hy)],
     'hall__shade',
@@ -131,9 +153,7 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
     p(x + LIGHT.x * z, y + LIGHT.y * z, 0);
 
   const walls = [
-    // Wall A: u runs along x, at y = -hy.
     { at: (u: number, z: number) => [u, -hy, z] as const, from: -hx, to: hx },
-    // Wall B: u runs along y, at x = -hx.
     { at: (u: number, z: number) => [-hx, u, z] as const, from: -hy, to: hy },
   ];
   const spacing = 4.5 * M;
@@ -148,9 +168,9 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
         const [x, y] = wall.at(u, 0);
         // Skip shafts that would land outside the hall.
         if (x + LIGHT.x * z1 > hx - M || y + LIGHT.y * z1 > hy - M) continue;
-        const win = poly(archWindow(point, u, winW, z0, z1), 'hall__window', gWalls);
-        rows[rowIndex].windows.push(win);
-
+        rows[rowIndex].windows.push(
+          poly(archWindow(point, u, winW, z0, z1), 'hall__window', gWalls),
+        );
         const l = wall.at(u - winW / 2, z1);
         const r = wall.at(u + winW / 2, z1);
         const lb = wall.at(u - winW / 2, z0);
@@ -168,64 +188,6 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
       }
     });
   });
-
-  /* --- Piers and arches ----------------------------------------------- */
-  const rp = R / Math.cos(Math.PI / 8); // octagon vertices just outside the dome rim
-  const piers = Array.from({ length: 8 }, (_, i) => {
-    const a = Math.PI / 8 + (i * Math.PI) / 4;
-    return { a, x: rp * Math.cos(a), y: rp * Math.sin(a), depth: Math.sin(a + Math.PI / 4) };
-  });
-  const span = 2 * rp * Math.sin(Math.PI / 8);
-  const pierTop = domeZ - span / 2;
-
-  const drawPier = (x: number, y: number, g: SVGGElement): void => {
-    const h = pierSize / 2;
-    // Visible faces in this view: +x and +y.
-    const fx = [
-      p(x + h, y - h, 0),
-      p(x + h, y + h, 0),
-      p(x + h, y + h, pierTop),
-      p(x + h, y - h, pierTop),
-    ];
-    const fy = [
-      p(x - h, y + h, 0),
-      p(x + h, y + h, 0),
-      p(x + h, y + h, pierTop),
-      p(x - h, y + h, pierTop),
-    ];
-    const top = [
-      p(x - h, y - h, pierTop),
-      p(x + h, y - h, pierTop),
-      p(x + h, y + h, pierTop),
-      p(x - h, y + h, pierTop),
-    ];
-    poly(fx, 'hall__pier hall__pier--x', g);
-    poly(fy, 'hall__pier hall__pier--y', g);
-    poly(top, 'hall__pier hall__pier--top', g);
-    [fx, fy, top].forEach((f) => strokes.push(stroke(g, toPath(f, true), 's-pier')));
-  };
-  const drawArch = (i: number, g: SVGGElement): void => {
-    const a = piers[i];
-    const b = piers[(i + 1) % 8];
-    const pts = Array.from({ length: 25 }, (_, k) => {
-      const t = k / 24;
-      return p(
-        a.x + (b.x - a.x) * t,
-        a.y + (b.y - a.y) * t,
-        pierTop + (span / 2) * Math.sin(Math.PI * t),
-      );
-    });
-    strokes.push(stroke(g, toPath(pts), 's-arch'));
-  };
-
-  // Arches first, then piers far-to-near, so nearer piers overlap farther ones.
-  piers.forEach((pr, i) => {
-    const mid = Math.sin(pr.a + Math.PI / 8 + Math.PI / 4);
-    drawArch(i, mid < 0 ? gBackPiers : gFrontPiers);
-  });
-  [...piers]
-    .sort((a, b) => a.depth - b.depth)
-    .forEach((pr) => drawPier(pr.x, pr.y, pr.depth < 0 ? gBackPiers : gFrontPiers));
 
   /* --- Dome, with the 4th "row" of windows around its base ------------- */
   const dome = drawDome(gDome, p, R, domeZ, { finial: 34, windowCount: 32 });
@@ -253,5 +215,123 @@ export function buildHall(labelledBy: string, idSuffix = ''): HallDrawing {
   strokes.push(stroke(gNear, toPath(nearA, true), 's-wall'));
   strokes.push(stroke(gNear, toPath(nearB, true), 's-wall'));
 
-  return { svg, rows, shade, strokes };
+  /* --- Supports: piers, arches, the open floor, outward push ----------- */
+  function setSupports(n: number): SupportsResult {
+    [gBack, gFront, gOpen, gPushBack, gPushFront].forEach((g) => g.replaceChildren());
+    const result: SupportsResult = { piers: [], push: [], open: null };
+
+    if (n > 0) {
+      const size = PIER_SIZE[n] ?? 3 * M;
+      const piers = Array.from({ length: n }, (_, i) => {
+        const a = Math.PI / n + (i * 2 * Math.PI) / n;
+        return {
+          a,
+          x: RING * Math.cos(a),
+          y: RING * Math.sin(a),
+          depth: Math.sin(a + Math.PI / 4),
+        };
+      });
+      const span = 2 * RING * Math.sin(Math.PI / n);
+      const pierTop = domeZ - span / 2;
+
+      const drawPier = (x: number, y: number, g: SVGGElement): void => {
+        const h = size / 2;
+        // Visible faces in this view: +x and +y, and the top.
+        const fx = [
+          p(x + h, y - h, 0),
+          p(x + h, y + h, 0),
+          p(x + h, y + h, pierTop),
+          p(x + h, y - h, pierTop),
+        ];
+        const fy = [
+          p(x - h, y + h, 0),
+          p(x + h, y + h, 0),
+          p(x + h, y + h, pierTop),
+          p(x - h, y + h, pierTop),
+        ];
+        const top = [
+          p(x - h, y - h, pierTop),
+          p(x + h, y - h, pierTop),
+          p(x + h, y + h, pierTop),
+          p(x - h, y + h, pierTop),
+        ];
+        const group = s('g', { class: 'hall__pier' }, g);
+        poly(fx, 'hall__pier--x', group);
+        poly(fy, 'hall__pier--y', group);
+        poly(top, 'hall__pier--top', group);
+        [fx, fy, top].forEach((f) => stroke(group, toPath(f, true), 's-pier'));
+        result.piers.push(group);
+      };
+      const drawArch = (i: number, g: SVGGElement): void => {
+        const a = piers[i];
+        const b = piers[(i + 1) % n];
+        const pts = Array.from({ length: 25 }, (_, k) => {
+          const t = k / 24;
+          return p(
+            a.x + (b.x - a.x) * t,
+            a.y + (b.y - a.y) * t,
+            pierTop + (span / 2) * Math.sin(Math.PI * t),
+          );
+        });
+        result.piers.push(stroke(g, toPath(pts), 's-arch'));
+      };
+
+      // Arches first, then supports far-to-near, so nearer ones overlap farther ones.
+      piers.forEach((pr, i) => {
+        const mid = Math.sin(pr.a + Math.PI / n + Math.PI / 4);
+        drawArch(i, mid < 0 ? gBack : gFront);
+      });
+      [...piers]
+        .sort((a, b) => a.depth - b.depth)
+        .forEach((pr) => drawPier(pr.x, pr.y, pr.depth < 0 ? gBack : gFront));
+
+      // The open floor: with many supports the colonnade fences off a smaller middle.
+      const inset = M * 1.2;
+      result.open =
+        n >= 16
+          ? poly(
+              piers.map((pr) => p(pr.x * 0.9, pr.y * 0.9)),
+              'hall__open',
+              gOpen,
+            )
+          : poly(
+              [
+                p(-hx + inset, -hy + inset),
+                p(hx - inset, -hy + inset),
+                p(hx - inset, hy - inset),
+                p(-hx + inset, hy - inset),
+              ],
+              'hall__open',
+              gOpen,
+            );
+
+      // Too few supports: the rim overhangs between them and pushes outwards.
+      if (n <= 4) {
+        for (let i = 0; i < n; i++) {
+          const mid = (i * 2 * Math.PI) / n + (2 * Math.PI) / n; // between two supports
+          const front = facesViewer(Math.cos(mid), Math.sin(mid), 0);
+          const rimG = front ? gPushFront : gPushBack;
+          const arc = Array.from({ length: 17 }, (_, k) => {
+            const t = mid - 0.55 + (1.1 * k) / 16;
+            return p(R * Math.cos(t), R * Math.sin(t), domeZ);
+          });
+          result.push.push(stroke(rimG, toPath(arc), 's-push-rim'));
+          const o = (r: number, z = domeZ) => p(r * Math.cos(mid), r * Math.sin(mid), z);
+          const tip = o(R + 5.5 * M);
+          const side = (d: number) =>
+            p((R + 4.2 * M) * Math.cos(mid + d), (R + 4.2 * M) * Math.sin(mid + d), domeZ);
+          result.push.push(
+            stroke(
+              rimG,
+              `${toPath([o(R + 0.6 * M), tip])}${toPath([side(-0.05), tip, side(0.05)])}`,
+              's-push',
+            ),
+          );
+        }
+      }
+    }
+    return result;
+  }
+
+  return { svg, rows, shade, strokes, setSupports };
 }

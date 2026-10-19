@@ -1,5 +1,8 @@
 # Decisions log
 
+> **History.** This document describes the first version (tagged `original-v1`). The redesign on
+> branch `redesign/sinan-story` supersedes it where they conflict; see `REDESIGN_RATIONALE.md`.
+
 Decisions made during the full build, so they can be reviewed. Most important first.
 
 ## Content & accuracy

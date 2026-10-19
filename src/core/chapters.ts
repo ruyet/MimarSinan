@@ -7,11 +7,10 @@
  * later chapters lazily create their images, so photos never load before they're needed.
  */
 import { gsap } from 'gsap';
-import { chapters as chapterMeta, copy, type ChapterId } from '../content';
+import { chapters as chapterMeta, type ChapterId } from '../content';
 import { announce } from './announcer';
 import { h } from './dom';
 import { EASE, reducedMotion } from './motion';
-import { resetPrinciples } from './principles';
 
 export type Theme = 'night' | 'stone';
 
@@ -69,7 +68,7 @@ export function createChapterController(
     .map((meta, index) => ({ meta, index }))
     .filter(({ meta }) => meta.inProgress)
     .map(({ meta, index }) => {
-      const label = meta.numeral ? `Chapter ${meta.numeral}: ${meta.title}` : meta.title;
+      const label = meta.title;
       const btn = h('button', { type: 'button', class: 'progress__step', title: label });
       btn.append(h('span', { class: 'sr-only' }, label));
       btn.addEventListener('click', () => goToIndex(index));
@@ -88,10 +87,15 @@ export function createChapterController(
       else btn.removeAttribute('aria-current');
     });
     const meta = chapterMeta[current];
-    const num = meta.numeral || (meta.inProgress ? '—' : '');
-    progressLabel.innerHTML = num
-      ? `<strong>${num}</strong><span aria-hidden="true"> / ${copy.meta.progressTotal}</span> · ${meta.title}`
-      : `<strong>${meta.title}</strong>`;
+    const n = steps.findIndex((st) => st.index === current);
+    progressLabel.textContent = '';
+    if (n >= 0) {
+      progressLabel.append(
+        h('span', { class: 'sr-only' }, `Part ${n + 1} of ${steps.length}: `),
+        h('span', { 'aria-hidden': 'true' }, `${n + 1}/${steps.length}  `),
+      );
+    }
+    progressLabel.append(h('strong', {}, meta.title));
   }
 
   /* --- Lazy chapters ------------------------------------------------- */
@@ -152,7 +156,7 @@ export function createChapterController(
     incoming.scrollTop = 0;
 
     const meta = chapterMeta[index];
-    announce(meta.numeral ? `Chapter ${meta.numeral}: ${meta.title}` : meta.title);
+    announce(meta.title);
 
     const finish = (): void => {
       if (prevChapter) {
@@ -182,7 +186,7 @@ export function createChapterController(
     }
 
     // Incoming layer fades in above the outgoing one, like turning to a new page.
-    // A chapter may play its own closing gesture first (e.g. X hands its light to the Epilogue).
+    // A scene may play its own closing gesture first.
     const reduced = reducedMotion();
     previous = prevChapter;
     finishing = finish;
@@ -197,18 +201,17 @@ export function createChapterController(
     const tl = gsap.timeline({ onComplete: finishing! });
     gsap.set(incoming, { visibility: 'visible', zIndex: 2, opacity: 0 });
     tl.to(prevChapter.el, {
-      opacity: reduced ? 1 : 0.6,
-      y: reduced ? 0 : -24,
-      duration: reduced ? 0.01 : 1,
+      opacity: reduced ? 1 : 0.4,
+      duration: reduced ? 0.01 : 0.7,
       ease: EASE.inOut,
     })
       .fromTo(
         incoming,
-        { opacity: 0, y: reduced ? 0 : 16 },
-        { opacity: 1, y: 0, duration: reduced ? 0.35 : 1.3, ease: EASE.inOut },
-        reduced ? 0 : 0.15,
+        { opacity: 0 },
+        { opacity: 1, duration: reduced ? 0.3 : 0.8, ease: EASE.inOut },
+        reduced ? 0 : 0.1,
       )
-      .call(() => nextChapter.enter(), [], reduced ? 0.15 : 0.6);
+      .call(() => nextChapter.enter(), [], reduced ? 0.1 : 0.3);
   }
 
   const goTo = (id: ChapterId): void => goToIndex(order.indexOf(id));
@@ -218,7 +221,7 @@ export function createChapterController(
     registerLazy(id, load) {
       loaders.set(id, load);
     },
-    start(initial = 'opening') {
+    start(initial = 'sinan') {
       // Deep links (e.g. #dilemma) unlock chapters up to that point — handy for user tests.
       const index = Math.max(0, order.indexOf(initial));
       unlocked = Math.min(index, steps[steps.length - 1].index);
@@ -227,9 +230,8 @@ export function createChapterController(
     next: () => goToIndex(current + 1),
     goTo,
     restart() {
-      resetPrinciples();
       registered.forEach((c) => c.reset?.());
-      goTo('opening');
+      goTo('sinan');
     },
   };
 }

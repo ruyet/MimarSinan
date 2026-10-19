@@ -1,11 +1,11 @@
 /**
  * Photo annotations — photos that *demonstrate* instead of decorate.
  *
- * One reusable component, used by the reveal, the photo chapter and the hotspots:
+ * One reusable component, used by the dome reveal and the prayer-hall photo:
  *  - Selective darkening: an SVG mask dims the photo except a soft spotlight, which eases
  *    from one area to the next as the story advances.
  *  - Outlines: thin accent strokes drawn in with stroke-dashoffset.
- *  - Labels: short tracked-uppercase labels with a leader line and the principle's mark.
+ *  - Labels: short tracked-uppercase labels with a leader line.
  *  - Data-driven: shapes are stored in % of the image (content.ts), and the overlay is fitted
  *    to the *visible* image rectangle, so `object-fit: cover/contain` crops never misalign it.
  *  - Calibration: add `?annotate=1` to the URL to see a grid, every shape and live coordinates.
@@ -13,10 +13,9 @@
  * The overlay is decorative (aria-hidden); chapters provide the text equivalent for each step.
  */
 import { gsap } from 'gsap';
-import { principles, type Annotation, type Shape } from '../content';
+import type { Annotation, Shape } from '../content';
 import { h, s } from './dom';
 import { EASE, reducedMotion } from './motion';
-import { principleMark } from './principles';
 
 export const CALIBRATE = new URLSearchParams(location.search).has('annotate');
 
@@ -317,13 +316,7 @@ export function createAnnotator(
     }
 
     if (showLabels && a.label) {
-      label = h(
-        'div',
-        { class: 'annot-label' },
-        a.principle ? principleMark(a.principle, true) : null,
-        h('span', {}, a.label),
-      );
-      if (a.principle) label.title = principles[a.principle].name;
+      label = h('div', { class: 'annot-label' }, h('span', {}, a.label));
       layer.append(label);
       placeLabel(a, label);
       if (!reduced)
@@ -376,9 +369,7 @@ export function createAnnotator(
       }
     }
     (opts.calibrate ?? []).forEach((a) => {
-      a.shapes.forEach((sh) =>
-        shapeEl(sh, `annot-raw${a.needsCalibration ? ' is-unsure' : ''}`, grid),
-      );
+      a.shapes.forEach((sh) => shapeEl(sh, 'annot-raw', grid));
       const b = bounds(a.shapes);
       const tx = s('text', { x: px(b.x), y: py(b.y) - stroke * 3, 'font-size': stroke * 11 }, grid);
       tx.textContent = a.id;
